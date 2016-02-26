@@ -819,3 +819,13 @@ class Config(BASE, VsmBase):
     section = Column('section', String(length=255), nullable=False)
     description = Column('description', String(length=255), nullable=True)
     alterable = Column('alterable', Boolean(create_constraint=True, name=None))
+
+class SnapShot(BASE, VsmBase):
+    """ ceph snapshot report """
+    __tablename__ = 'snapshots'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    pool = Column(String(length=255), nullable=False)
+    image = Column(String(length=255), nullable=False)
+    size = Column(BigInteger, nullable=False)
+    name = Column(String(length=255), nullable=False)
