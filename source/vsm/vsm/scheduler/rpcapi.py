@@ -241,3 +241,18 @@ class SchedulerAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
 
     def get_default_pg_num_by_storage_group(self,ctxt,body):
         return self.call(ctxt, self.make_msg('get_default_pg_num_by_storage_group', body=body))
+
+    def add_rbd(self,ctxt,body):
+        return self.call(ctxt, self.make_msg('add_rbd', body=body))
+
+    def remove_rbd(self,ctxt,body):
+        return self.call(ctxt, self.make_msg('remove_rbd', body=body))
+
+    def rbd_snapshot_remove(self,ctxt,body):
+        return self.call(ctxt, self.make_msg('rbd_snapshot_remove', body=body))
+
+    def rbd_snapshot_create(self,ctxt,body):
+        return self.call(ctxt, self.make_msg('rbd_snapshot_create', body=body))
+
+    def rbd_snapshot_rollback(self,ctxt,body):
+        return self.call(ctxt, self.make_msg('rbd_snapshot_rollback', body=body))

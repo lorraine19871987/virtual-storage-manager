@@ -202,7 +202,12 @@ class APIRouter(vsm.api.openstack.APIRouter):
         mapper.resource("rbd_pools", "rbd_pools",
                         controller=self.resources['rbd_pools'],
                         collection={"summary": "get",
-                                    "detail": "get"},
+                                    "detail": "get",
+                                    "rbd_snapshot_rollback": "post",
+                                    "rbd_snapshot_create": "post",
+                                    "rbd_snapshot_remove": "post",
+                                    "remove_rbd": "post",
+                                    "add_rbd": "post",},
                         member={'action':'POST'})
 
         self.resources['devices'] = devices.create_resource(ext_mgr)

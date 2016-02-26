@@ -2090,3 +2090,155 @@ class SchedulerManager(manager.Manager):
         LOG.info('get_default_pg_num_by_storage_group sync call to host = %s' % active_monitor['host'])
         pg_num_default = self._agent_rpcapi.get_default_pg_num_by_storage_group(context,body,active_monitor['host'])
         return {'pg_num_default':pg_num_default}
+
+    def add_rbd(self, context, body):
+        cluster_id = body.get('cluster_id',None)
+        active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
+        LOG.info('add_rbd sync call to host = %s' % active_monitor['host'])
+        error_message = []
+        error_code = []
+        info = []
+        for rbd in body.get('rbds'):
+            pool_id = rbd.get('pool')
+            pool = db.pool_get(context,pool_id)
+            rbd_ref = db.rbd_get_by_pool_and_image(context,pool['name'],rbd['image'])
+            if rbd_ref:
+                error_code.append('-1')
+                error_message.append('RBD device %s in pool %s already exist!'%(rbd['image'],pool['name']))
+                continue
+            values = {'pool': pool['name'],
+                      'image': rbd['image'],
+                      'size' : rbd['size'],#MB
+                      'format': rbd['format'],#int
+                      'objects': rbd['objects'],#int
+                      'order': rbd['order'], #int bit}
+            }
+            ret = self._agent_rpcapi.add_rbd(context,values,active_monitor['host'])
+            error_message = error_message + ret['error_message']
+            error_code = error_code + ret['error_code']
+            if len(ret['error_code']) == 0:
+                db.rbd_create(context,values)
+                info.append('Create RBD device %s success!'%rbd['image'])
+        return {'message':{
+                            'error_msg':','.join(error_message),
+                            'info':','.join(info),
+                            'error_code':','.join(error_code),}
+        }
+
+    def remove_rbd(self, context, body):
+        cluster_id = body.get('cluster_id',None)
+        active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
+        LOG.info('remove_rbd sync call to host = %s' % active_monitor['host'])
+        error_message = []
+        error_code = []
+        info = []
+        for rbd_id in body.get('rbds'):
+            rbd_ref = db.rbd_get(context,int(rbd_id))
+            if rbd_ref:
+                values = {'pool': rbd_ref['pool'],
+                          'image': rbd_ref['image'],
+                          'deleted': 1,
+                }
+                snapshots = db.snapshot_get_by_pool_image(context,rbd_ref['pool'],rbd_ref['image'])
+                if snapshots:
+                    error_code.append('-1')
+                    error_message.append('Please remove snapshots of RBD device %s in pool %s firstly!'%(rbd_ref['image'],rbd_ref['pool']))
+                    continue
+                ret = self._agent_rpcapi.remove_rbd(context,values,active_monitor['host'])
+                error_message = error_message + ret['error_message']
+                error_code = error_code + ret['error_code']
+                if len(ret['error_code']) == 0:
+                    db.rbd_update(context,values)
+                    info.append('Remove RBD device %s success!'%rbd_ref['image'])
+        return {'message':{
+                            'error_msg':','.join(error_message),
+                            'info':','.join(info),
+                            'error_code':','.join(error_code),}
+        }
+
+    def rbd_snapshot_remove(self, context, body):
+        cluster_id = body.get('cluster_id',None)
+        active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
+        LOG.info('rbd_snapshot_remove sync call to host = %s' % active_monitor['host'])
+        error_message = []
+        error_code = []
+        info = []
+        for snapshot_id in body.get('snapshots'):
+            snapshot_ref = db.snapshot_get(context,int(snapshot_id))
+            if snapshot_ref:
+                values = {'pool':snapshot_ref['pool'],
+                        'image':snapshot_ref['image'],
+                        'name':snapshot_ref['name'],
+                        'deleted':1,
+                           }
+                ret = self._agent_rpcapi.remove_snapshot(context,values,active_monitor['host'])
+                error_message = error_message + ret['error_message']
+                error_code = error_code + ret['error_code']
+                if len(ret['error_code']) == 0:
+                    db.snapshot_update(context,values)
+                    info.append('Remove snapshot %s success!'%snapshot_ref['name'])
+        return {'message':{
+                            'error_msg':','.join(error_message),
+                            'info':','.join(info),
+                            'error_code':','.join(error_code),}
+        }
+
+    def rbd_snapshot_create(self, context, body):
+        cluster_id = body.get('cluster_id',None)
+        active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
+        LOG.info('rbd_snapshot_create sync call to host = %s' % active_monitor['host'])
+        error_message = []
+        error_code = []
+        info = []
+        for snapshot in body.get('snapshots'):
+            pool_id = snapshot.get('pool')
+            pool_ref = db.pool_get(context,pool_id)
+            image_id = snapshot.get('image')
+            image_ref = db.rbd_get(context,image_id)
+            snapshot_ref = db.snapshot_get_by_pool_image(context,pool_ref['name'],image_ref['image'])
+            if snapshot_ref:
+                error_code.append('-1')
+                error_message.append('snapshot %s of %s/%s already exist!'%(snapshot_ref['name'],pool_ref['name'],image_ref['image']))
+                continue
+            values = {
+                        'pool': pool_ref['name'],#pool_id
+                        'image': image_ref['image'],#image_id
+                        'size' : snapshot['size'],#MB
+                        'name': snapshot['name'],
+            }
+            ret = self._agent_rpcapi.rbd_snapshot_create(context,values,active_monitor['host'])
+            error_message = error_message + ret['error_message']
+            error_code = error_code + ret['error_code']
+            if len(ret['error_code']) == 0:
+                db.snapshot_create(context,values)
+                info.append('Create RBD device %s success!'%snapshot['name'])
+        return {'message':{
+                            'error_msg':','.join(error_message),
+                            'info':','.join(info),
+                            'error_code':','.join(error_code),}
+        }
+
+    def rbd_snapshot_rollback(self, context, body):
+        cluster_id = body.get('cluster_id',None)
+        active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
+        LOG.info('rbd_snapshot_rollback sync call to host = %s' % active_monitor['host'])
+        error_message = []
+        error_code = []
+        info = []
+        for snapshot_id in body.get('snapshots'):
+            snapshot_ref = db.rbd_get(context,int(snapshot_id))
+            if snapshot_ref:
+                values = {'pool': snapshot_ref['pool'],
+                          'image': snapshot_ref['image'],
+                          'name':snapshot_ref['name'],
+                }
+                ret = self._agent_rpcapi.rbd_snapshot_rollback(context,values,active_monitor['host'])
+                error_message = error_message + ret['error_message']
+                error_code = error_code + ret['error_code']
+                if len(ret['error_code']) == 0:
+                    info.append('Rolleback to %s success!'%snapshot_ref['name'])
+        return {'message':{
+                            'error_msg':','.join(error_message),
+                            'info':','.join(info),
+                            'error_code':','.join(error_code),}
+        }
