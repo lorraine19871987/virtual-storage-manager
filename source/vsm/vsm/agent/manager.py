@@ -2270,10 +2270,29 @@ class AgentManager(manager.Manager):
         LOG.info('get_default_pg_num_by_storage_group:%s'%pg_num_default)
         return pg_num_default
 
+    def add_rbd(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.create_rbd(body)
+        return ret
 
+    def remove_rbd(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.rm_rbd(body)
+        return ret
 
+    def rbd_snapshot_remove(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.rm_snapshot(body)
+        return ret
 
+    def rbd_snapshot_rollback(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.rollback_snapshot(body)
+        return ret
 
-
+    def rbd_snapshot_create(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.create_snapshot(body)
+        return ret
 
 

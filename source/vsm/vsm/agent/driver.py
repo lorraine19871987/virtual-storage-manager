@@ -2536,6 +2536,31 @@ class CephDriver(object):
         args = ['ceph', 'osd', 'crush', 'rule', 'dump', name]
         return self._run_cmd_to_json(args)
 
+    def create_rbd(self,values):
+        (out, err) = utils.execute("rbd", "create", values['image'], "--size", values['size'], \
+                      "--pool", values['pool'],  run_as_root=True)
+        return (out, err)
+
+    def rm_rbd(self,values):
+        (out, err) = utils.execute("rbd", "rm", values['image'],  \
+                      "--pool", values['pool'],  run_as_root=True)
+        return (out, err)
+
+    def rm_snapshot(self,values):
+        (out, err) = utils.execute("rbd", "snap" ,"rm","--snap", values['name'],  \
+                      "--image",values['image'],"--pool", values['pool'],  run_as_root=True)
+        return (out, err)
+
+    def create_snapshot(self,values):
+        (out, err) = utils.execute("rbd", "snap" ,"create","%s/%s"%(values['pool'],values['image']),\
+                      "--snap", values['name'],  run_as_root=True)
+        return (out, err)
+
+    def rollback_snapshot(self,values):
+        (out, err) = utils.execute("rbd", "snap" ,"rollback","--snap", values['name'],  \
+                      "--image",values['image'],"--pool", values['pool'],  run_as_root=True)
+        return (out, err)
+
     def get_summary(self, sum_type, sum_dict=None):
         if sum_type in [FLAGS.summary_type_pg, FLAGS.summary_type_osd,
                         FLAGS.summary_type_mds, FLAGS.summary_type_mon,
