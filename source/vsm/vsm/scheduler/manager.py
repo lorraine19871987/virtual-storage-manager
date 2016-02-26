@@ -2148,7 +2148,7 @@ class SchedulerManager(manager.Manager):
                 error_message = error_message + ret['error_message']
                 error_code = error_code + ret['error_code']
                 if len(ret['error_code']) == 0:
-                    db.rbd_update(context,values)
+                    db.rbd_update(context,rbd_ref['id'],values)
                     info.append('Remove RBD device %s success!'%rbd_ref['image'])
         return {'message':{
                             'error_msg':','.join(error_message),
@@ -2175,7 +2175,7 @@ class SchedulerManager(manager.Manager):
                 error_message = error_message + ret['error_message']
                 error_code = error_code + ret['error_code']
                 if len(ret['error_code']) == 0:
-                    db.snapshot_update(context,values)
+                    db.snapshot_update(context,snapshot_ref['id'],values)
                     info.append('Remove snapshot %s success!'%snapshot_ref['name'])
         return {'message':{
                             'error_msg':','.join(error_message),
