@@ -3783,6 +3783,39 @@ def pg_update_or_create(context, values, session=None):
     else:
         pg = pg_create(context, values)
     return pg
+#snapshot
+def snapshot_create(context, values):
+    snapshot_ref = models.Snapshot()
+    snapshot_ref.update(values)
+    try:
+        snapshot_ref.save()
+    except db_exc.DBDuplicateEntry:
+        raise exception.RBDExists
+    return snapshot_ref
+
+def snapshot_update(context, snapshot_id, values, session=None):
+    if not session:
+        session = get_session()
+    with session.begin():
+        snapshot_ref = snapshot_get(context, snapshot_id, session=session)
+        values['updated_at'] = timeutils.utcnow()
+        convert_datetimes(values, 'created_at', 'deleted_at', 'updated_at')
+        snapshot_ref.update(values)
+        snapshot_ref.save(session=session)
+    return snapshot_ref
+
+def snapshot_get(context, snapshot_id, session=None):
+    result = model_query(context, models.Snapshot, session=session).\
+            filter_by(id=snapshot_id).\
+            first()
+    return result
+
+def snapshot_get_by_pool_image(context,pool,image, session=None):
+    result = model_query(context, models.Snapshot, session=session).\
+            filter_by(pool=pool).\
+            filter_by(image=image).\
+            all()
+    return result
 
 #rbd
 def rbd_create(context, values):

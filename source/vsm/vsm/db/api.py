@@ -1195,7 +1195,19 @@ def pg_update(context, pg_id, values):
 
 def pg_update_or_create(context, values):
     return IMPL.pg_update_or_create(context, values)
+#snapshot
+#snapshot
+def snapshot_create(context, values):
+    return IMPL.snapshot_create(context, values)
 
+def snapshot_update(context, snapshot_id, values, session=None):
+    return IMPL.snapshot_update(context, snapshot_id, values,session=session)
+
+def snapshot_get(context, snapshot_id, session=None):
+    return IMPL.snapshot_get(context, snapshot_id, session=session)
+
+def snapshot_get_by_pool_image(context,pool,image, session=None):
+    return IMPL.snapshot_get_by_pool_image(context,pool,image, session=session)
 #rbd
 def rbd_create(context, values):
     return IMPL.rbd_create(context, values)
