@@ -237,6 +237,61 @@ def rbd_pool_summary(request):
 def rbd_pool_status(request, paginate_opts=None):
     return vsmclient(request).rbd_pools.list(detailed=True, paginate_opts=paginate_opts)
 
+def rbd_add(request, body):
+    '''
+    :param request:
+    :param body:{'rbds':[
+                        {'pool':,#pool_id
+                        'image':'image_name1',
+                        'size' :1024,#MB
+                        'format':,#int
+                        'objects':,#int
+                        'order':22, #int bit},]
+                }
+    :return:
+    '''
+    return vsmclient(request).rbd_pools.add_rbd(body=body)
+
+def rbd_remove(request, body):
+    '''
+    :param request:
+    :param body:{'rbds':[1,3]
+                }
+    :return:
+    '''
+    return vsmclient(request).rbd_pools.remove_rbd(body=body)
+
+def rbd_snapshot_create(request, body):
+    '''
+    :param request:
+    :param body:{'snapshots':[
+                        {'pool':,#pool_id
+                        'image':,#image_id
+                        'size' :1024,#MB
+                        'name':'snapshot_name1',#},
+                        ]
+                }
+    :return:
+    '''
+    return vsmclient(request).rbd_pools.rbd_snapshot_create(body=body)
+
+def rbd_snapshot_rollback(request, body):
+    '''
+    :param request:
+    :param body:{'snapshots':[2,]}
+    :return:
+    '''
+    return vsmclient(request).rbd_pools.rbd_snapshot_rollback(body=body)
+
+def rbd_snapshot_remove(request, body):
+    '''
+    :param request:
+    :param body:{'snapshots':[2,]}
+    :return:
+    '''
+    return vsmclient(request).rbd_pools.rbd_snapshot_remove(body=body)
+
+
 def mds_summary(request):
     return vsmclient(request).mdses.summary()
 
