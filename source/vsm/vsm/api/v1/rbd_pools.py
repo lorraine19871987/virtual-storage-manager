@@ -149,6 +149,31 @@ class Controller(wsgi.Controller):
                                'full': False,
                                }}
 
+    def add_rbd(self, req, body=None):
+        LOG.info('CEPH_LOG add_rbd body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.add_rbd(context,body)
+
+    def remove_rbd(self, req, body=None):
+        LOG.info('CEPH_LOG remove_rbd body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.remove_rbd(context,body)
+
+    def rbd_snapshot_create(self, req, body=None):
+        LOG.info('CEPH_LOG rbd_snapshot_create body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.rbd_snapshot_create(context,body)
+
+    def rbd_snapshot_remove(self, req, body=None):
+        LOG.info('CEPH_LOG rbd_snapshot_remove body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.rbd_snapshot_remove(context,body)
+
+    def rbd_snapshot_rollback(self, req, body=None):
+        LOG.info('CEPH_LOG rbd_snapshot_rollback body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.rbd_snapshot_rollback(context,body)
+
 def create_resource(ext_mgr):
     return wsgi.Resource(Controller(ext_mgr))
 

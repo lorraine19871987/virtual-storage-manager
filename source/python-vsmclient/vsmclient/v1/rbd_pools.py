@@ -88,3 +88,65 @@ class RBDPoolsManager(base.ManagerWithFind):
         url = '/rbd_pools/%s/action' % base.getid(rbd_pool)
         return self.api.client.post(url, body=body)
 
+    def add_rbd(self, body):
+        '''
+        :param request:
+        :param body:{'rbds':[
+                            {'pool':,#pool_id
+                            'image':'image_name1',
+                            'size' :1024,#MB
+                            'format':,#int
+                            'objects':,#int
+                            'order':22, #int bit},]
+                    }
+        :return:
+        '''
+        url = '/rbd_pools/add_rbd'
+        return self.api.client.post(url, body=body)
+
+    def remove_rbd(self, body):
+        '''
+        :param request:
+        :param body:{'rbds':[1,3]
+                    }
+        :return:
+        '''
+        url = '/rbd_pools/remove_rbd'
+        return self.api.client.post(url, body=body)
+
+    def rbd_snapshot_create(self, body):
+        '''
+        :param request:
+        :param body:{'snapshots':[
+                            {'pool':,#pool_id
+                            'image':,#image_id
+                            'size' :1024,#MB
+                            'name':'snapshot_name1',#},
+                            ]
+                    }
+        :return:
+        '''
+        url = '/rbd_pools/rbd_snapshot_create'
+        return self.api.client.post(url, body=body)
+
+    def rbd_snapshot_rollback(self, body):
+        '''
+        :param request:
+        :param body:{'snapshots':[2,]}
+        :return:
+        '''
+        url = '/rbd_pools/rbd_snapshot_rollback'
+        return self.api.client.post(url, body=body)
+
+    def rbd_snapshot_remove(self, body):
+        '''
+        :param request:
+        :param body:{'snapshots':[2,]}
+        :return:
+        '''
+        url = '/rbd_pools/rbd_snapshot_remove'
+        return self.api.client.post(url, body=body)
+
+
+
+
