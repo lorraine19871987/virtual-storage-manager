@@ -121,7 +121,8 @@ class APIRouter(vsm.api.openstack.APIRouter):
                                     'import_cluster':'post',
                                     'detect_crushmap':'post',
                                     'get_crushmap_tree_data':'post',
-                                    'get_service_list':'get'
+                                    'get_service_list':'get',
+                                    'undo_import_cluster':'post'
                                     },
                         member={'action': 'post'})
 

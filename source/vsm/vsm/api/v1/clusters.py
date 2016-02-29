@@ -274,6 +274,11 @@ class ClusterController(wsgi.Controller):
         context = req.environ['vsm.context']
         self.scheduler_api.cluster_refresh(context)
 
+    def undo_import_cluster(self,req,body=None):
+        context = req.environ['vsm.context']
+        db.cluster_remove(context)
+        return {'message':'remove cluster from vsm DB success!'}
+
 def create_resource(ext_mgr):
     return wsgi.Resource(ClusterController(ext_mgr))
 

@@ -819,6 +819,14 @@ def cluster_get(context, cluster_id):
     """Get an cluster with cluster_id"""
     return IMPL.cluster_get(context, cluster_id)
 
+def cluster_get(context, cluster_id):
+    """Get an cluster with cluster_id"""
+    return IMPL.cluster_get(context, cluster_id)
+
+def cluster_remove(context):
+    """"""
+    return IMPL.cluster_remove(context)
+
 def cluster_increase_deleted_times(context, cluster_id):
     return IMPL.cluster_increase_deleted_times(context, cluster_id)
 
