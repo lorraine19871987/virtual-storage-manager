@@ -2442,7 +2442,8 @@ def cluster_remove(context,session=None):
                  update osd_states  set osd_name='osd.x',state='Uninitialized',operation_status='Uninitialized'; \
                  delete from mdses;  \
                  delete from storage_pools; \
-                 delete from storage_groups where  take_id is not null; \
+                 delete from storage_groups; \
+                 alter table storage_groups auto_increment=1; \
                  delete from summary; \
                  delete from zones  where type is null;
     '''
