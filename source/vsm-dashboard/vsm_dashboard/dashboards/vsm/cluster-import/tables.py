@@ -30,6 +30,12 @@ class ImportClusterAction(tables.LinkAction):
     url = "horizon:vsm:cluster-import:importcluster"
     classes = ("ajax-modal", "btn-primary")
 
+
+class RemoveClusterAction(tables.LinkAction):
+    name = "remove_cluster"
+    verbose_name = _("Remove")
+    classes = ('btn-primary',)
+    url = "horizon:vsm:cluster-import:index"
     
 
 class ListServerTable(tables.DataTable):
