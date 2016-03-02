@@ -828,5 +828,6 @@ class SnapShot(BASE, VsmBase):
     id = Column(Integer, primary_key=True, nullable=False)
     pool = Column(String(length=255), nullable=False)
     image = Column(String(length=255), nullable=False)
-    size = Column(BigInteger, nullable=False)
+    size = Column(BigInteger, nullable=True)
     name = Column(String(length=255), nullable=False)
+    created_at = Column(DateTime(timezone=False), nullable=False)

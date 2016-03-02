@@ -42,7 +42,7 @@ class RBDsTable(tables.DataTable):
     order = tables.Column("order", verbose_name=_("Order"))
     format = tables.Column("format", verbose_name=_("Format"))
     updated_at = tables.Column("updated_at", verbose_name=_("Updated at"), classes=("span2",))
-    image_name = tables.Column("parent_snapshot", verbose_name=_("Parent Snapshot"))
+    parent_snapshot = tables.Column("parent_snapshot", verbose_name=_("Parent Snapshot"))
     class Meta:
         name = "rbd_list"
         verbose_name = _("RBD List")

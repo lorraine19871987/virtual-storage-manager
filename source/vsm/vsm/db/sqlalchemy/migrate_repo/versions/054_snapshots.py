@@ -30,7 +30,7 @@ def upgrade(migrate_engine):
         Column('id', Integer, primary_key=True, nullable=False),
         Column('pool', String(length=255), nullable=False),
         Column('image', String(length=255), nullable=False),
-        Column('size', BigInteger, nullable=False),
+        Column('size', BigInteger, nullable=True),
         Column('name', String(length=255), nullable=False),
         Column('created_at', DateTime(timezone=False)),
         Column('updated_at', DateTime(timezone=False)),
