@@ -761,6 +761,7 @@ class RBD(BASE, VsmBase):
     format = Column(Integer, nullable=False)
     objects = Column(Integer, nullable=False)
     order = Column(Integer, nullable=False)
+    parent_snapshot = Column(String(length=255), nullable=True)
 
 class MDS(BASE, VsmBase):
     """ ceph MDS report """
