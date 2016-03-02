@@ -25,7 +25,7 @@ from horizon import forms
 from vsm_dashboard.api import vsm as vsmapi
 from .tables import SnapshotsTable
 from django.http import HttpResponse,HttpResponseRedirect
-
+from vsm_dashboard.utils import get_time_delta
 import json
 LOG = logging.getLogger(__name__)
 
@@ -35,4 +35,33 @@ class IndexView(tables.DataTableView):
     template_name = 'vsm/snapshots-management/index.html'
 
     def get_data(self):
-       pass
+        # default_limit = 100;
+        # default_sort_dir = "asc";
+        # default_sort_keys = ['id']
+        # marker = self.request.GET.get('marker', "")
+
+        _snap_status = []
+        #_rbds= vsmapi.get_rbd_list(self.request,)
+        try:
+            _snap_status = []#TODO vsmapi.
+            if _snap_status:
+                logging.debug("resp body in view: %s" % _snap_status)
+        except:
+            exceptions.handle(self.request,
+                              _('Unable to retrieve sever list. '))
+
+        snap_status = []
+        for _snap in _snap_status:
+            snap = {
+                      "id": _snap.id,
+                      "snapshot_name":_snap.name,
+                      "pool": _snap.pool,
+                      "image_name": _snap.image_name,
+                      "created_at": get_time_delta(_snap.created_at),
+                      }
+
+            snap_status.append(snap)
+        return snap_status
+
+
+

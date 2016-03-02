@@ -26,6 +26,25 @@ from vsm_dashboard.api import vsm as vsmapi
 STRING_SEPARATOR = "__"
 LOG = logging.getLogger(__name__)
 
+class FlattenRBDsAction(tables.LinkAction):
+    name = "flatten_rbds"
+    verbose_name = _("Flatten")
+    classes = ('btn-primary',)
+    url = "horizon:vsm:rbds-management:index"
+
+class RemoveRBDsAction(tables.LinkAction):
+    name = "remove_rbds"
+    verbose_name = _("Remove")
+    classes = ('btn-primary',)
+    url = "horizon:vsm:rbds-management:index"
+
+class CreateRBDAction(tables.LinkAction):
+    name = "create_rbd"
+    verbose_name = _("New")
+    url = "/dashboard/vsm/rbds-management/create_new_rbd/"
+    classes = ('btn-primary',)
+
+
 
 class RBDsTable(tables.DataTable):
     STATUS_CHOICES = (
@@ -34,7 +53,7 @@ class RBDsTable(tables.DataTable):
         ("Active", True),
     )
 
-    id = tables.Column("id", verbose_name=_("ID"), hidden=True)
+    id = tables.Column("id", verbose_name=_("ID"))
     pool = tables.Column("pool", verbose_name=_("Pool"))
     image_name = tables.Column("image_name", verbose_name=_("Image Name"))
     size = tables.Column("size", verbose_name=_("Size(MB)"))
@@ -47,6 +66,8 @@ class RBDsTable(tables.DataTable):
         name = "rbd_list"
         verbose_name = _("RBD List")
         multi_select = True
+        table_actions = (RemoveRBDsAction,CreateRBDAction,)
+
 
     def get_object_id(self, datum):
         if hasattr(datum, "id"):

@@ -97,9 +97,10 @@ LOG = logging.getLogger(__name__)
 class SnapshotsTable(tables.DataTable):
     id = tables.Column("id", verbose_name=_("ID"), hidden=True)
     #id = Column(Integer, primary_key=True, nullable=False)
-    name = tables.Column("snapshot_name", verbose_name=_("Snapshot Name"))
+    snapshot_name = tables.Column("snapshot_name", verbose_name=_("Snapshot Name"))
     pool = tables.Column("pool", verbose_name=_("Pool"))
-    image = tables.Column("image_name", verbose_name=_("Image Name"))
+    image_name = tables.Column("image_name", verbose_name=_("Image Name"))
+    created_at = tables.Column("created_at", verbose_name=_("Created at"))
     class Meta:
         name = "snapshots"
         verbose_name = _("Snapshot List")
