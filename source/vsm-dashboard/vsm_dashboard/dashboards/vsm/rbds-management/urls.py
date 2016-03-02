@@ -16,10 +16,7 @@
 
 from django.conf.urls import patterns, url
 from .views import IndexView
-from .views import DevicesAction
-from .views import add_new_osd
-from .views import add_new_osd_action,check_device_path,get_smart_info,get_available_disks
-from .views import restart_osd,remove_osd,restore_osd
+
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),

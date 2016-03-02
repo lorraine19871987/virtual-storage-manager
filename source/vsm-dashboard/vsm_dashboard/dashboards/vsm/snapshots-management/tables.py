@@ -95,7 +95,11 @@ LOG = logging.getLogger(__name__)
 #     classes = ('btn-primary',)
 
 class SnapshotsTable(tables.DataTable):
-
+    id = tables.Column("id", verbose_name=_("ID"), hidden=True)
+    #id = Column(Integer, primary_key=True, nullable=False)
+    name = tables.Column("snapshot_name", verbose_name=_("Snapshot Name"))
+    pool = tables.Column("pool", verbose_name=_("Pool"))
+    image = tables.Column("image_name", verbose_name=_("Image Name"))
     class Meta:
         name = "snapshots"
         verbose_name = _("Snapshot List")
