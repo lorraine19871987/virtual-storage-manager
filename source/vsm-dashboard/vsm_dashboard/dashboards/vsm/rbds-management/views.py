@@ -118,17 +118,15 @@ def create_snapshot(request):
     print body
     try:
         rsp, ret = vsmapi.rbd_snapshot_create(request,body=body)
-        msg = str(ret['message']).strip()
+        ret = ret['message']
     except:
-        status = "Failed"
-        msg = "Create Snapshot Failed!"
-    resp = dict(message=msg, status=status)
-    resp = json.dumps(resp)
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
     return HttpResponse(resp)
 
 @csrf_exempt
 def rollback_snapshot_view(request):
-    template = "vsm/rbds-management/create_snapshot.html"
+    template = "vsm/rbds-management/rollback_snapshot.html"
     context = {}
     return render(request,template,context)
 
