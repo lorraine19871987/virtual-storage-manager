@@ -15,7 +15,8 @@
 # under the License.
 
 from django.conf.urls import patterns, url
-from .views import IndexView,create_new_rbd,remove_rbds,flatten_rbds,get_image_formt
+from .views import IndexView,create_new_rbd,create_new_rbd_view, \
+    remove_rbds,flatten_rbds,get_image_formt
 
 
 urlpatterns = patterns('',
@@ -25,7 +26,7 @@ urlpatterns = patterns('',
     url(r'^flatten_rbds/$', flatten_rbds, name='flatten_rbds'),
     url(r'^get_image_formt/$', get_image_formt, name='get_image_formt'),
     # url(r'^devices/(?P<action>\w+)$', DevicesAction, name='devicesaction'),
-    # url(r'^get_smart_info/$', get_smart_info, name='get_smart_info'),
+    url(r'^create_new_rbd_view/$', create_new_rbd_view, name='create_new_rbd_view'),
     #
     # url(r'^restart_osd/$', restart_osd, name='restart_osd'),
     # url(r'^remove_osd/$', remove_osd, name='remove_osd'),
