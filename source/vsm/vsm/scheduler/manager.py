@@ -2204,7 +2204,6 @@ class SchedulerManager(manager.Manager):
             values = {
                         'pool': pool_ref['name'],#pool_id
                         'image': image_ref['image'],#image_id
-                        'size' : snapshot['size'],#MB
                         'name': snapshot['name'],
             }
             ret = self._agent_rpcapi.rbd_snapshot_create(context,values,active_monitor['host'])

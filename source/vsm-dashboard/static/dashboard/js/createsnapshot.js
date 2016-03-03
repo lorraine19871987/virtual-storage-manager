@@ -1,13 +1,14 @@
 
 $(function(){
-    GetPoolAndRBD();
+    GetPool();
 })
 
+
 function ChangePool(obj){
-    var pool_selected = parseInt(obj.options[obj.selectedIndex].val();)
+    var pool_selected = obj.options[obj.selectedIndex].text;
     $.ajax({
 		type: "get",
-		url: "/dashboard/vsm/poolsmanagement/list_rbds_by_pool?pool=%s"%pool_selected,
+		url: "/dashboard/vsm/rbds-management/list_rbds_by_pool?pool_name="+pool_selected,
 		data: "",
 		dataType:"json",
 		success: function(data){
@@ -91,18 +92,18 @@ function CreateSnapshot(){
 }
 
 
-function GetPoolAndRBD(){
+function GetPool(){
     $.ajax({
 		type: "get",
-		url: "/dashboard/vsm/poolsmanagement/list_pools_and_first_rbds/",
+		url: "/dashboard/vsm/poolsmanagement/list_pools_for_sel_input/",
 		data: "",
 		dataType:"json",
 		success: function(data){
 				console.log(data);
                 var pool_list = data.pool_list;
-                var rbd_list = data.rbd_list;
                 if(pool_list.length == 0){
                     //TODO Nothing
+
                 }
                 else{
                     $("#selPool")[0].options.length = 0;
@@ -112,6 +113,36 @@ function GetPoolAndRBD(){
                         item.text = pool_list[i][1];
                         $("#selPool")[0].options.add(item);
                     }
+                    GetRBD(pool_list[0][1])
+                }
+		   	},
+		error: function (XMLHttpRequest, textStatus, errorThrown) {
+				if(XMLHttpRequest.status == 500)
+                	showTip("error","INTERNAL SERVER ERROR")
+			},
+		headers: {
+			},
+		complete: function(){
+
+
+		}
+    });
+}
+
+function GetRBD(pool_name){
+    $.ajax({
+		type: "get",
+		url: "/dashboard/vsm/rbds-management/list_rbds_by_pool?pool_name="+pool_name,
+		data: "",
+		dataType:"json",
+		success: function(data){
+				console.log(data);
+                var rbd_list = data.rbd_list;
+                if(rbd_list.length == 0){
+                    //TODO Nothing
+                    return 0
+                }
+                else{
                     $("#selImage")[0].options.length = 0;
                     for(var i=0;i<rbd_list.length;i++){
                         var item = new Option()
@@ -119,7 +150,7 @@ function GetPoolAndRBD(){
                         item.text = rbd_list[i][1];
                         $("#selImage")[0].options.add(item);
                     }
-
+                    return rbd_list[0][0]
                 }
 		   	},
 		error: function (XMLHttpRequest, textStatus, errorThrown) {

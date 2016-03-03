@@ -17,7 +17,7 @@
 from django.conf.urls import patterns, url
 from .views import IndexView,create_new_rbd,create_new_rbd_view, \
     remove_rbds,flatten_rbds,get_image_formt,rollback_snapshot_view,\
-    create_snapshot,create_snapshot_view
+    create_snapshot,create_snapshot_view,list_rbds_by_pool
 
 
 urlpatterns = patterns('',
@@ -32,7 +32,7 @@ urlpatterns = patterns('',
     url(r'^rollback_snapshot_view/$', rollback_snapshot_view, name='rollback_snapshot_view'),
     url(r'^create_snapshot_view/$', create_snapshot_view, name='create_snapshot_view'),
     url(r'^create_snapshot/$', create_snapshot, name='create_snapshot'),
-
+    url(r'^list_rbds_by_pool/$', list_rbds_by_pool, name='list_rbds_by_pool'),
     url(r'/', IndexView.as_view(), name='index'),
 )
 
