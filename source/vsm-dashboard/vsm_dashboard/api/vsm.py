@@ -290,6 +290,13 @@ def rbd_snapshot_remove(request, body):
     '''
     return vsmclient(request).rbd_pools.rbd_snapshot_remove(body=body)
 
+def snapshot_get_by_image(request, body):
+    '''
+    :param request:
+    :param body:{'rbd_id':'1'}
+    :return:
+    '''
+    return vsmclient(request).rbd_pools.snapshot_get_by_rbd_id(body=body)
 
 def mds_summary(request):
     return vsmclient(request).mdses.summary()

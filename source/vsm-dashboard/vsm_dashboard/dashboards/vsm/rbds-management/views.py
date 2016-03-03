@@ -164,3 +164,21 @@ def list_rbds_by_pool(request):
             rbd_list.append((rbd.id,rbd.image_name))
     resp = json.dumps({"rbd_list":rbd_list})
     return HttpResponse(resp)
+
+def list_snapshots_by_image(request):
+    snapshot_list = []
+    rbd_id = int(request.GET.get("rbd_id",None))
+    rbd_obj_list= vsmapi.rbd_pool_status(request)
+    for rbd in rbd_obj_list:
+        if rbd.id == rbd_id:
+            rsp, snapshots = vsmapi.snapshot_get_by_image(request,{'rbd_id':rbd_id})
+            snapshots = snapshots['snapshots']
+            print '444==',snapshots
+            for snap in snapshots:
+                snapshot_list.append((snap['id'],snap['name']))
+            print '999===',snapshot_list
+            # if rbd.parent_snapshot:
+            #     snapshot_list.append(('',rbd.parent_snapshot))#TODO
+            break
+    resp = json.dumps({"snapshot_list":snapshot_list})
+    return HttpResponse(resp)

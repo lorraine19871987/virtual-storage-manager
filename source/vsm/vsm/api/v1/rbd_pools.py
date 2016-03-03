@@ -26,7 +26,7 @@ from vsm.api.views import rbd_pools as rbd_pool_views
 from vsm import conductor
 from vsm import scheduler
 from vsm import exception
-
+from vsm import db
 LOG = logging.getLogger(__name__)
 
 FLAGS = flags.FLAGS
@@ -148,6 +148,15 @@ class Controller(wsgi.Controller):
                                'nearfull': False,
                                'full': False,
                                }}
+
+    def snapshot_get_by_rbd_id(self, req, body=None):
+        LOG.info('CEPH_LOG snapshot_get_by_rbd_id body %s ' % body)
+        context = req.environ['vsm.context']
+        rbd_id = req.GET.get('rbd_id')
+        rbd = db.rbd_get(context,rbd_id)
+        snaps = db.snapshot_get_by_pool_image(context,rbd.pool,rbd.image)
+        LOG.info('CEPH_LOG snapshot_get_by_rbd_id snaps %s ' % snaps)
+        return {'snapshots':snaps}
 
     def add_rbd(self, req, body=None):
         LOG.info('CEPH_LOG add_rbd body %s ' % body)
