@@ -131,18 +131,14 @@ def rollback_snapshot_view(request):
     return render(request,template,context)
 
 def rollback_snapshot(request):
-    status = ""
-    msg = ""
     body = json.loads(request.body)
-    print body
     try:
-        rsp, ret = vsmapi.rbd_snapshot_create(request,body=body)
-        msg = str(ret['message']).strip()
+        print '888===',body
+        rsp, ret = vsmapi.rbd_snapshot_rollback(request,body=body)
+        ret = ret['message']
     except:
-        status = "Failed"
-        msg = "Create Snapshot Failed!"
-    resp = dict(message=msg, status=status)
-    resp = json.dumps(resp)
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
     return HttpResponse(resp)
 
 def get_image_formt(request):
