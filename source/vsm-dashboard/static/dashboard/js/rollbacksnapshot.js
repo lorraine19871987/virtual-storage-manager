@@ -90,9 +90,9 @@ function RollbackSnapshot(){
 			"snapshots":[]
 	}
     var snapshot = {
-                'pool':$("#selPool").val(),
-                'image':$("#selImage").val(),
-                'name':$("#selSnapshot").val(),
+                'pool':$("#selPool")[0].options[$("#selPool")[0].selectedIndex].text,
+                'image':$("#selImage")[0].options[$("#selImage")[0].selectedIndex].text,
+                'name':$("#selSnapshot")[0].options[$("#selSnapshot")[0].selectedIndex].text,
 
 			}
 	data["snapshots"].push(snapshot)
@@ -100,7 +100,7 @@ function RollbackSnapshot(){
 	token = $("input[name=csrfmiddlewaretoken]").val();
 	$.ajax({
 		type: "post",
-		url: "/dashboard/vsm/rbds-management/create_snapshot/",
+		url: "/dashboard/vsm/rbds-management/rollback_snapshot/",
 		data: postData,
 		dataType:"json",
 		success: function(data){

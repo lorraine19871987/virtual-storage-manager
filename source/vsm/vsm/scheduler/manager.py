@@ -2199,6 +2199,7 @@ class SchedulerManager(manager.Manager):
             snapshot_ref = db.snapshot_get_by_pool_image(context,pool_ref['name'],image_ref['image'])
             if snapshot_ref:
                 error_code.append('-1')
+                snapshot_ref = snapshot_ref[0]
                 error_message.append('snapshot %s of %s/%s already exist!'%(snapshot_ref['name'],pool_ref['name'],image_ref['image']))
                 continue
             values = {
@@ -2219,24 +2220,24 @@ class SchedulerManager(manager.Manager):
         }
 
     def rbd_snapshot_rollback(self, context, body):
+
         cluster_id = body.get('cluster_id',None)
         active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
         LOG.info('rbd_snapshot_rollback sync call to host = %s' % active_monitor['host'])
         error_message = []
         error_code = []
         info = []
-        for snapshot_id in body.get('snapshots'):
-            snapshot_ref = db.rbd_get(context,int(snapshot_id))
-            if snapshot_ref:
-                values = {'pool': snapshot_ref['pool'],
-                          'image': snapshot_ref['image'],
-                          'name':snapshot_ref['name'],
-                }
-                ret = self._agent_rpcapi.rbd_snapshot_rollback(context,values,active_monitor['host'])
-                error_message = error_message + ret['error_message']
-                error_code = error_code + ret['error_code']
-                if len(ret['error_code']) == 0:
-                    info.append('Rolleback to %s success!'%snapshot_ref['name'])
+        LOG.info('00000000==%s'%body.get('snapshots'))
+        for snapshot in body.get('snapshots'):
+            values = {'pool': snapshot['pool'],
+                      'image': snapshot['image'],
+                      'name':snapshot['name'],
+            }
+            ret = self._agent_rpcapi.rbd_snapshot_rollback(context,values,active_monitor['host'])
+            error_message = error_message + ret['error_message']
+            error_code = error_code + ret['error_code']
+            if len(ret['error_code']) == 0:
+                info.append('Rolleback to %s success!'%snapshot['name'])
         return {'message':{
                             'error_msg':','.join(error_message),
                             'info':','.join(info),
