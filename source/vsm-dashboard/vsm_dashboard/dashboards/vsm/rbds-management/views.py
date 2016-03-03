@@ -72,4 +72,38 @@ class IndexView(tables.DataTableView):
         return rbd_status
 
 
+@csrf_exempt
+def create_new_rbd(request):
+    template = "vsm/devices-management/create_rbd.html"
+    context = {}
+    #get the server list
+    servers = vsmapi.get_server_list(None, )
+    context["servers"] = servers
+    context["upload_file"] = UploadFileForm()
+    context["storage_group"] = get_storage_group_list(request)
+    context["osd_location"] = get_osd_location_list(request)
 
+    #get the osd list from the file
+    if request.method == "POST":
+        form = UploadFileForm(request.POST,request.FILES)
+        if form.is_valid():
+            context["osd_list"] = handle_uploaded_file(request.FILES['file'])
+            print 10 * "="
+            print "the import osd list"
+            print context["osd_list"]
+            return render(request,template,context)
+    return render(request,template,context)
+
+def remove_rbds(request):
+    data = json.loads(request.body)
+    rbd_id_list = data["rbd_id_list"]
+    ret,message = vsmapi.rbd_remove(request, rbd_id_list)
+    rs = json.dumps(message)
+    return HttpResponse(rs)
+
+def flatten_rbds(request):
+    data = json.loads(request.body)
+    rbd_id_list = data["rbd_id_list"]
+    ret,message = vsmapi.rbd_flatten(request, rbd_id_list)
+    rs = json.dumps(message)
+    return HttpResponse(rs)
