@@ -4,8 +4,46 @@ $(function(){
 })
 
 function ChangePool(obj){
-	//$("#txtPGNumber").val(parseInt(obj.options[obj.selectedIndex].getAttribute("pgNumber")));
+    var pool_selected = parseInt(obj.options[obj.selectedIndex].val();)
+    $.ajax({
+		type: "get",
+		url: "/dashboard/vsm/poolsmanagement/list_rbds_by_pool?pool=%s"%pool_selected,
+		data: "",
+		dataType:"json",
+		success: function(data){
+				console.log(data);
+                var rbd_list = data.rbd_list;
+                if(rbd_list.length == 0){
+                    //TODO Nothing
+                }
+                else{
+                    $("#selImage")[0].options.length = 0;
+                    for(var i=0;i<rbd_list.length;i++){
+                        var item = new Option()
+                        item.value = rbd_list[i][0];
+                        item.text = rbd_list[i][1];
+                        $("#selImage")[0].options.add(item);
+                    }
+
+                }
+		   	},
+		error: function (XMLHttpRequest, textStatus, errorThrown) {
+				if(XMLHttpRequest.status == 500)
+                	showTip("error","INTERNAL SERVER ERROR")
+			},
+		headers: {
+			},
+		complete: function(){
+
+		}
+    });
 }
+
+
+$(document).ajaxStart(function(){
+    //load the spin
+    ShowSpin();
+});
 function CreateSnapshot(){
 	//Check the field is should not null
 	if($("#txtRBDName").val() == ""){
