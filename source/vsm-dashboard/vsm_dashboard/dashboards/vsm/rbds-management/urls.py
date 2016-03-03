@@ -16,7 +16,8 @@
 
 from django.conf.urls import patterns, url
 from .views import IndexView,create_new_rbd,create_new_rbd_view, \
-    remove_rbds,flatten_rbds,get_image_formt
+    remove_rbds,flatten_rbds,get_image_formt,rollback_snapshot_view,\
+    create_snapshot,create_snapshot_view
 
 
 urlpatterns = patterns('',
@@ -28,9 +29,9 @@ urlpatterns = patterns('',
     # url(r'^devices/(?P<action>\w+)$', DevicesAction, name='devicesaction'),
     url(r'^create_new_rbd_view/$', create_new_rbd_view, name='create_new_rbd_view'),
     #
-    # url(r'^restart_osd/$', restart_osd, name='restart_osd'),
-    # url(r'^remove_osd/$', remove_osd, name='remove_osd'),
-    # url(r'^restore_osd/$', restore_osd, name='restore_osd'),
+    url(r'^rollback_snapshot_view/$', rollback_snapshot_view, name='rollback_snapshot_view'),
+    url(r'^create_snapshot_view/$', create_snapshot_view, name='create_snapshot_view'),
+    url(r'^create_snapshot/$', create_snapshot, name='create_snapshot'),
 
     url(r'/', IndexView.as_view(), name='index'),
 )

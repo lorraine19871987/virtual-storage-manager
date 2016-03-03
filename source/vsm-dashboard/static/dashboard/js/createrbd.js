@@ -22,7 +22,7 @@ function CreateRBD(){
                 'objects':'',
                 'order':22,
 			}
-	data.rbds.append(rbd)
+	data["rbds"].push(rbd)
 	var postData = JSON.stringify(data);
 	token = $("input[name=csrfmiddlewaretoken]").val();
 	$.ajax({
@@ -32,11 +32,12 @@ function CreateRBD(){
 		dataType:"json",
 		success: function(data){
 				//console.log(data);
-                if(data.status == "OK"){
+                if(data.error_code.length == 0){
                     window.location.href="/dashboard/vsm/rbds-management/";
+                    showTip("info",data.info);
                 }
                 else{
-                    showTip("error",data.message);
+                    showTip("error",data.error_msg);
                 }
 		   	},
 		error: function (XMLHttpRequest, textStatus, errorThrown) {
