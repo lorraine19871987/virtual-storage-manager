@@ -2099,7 +2099,7 @@ class SchedulerManager(manager.Manager):
         error_code = []
         info = []
         for rbd in body.get('rbds'):
-            pool_id = rbd.get('pool')
+            pool_id = int(rbd.get('pool'))
             pool = db.pool_get(context,pool_id)
             rbd_ref = db.rbd_get_by_pool_and_image(context,pool['name'],rbd['image'])
             if rbd_ref:
@@ -2108,15 +2108,16 @@ class SchedulerManager(manager.Manager):
                 continue
             values = {'pool': pool['name'],
                       'image': rbd['image'],
-                      'size' : rbd['size'],#MB
+                      'size' : int(rbd['size']),#MB
                       'format': rbd['format'],#int
-                      'objects': rbd['objects'],#int
-                      'order': rbd['order'], #int bit}
+                      'objects': rbd.get('objects',''),#int
+                      'order': rbd.get('order',22), #int bit}
             }
             ret = self._agent_rpcapi.add_rbd(context,values,active_monitor['host'])
             error_message = error_message + ret['error_message']
             error_code = error_code + ret['error_code']
             if len(ret['error_code']) == 0:
+                values['size'] = values['size']*1024*1024
                 db.rbd_create(context,values)
                 info.append('Create RBD device %s success!'%rbd['image'])
         return {'message':{

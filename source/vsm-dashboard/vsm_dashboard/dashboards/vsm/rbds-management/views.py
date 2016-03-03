@@ -76,34 +76,32 @@ class IndexView(tables.DataTableView):
 def create_new_rbd_view(request):
     template = "vsm/rbds-management/create_rbd.html"
     context = {}
-    return render(request,template,context)
+    ret = render(request,template,context)
+    return ret
 
 def create_new_rbd(request):
-    status = ""
-    msg = ""
     body = json.loads(request.body)
-    print body
     try:
         rsp, ret = vsmapi.rbd_add(request,body=body)
-        msg = str(ret['message']).strip()
+        ret = ret['message']
     except:
-        status = "Failed"
-        msg = "Create RBD Failed!"
-    resp = dict(message=msg, status=status)
-    resp = json.dumps(resp)
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
     return HttpResponse(resp)
 
 def remove_rbds(request):
     data = json.loads(request.body)
     rbd_id_list = data["rbd_id_list"]
-    ret,message = vsmapi.rbd_remove(request, rbd_id_list)
+    rbds = {'rbds':rbd_id_list}
+    ret,message = vsmapi.rbd_remove(request, rbds)
     rs = json.dumps(message)
     return HttpResponse(rs)
 
 def flatten_rbds(request):
     data = json.loads(request.body)
     rbd_id_list = data["rbd_id_list"]
-    ret,message = vsmapi.rbd_flatten(request, rbd_id_list)
+    rbds = {'rbds':rbd_id_list}
+    ret,message = vsmapi.rbd_flatten(request, rbds)
     rs = json.dumps(message)
     return HttpResponse(rs)
 
@@ -114,6 +112,27 @@ def create_snapshot_view(request):
     return render(request,template,context)
 
 def create_snapshot(request):
+    status = ""
+    msg = ""
+    body = json.loads(request.body)
+    print body
+    try:
+        rsp, ret = vsmapi.rbd_snapshot_create(request,body=body)
+        msg = str(ret['message']).strip()
+    except:
+        status = "Failed"
+        msg = "Create Snapshot Failed!"
+    resp = dict(message=msg, status=status)
+    resp = json.dumps(resp)
+    return HttpResponse(resp)
+
+@csrf_exempt
+def rollback_snapshot_view(request):
+    template = "vsm/rbds-management/create_snapshot.html"
+    context = {}
+    return render(request,template,context)
+
+def rollback_snapshot(request):
     status = ""
     msg = ""
     body = json.loads(request.body)

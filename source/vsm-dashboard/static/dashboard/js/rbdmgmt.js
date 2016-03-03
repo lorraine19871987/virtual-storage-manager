@@ -31,7 +31,7 @@ $("#rbd_list__action_flatten_rbds").click(function(){
 	$.ajax({
 		type: "post",
 		url: "/dashboard/vsm/rbds-management/flatten_rbds/",
-		data: JSON.stringify(osd_id_list),
+		data: JSON.stringify(rbd_id_list),
 		dataType:"json",
 		success: function(data){
 				console.log(data);
@@ -75,7 +75,7 @@ $("#rbd_list__action_remove_rbds").click(function(){
 	$.ajax({
 		type: "post",
 		url: "/dashboard/vsm/rbds-management/remove_rbds/",
-		data: JSON.stringify(osd_id_list),
+		data: JSON.stringify(rbd_id_list),
 		dataType:"json",
 		success: function(data){
 				console.log(data);

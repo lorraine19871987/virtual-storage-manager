@@ -59,7 +59,7 @@ function CreateSnapshot(){
                 'name':$("#txtSnapshotName").val(),
 
 			}
-	data.snapshots.append(snapshot)
+	data["snapshots"].push(snapshot)
 	var postData = JSON.stringify(data);
 	token = $("input[name=csrfmiddlewaretoken]").val();
 	$.ajax({

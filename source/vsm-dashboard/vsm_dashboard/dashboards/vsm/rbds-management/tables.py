@@ -53,7 +53,7 @@ class CreateSnapshotAction(tables.LinkAction):
 class RollbackSnapshotAction(tables.LinkAction):
     name = "rollback_snapshot"
     verbose_name = _("Rollback Snapshot")
-    #url = "/dashboard/vsm/rbds-management/rollback_snapshot/"
+    url = "/dashboard/vsm/rbds-management/rollback_snapshot_view/"
     classes = ('btn-primary',)
 
 class RBDsTable(tables.DataTable):
