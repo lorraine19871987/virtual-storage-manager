@@ -147,6 +147,12 @@ class RBDPoolsManager(base.ManagerWithFind):
         url = '/rbd_pools/rbd_snapshot_remove'
         return self.api.client.post(url, body=body)
 
+    def snapshot_get_by_rbd_id(self, body):
+        """
 
+        """
+        rbd_id = body.get('rbd_id')
+        url = "/rbd_pools/snapshot_get_by_rbd_id?rbd_id=%s"%rbd_id
+        return self.api.client.get(url)
 
 

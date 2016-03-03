@@ -1,13 +1,14 @@
 
 $(function(){
-    GetPoolAndRBDAndSnapshot();
+    GetPool();
 })
 
+
 function ChangePool(obj){
-    var pool_selected = parseInt(obj.options[obj.selectedIndex].val();)
+    var pool_selected = obj.options[obj.selectedIndex].text;
     $.ajax({
 		type: "get",
-		url: "/dashboard/vsm/poolsmanagement/list_rbds_by_pool?pool=%s"%pool_selected,
+		url: "/dashboard/vsm/rbds-management/list_rbds_by_pool?pool_name="+pool_selected,
 		data: "",
 		dataType:"json",
 		success: function(data){
@@ -24,8 +25,7 @@ function ChangePool(obj){
                         item.text = rbd_list[i][1];
                         $("#selImage")[0].options.add(item);
                     }
-
-                    ChangeRBD(obj,rbd_id=rbd_list[0][0])
+                    GetSnapshot(rbd_list[0][0])
                 }
 		   	},
 		error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -40,14 +40,11 @@ function ChangePool(obj){
     });
 }
 
-function ChangeRBD(obj,rbd_selected=0){
-    if ( rbd_selected==0 ){
-        var rbd_selected = parseInt(obj.options[obj.selectedIndex].val();)
-    }
-
-    {$.ajax({
+function ChangeRBD(obj){
+    var rbd_selected = obj.options[obj.selectedIndex].value;
+    $.ajax({
 		type: "get",
-		url: "/dashboard/vsm/poolsmanagement/list_snapshot_by_rbd?rbd=%s"%rbd_selected,
+		url: "/dashboard/vsm/rbds-management/list_snapshots_by_pool?rbd_id="+rbd_selected,
 		data: "",
 		dataType:"json",
 		success: function(data){
@@ -62,7 +59,7 @@ function ChangeRBD(obj,rbd_selected=0){
                         var item = new Option()
                         item.value = snapshot_list[i][0];
                         item.text = snapshot_list[i][1];
-                        $("#selImage")[0].options.add(item);
+                        $("#selSnapshot")[0].options.add(item);
                     }
 
                 }
@@ -85,7 +82,7 @@ $(document).ajaxStart(function(){
 });
 function RollbackSnapshot(){
 	//Check the field is should not null
-	if($("#txtRBDName").val() == ""){
+	if($("#selSnapshot").val == ""){
 		showTip("error","The field is marked as '*' should not be empty");
 		return  false;
 	}
@@ -95,7 +92,7 @@ function RollbackSnapshot(){
     var snapshot = {
                 'pool':$("#selPool").val(),
                 'image':$("#selImage").val(),
-                'name':$("#txtSnapshotName").val(),
+                'name':$("#selSnapshot").val(),
 
 			}
 	data["snapshots"].push(snapshot)
@@ -103,7 +100,7 @@ function RollbackSnapshot(){
 	token = $("input[name=csrfmiddlewaretoken]").val();
 	$.ajax({
 		type: "post",
-		url: "/dashboard/vsm/rbds-management/rollback_snapshot/",
+		url: "/dashboard/vsm/rbds-management/create_snapshot/",
 		data: postData,
 		dataType:"json",
 		success: function(data){
@@ -130,18 +127,18 @@ function RollbackSnapshot(){
 }
 
 
-function GetPoolAndRBDAndSnapshot(){
+function GetPool(){
     $.ajax({
 		type: "get",
-		url: "/dashboard/vsm/poolsmanagement/list_pools_and_first_rbds/",
+		url: "/dashboard/vsm/poolsmanagement/list_pools_for_sel_input/",
 		data: "",
 		dataType:"json",
 		success: function(data){
 				console.log(data);
                 var pool_list = data.pool_list;
-                var rbd_list = data.rbd_list;
                 if(pool_list.length == 0){
                     //TODO Nothing
+
                 }
                 else{
                     $("#selPool")[0].options.length = 0;
@@ -151,12 +148,78 @@ function GetPoolAndRBDAndSnapshot(){
                         item.text = pool_list[i][1];
                         $("#selPool")[0].options.add(item);
                     }
+                    GetRBD(pool_list[0][1])
+                }
+		   	},
+		error: function (XMLHttpRequest, textStatus, errorThrown) {
+				if(XMLHttpRequest.status == 500)
+                	showTip("error","INTERNAL SERVER ERROR")
+			},
+		headers: {
+			},
+		complete: function(){
+
+
+		}
+    });
+}
+
+function GetRBD(pool_name){
+    $.ajax({
+		type: "get",
+		url: "/dashboard/vsm/rbds-management/list_rbds_by_pool?pool_name="+pool_name,
+		data: "",
+		dataType:"json",
+		success: function(data){
+				console.log(data);
+                var rbd_list = data.rbd_list;
+                if(rbd_list.length == 0){
+                    //TODO Nothing
+                    return 0
+                }
+                else{
                     $("#selImage")[0].options.length = 0;
                     for(var i=0;i<rbd_list.length;i++){
                         var item = new Option()
                         item.value = rbd_list[i][0];
                         item.text = rbd_list[i][1];
                         $("#selImage")[0].options.add(item);
+                    }
+                    GetSnapshot(rbd_list[0][0])
+                }
+		   	},
+		error: function (XMLHttpRequest, textStatus, errorThrown) {
+				if(XMLHttpRequest.status == 500)
+                	showTip("error","INTERNAL SERVER ERROR")
+			},
+		headers: {
+			},
+		complete: function(){
+
+		}
+    });
+}
+
+function GetSnapshot(rbd_id){
+    $.ajax({
+		type: "get",
+		url: "/dashboard/vsm/rbds-management/list_snapshots_by_image?rbd_id="+rbd_id,
+		data: "",
+		dataType:"json",
+		success: function(data){
+				console.log(data);
+                var snapshot_list = data.snapshot_list;
+                if(snapshot_list.length == 0){
+                    //TODO Nothing
+                    return 0
+                }
+                else{
+                    $("#selSnapshot")[0].options.length = 0;
+                    for(var i=0;i<snapshot_list.length;i++){
+                        var item = new Option()
+                        item.value = snapshot_list[i][0];
+                        item.text = snapshot_list[i][1];
+                        $("#selSnapshot")[0].options.add(item);
                     }
 
                 }
@@ -172,7 +235,6 @@ function GetPoolAndRBDAndSnapshot(){
 		}
     });
 }
-
 
 $(document).ajaxStart(function(){
     //load the spin
