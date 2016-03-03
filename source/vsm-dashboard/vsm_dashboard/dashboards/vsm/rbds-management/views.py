@@ -149,3 +149,18 @@ def get_image_formt(request):
     image_formt_list = [(1,'default'),(2,'supports cloning')]
     resp = json.dumps({"image_formt_list":image_formt_list})
     return HttpResponse(resp)
+
+def list_rbds_by_pool(request):
+    rbd_list = []
+    pool_name = request.GET.get("pool_name",None)
+    if pool_name is None:
+        pool_id = int(request.GET.get("pool_id",None))
+        rsp, pool_objs = vsmapi.pools_list(request)
+        pool_obj = [pool['name'] for pool in pool_objs['pool'] if pool['pool_id'] == pool_id ]
+        pool_name = pool_obj[0]
+    rbd_obj_list= vsmapi.rbd_pool_status(request)
+    for rbd in rbd_obj_list:
+        if rbd.pool == pool_name:
+            rbd_list.append((rbd.id,rbd.image_name))
+    resp = json.dumps({"rbd_list":rbd_list})
+    return HttpResponse(resp)
