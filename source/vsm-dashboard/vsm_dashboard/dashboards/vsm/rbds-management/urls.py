@@ -15,14 +15,14 @@
 # under the License.
 
 from django.conf.urls import patterns, url
-from .views import IndexView
+from .views import IndexView,create_new_rbd,remove_rbds,flatten_rbds
 
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
-    # url(r'^add_new_osd/$', add_new_osd, name='add_new_osd'),
-    # url(r'^add_new_osd_action/$', add_new_osd_action, name='add_new_osd_action'),
-    # url(r'^check_device_path/$', check_device_path, name='check_device_path'),
+    url(r'^create_new_rbd/$', create_new_rbd, name='create_new_rbd'),
+    url(r'^remove_rbds/$', remove_rbds, name='remove_rbds'),
+    url(r'^flatten_rbds/$', flatten_rbds, name='flatten_rbds'),
     # url(r'^get_available_disks/$', get_available_disks, name='get_available_disks'),
     # url(r'^devices/(?P<action>\w+)$', DevicesAction, name='devicesaction'),
     # url(r'^get_smart_info/$', get_smart_info, name='get_smart_info'),
