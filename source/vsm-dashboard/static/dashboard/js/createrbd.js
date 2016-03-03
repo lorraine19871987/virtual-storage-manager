@@ -27,13 +27,13 @@ function CreateRBD(){
 	token = $("input[name=csrfmiddlewaretoken]").val();
 	$.ajax({
 		type: "post",
-		url: "/dashboard/vsm/poolsmanagement/create_replicated_pool_action/",
+		url: "/dashboard/vsm/rbds-management/create_new_rbd/",
 		data: postData,
 		dataType:"json",
 		success: function(data){
 				//console.log(data);
                 if(data.status == "OK"){
-                    window.location.href="/dashboard/vsm/poolsmanagement/";
+                    window.location.href="/dashboard/vsm/rbds-management/";
                 }
                 else{
                     showTip("error",data.message);
@@ -55,7 +55,7 @@ function CreateRBD(){
 function GetImageFormat(){
     $.ajax({
 		type: "get",
-		url: "/dashboard/vsm/rbds_management/get_image_formt/",
+		url: "/dashboard/vsm/rbds-management/get_image_formt/",
 		data: "",
 		dataType:"json",
 		success: function(data){
