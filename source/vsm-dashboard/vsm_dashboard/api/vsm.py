@@ -267,7 +267,6 @@ def rbd_snapshot_create(request, body):
     :param body:{'snapshots':[
                         {'pool':,#pool_id
                         'image':,#image_id
-                        'size' :1024,#MB
                         'name':'snapshot_name1',#},
                         ]
                 }

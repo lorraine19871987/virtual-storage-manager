@@ -1,33 +1,32 @@
 
 $(function(){
-    GetPool();
-    GetImageFormat();
+    GetPoolAndRBD();
 })
 
-
-function CreateRBD(){
+function ChangePool(obj){
+	//$("#txtPGNumber").val(parseInt(obj.options[obj.selectedIndex].getAttribute("pgNumber")));
+}
+function CreateSnapshot(){
 	//Check the field is should not null
 	if($("#txtRBDName").val() == ""){
 		showTip("error","The field is marked as '*' should not be empty");
 		return  false;
 	}
 	var data = {
-			"rbds":[]
+			"snapshots":[]
 	}
-    var rbd = {
+    var snapshot = {
                 'pool':$("#selPool").val(),
-                'image':$("#txtRBDName").val(),
-                'size' :$("#txtImageSize").val(),
-                'format':$("#selFormat").val(),
-                'objects':'',
-                'order':22,
+                'image':$("#selImage").val(),
+                'name':$("#txtSnapshotName").val(),
+
 			}
-	data.rbds.append(rbd)
+	data.snapshots.append(snapshot)
 	var postData = JSON.stringify(data);
 	token = $("input[name=csrfmiddlewaretoken]").val();
 	$.ajax({
 		type: "post",
-		url: "/dashboard/vsm/rbds-management/create_new_rbd/",
+		url: "/dashboard/vsm/rbds-management/create_snapshot/",
 		data: postData,
 		dataType:"json",
 		success: function(data){
@@ -52,50 +51,17 @@ function CreateRBD(){
     });
 }
 
-function GetImageFormat(){
+
+function GetPoolAndRBD(){
     $.ajax({
 		type: "get",
-		url: "/dashboard/vsm/rbds-management/get_image_formt/",
-		data: "",
-		dataType:"json",
-		success: function(data){
-				console.log(data);
-                var image_formt_list = data.image_formt_list;
-                if(image_formt_list.length == 0){
-                    //TODO Nothing
-                }
-                else{
-                    $("#selFormat")[0].options.length = 0;
-                    for(var i=0;i<image_formt_list.length;i++){
-                        var item = new Option()
-                        item.value = image_formt_list[i][0];
-                        item.text = image_formt_list[i][1];
-                        $("#selFormat")[0].options.add(item);
-                    }
-
-                }
-		   	},
-		error: function (XMLHttpRequest, textStatus, errorThrown) {
-				if(XMLHttpRequest.status == 500)
-                	showTip("error","INTERNAL SERVER ERROR")
-			},
-		headers: {
-			},
-		complete: function(){
-
-		}
-    });
-}
-
-function GetPool(){
-    $.ajax({
-		type: "get",
-		url: "/dashboard/vsm/poolsmanagement/list_pools_for_sel_input/",
+		url: "/dashboard/vsm/poolsmanagement/list_pools_and_first_rbds/",
 		data: "",
 		dataType:"json",
 		success: function(data){
 				console.log(data);
                 var pool_list = data.pool_list;
+                var rbd_list = data.rbd_list;
                 if(pool_list.length == 0){
                     //TODO Nothing
                 }
@@ -106,6 +72,13 @@ function GetPool(){
                         item.value = pool_list[i][0];
                         item.text = pool_list[i][1];
                         $("#selPool")[0].options.add(item);
+                    }
+                    $("#selImage")[0].options.length = 0;
+                    for(var i=0;i<rbd_list.length;i++){
+                        var item = new Option()
+                        item.value = rbd_list[i][0];
+                        item.text = rbd_list[i][1];
+                        $("#selImage")[0].options.add(item);
                     }
 
                 }
