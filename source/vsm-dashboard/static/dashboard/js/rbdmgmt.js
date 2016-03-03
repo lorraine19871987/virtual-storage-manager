@@ -97,4 +97,3 @@ $("#rbd_list__action_remove_rbds").click(function(){
 	return false;
 });
 
-

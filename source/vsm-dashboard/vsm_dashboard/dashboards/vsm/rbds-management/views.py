@@ -74,7 +74,7 @@ class IndexView(tables.DataTableView):
 
 @csrf_exempt
 def create_new_rbd_view(request):
-    template = "vsm/devices-management/create_rbd.html"
+    template = "vsm/rbds-management/create_rbd.html"
     context = {}
     return render(request,template,context)
 
@@ -88,7 +88,7 @@ def create_new_rbd(request):
         msg = str(ret['message']).strip()
     except:
         status = "Failed"
-        msg = "Create Replication Pool Failed!"
+        msg = "Create RBD Failed!"
     resp = dict(message=msg, status=status)
     resp = json.dumps(resp)
     return HttpResponse(resp)
@@ -106,6 +106,27 @@ def flatten_rbds(request):
     ret,message = vsmapi.rbd_flatten(request, rbd_id_list)
     rs = json.dumps(message)
     return HttpResponse(rs)
+
+@csrf_exempt
+def create_snapshot_view(request):
+    template = "vsm/rbds-management/create_snapshot.html"
+    context = {}
+    return render(request,template,context)
+
+def create_snapshot(request):
+    status = ""
+    msg = ""
+    body = json.loads(request.body)
+    print body
+    try:
+        rsp, ret = vsmapi.rbd_snapshot_create(request,body=body)
+        msg = str(ret['message']).strip()
+    except:
+        status = "Failed"
+        msg = "Create Snapshot Failed!"
+    resp = dict(message=msg, status=status)
+    resp = json.dumps(resp)
+    return HttpResponse(resp)
 
 def get_image_formt(request):
     image_formt_list = [(1,'default'),(2,'supports cloning')]
