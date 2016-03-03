@@ -1,6 +1,6 @@
 
 $(function(){
-    GetPoolAndRBD();
+    GetPoolAndRBDAndSnapshot();
 })
 
 function ChangePool(obj){
@@ -25,6 +25,7 @@ function ChangePool(obj){
                         $("#selImage")[0].options.add(item);
                     }
 
+                    ChangeRBD(obj,rbd_id=rbd_list[0][0])
                 }
 		   	},
 		error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -39,12 +40,50 @@ function ChangePool(obj){
     });
 }
 
+function ChangeRBD(obj,rbd_selected=0){
+    if ( rbd_selected==0 ){
+        var rbd_selected = parseInt(obj.options[obj.selectedIndex].val();)
+    }
+
+    {$.ajax({
+		type: "get",
+		url: "/dashboard/vsm/poolsmanagement/list_snapshot_by_rbd?rbd=%s"%rbd_selected,
+		data: "",
+		dataType:"json",
+		success: function(data){
+				console.log(data);
+                var snapshot_list = data.snapshot_list;
+                if(snapshot_list.length == 0){
+                    //TODO Nothing
+                }
+                else{
+                    $("#selSnapshot")[0].options.length = 0;
+                    for(var i=0;i<snapshot_list.length;i++){
+                        var item = new Option()
+                        item.value = snapshot_list[i][0];
+                        item.text = snapshot_list[i][1];
+                        $("#selImage")[0].options.add(item);
+                    }
+
+                }
+		   	},
+		error: function (XMLHttpRequest, textStatus, errorThrown) {
+				if(XMLHttpRequest.status == 500)
+                	showTip("error","INTERNAL SERVER ERROR")
+			},
+		headers: {
+			},
+		complete: function(){
+
+		}
+    });
+}
 
 $(document).ajaxStart(function(){
     //load the spin
     ShowSpin();
 });
-function CreateSnapshot(){
+function RollbackSnapshot(){
 	//Check the field is should not null
 	if($("#txtRBDName").val() == ""){
 		showTip("error","The field is marked as '*' should not be empty");
@@ -64,7 +103,7 @@ function CreateSnapshot(){
 	token = $("input[name=csrfmiddlewaretoken]").val();
 	$.ajax({
 		type: "post",
-		url: "/dashboard/vsm/rbds-management/create_snapshot/",
+		url: "/dashboard/vsm/rbds-management/rollback_snapshot/",
 		data: postData,
 		dataType:"json",
 		success: function(data){
@@ -91,7 +130,7 @@ function CreateSnapshot(){
 }
 
 
-function GetPoolAndRBD(){
+function GetPoolAndRBDAndSnapshot(){
     $.ajax({
 		type: "get",
 		url: "/dashboard/vsm/poolsmanagement/list_pools_and_first_rbds/",

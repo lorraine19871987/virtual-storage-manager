@@ -1141,8 +1141,8 @@ def storage_metadata_update(context, storage_id, metadata, delete):
 @require_context
 def snapshot_create(context, values):
     values['snapshot_metadata'] = _metadata_refs(values.get('metadata'),
-                                                 models.SnapshotMetadata)
-    snapshot_ref = models.Snapshot()
+                                                 models.SnapShotMetadata)
+    snapshot_ref = models.SnapShot()
     if not values.get('id'):
         values['id'] = str(uuid.uuid4())
     snapshot_ref.update(values)
@@ -1157,7 +1157,7 @@ def snapshot_create(context, values):
 def snapshot_destroy(context, snapshot_id):
     session = get_session()
     with session.begin():
-        session.query(models.Snapshot).\
+        session.query(models.SnapShot).\
             filter_by(id=snapshot_id).\
             update({'status': 'deleted',
                     'deleted': True,
@@ -1166,7 +1166,7 @@ def snapshot_destroy(context, snapshot_id):
 
 @require_context
 def snapshot_get(context, snapshot_id, session=None):
-    result = model_query(context, models.Snapshot, session=session,
+    result = model_query(context, models.SnapShot, session=session,
                          project_only=True).\
         filter_by(id=snapshot_id).\
         first()
@@ -1182,14 +1182,14 @@ def snapshot_get_all(context):
 
 @require_context
 def snapshot_get_all_for_storage(context, storage_id):
-    return model_query(context, models.Snapshot, read_deleted='no',
+    return model_query(context, models.SnapShot, read_deleted='no',
                        project_only=True).\
         filter_by(storage_id=storage_id).all()
 
 @require_context
 def snapshot_get_all_by_project(context, project_id):
     authorize_project_context(context, project_id)
-    return model_query(context, models.Snapshot).\
+    return model_query(context, models.SnapShot).\
         filter_by(project_id=project_id).\
         all()
 
@@ -1197,8 +1197,8 @@ def snapshot_get_all_by_project(context, project_id):
 def snapshot_data_get_for_project(context, project_id, session=None):
     authorize_project_context(context, project_id)
     result = model_query(context,
-                         func.count(models.Snapshot.id),
-                         func.sum(models.Snapshot.storage_size),
+                         func.count(models.SnapShot.id),
+                         func.sum(models.SnapShot.storage_size),
                          read_deleted="no",
                          session=session).\
         filter_by(project_id=project_id).\
@@ -1218,7 +1218,7 @@ def snapshot_update(context, snapshot_id, values):
 ####################
 
 def _snapshot_metadata_get_query(context, snapshot_id, session=None):
-    return model_query(context, models.SnapshotMetadata,
+    return model_query(context, models.SnapShotMetadata,
                        session=session, read_deleted="no").\
         filter_by(snapshot_id=snapshot_id)
 
@@ -1282,7 +1282,7 @@ def snapshot_metadata_update(context, snapshot_id, metadata, delete):
             meta_ref = snapshot_metadata_get_item(context, snapshot_id,
                                                   meta_key, session)
         except exception.SnapshotMetadataNotFound as e:
-            meta_ref = models.SnapshotMetadata()
+            meta_ref = models.SnapShotMetadata()
             item.update({"key": meta_key, "snapshot_id": snapshot_id})
 
         meta_ref.update(item)
@@ -3798,7 +3798,7 @@ def pg_update_or_create(context, values, session=None):
     return pg
 #snapshot
 def snapshot_create(context, values):
-    snapshot_ref = models.Snapshot()
+    snapshot_ref = models.SnapShot()
     snapshot_ref.update(values)
     try:
         snapshot_ref.save()
@@ -3818,13 +3818,13 @@ def snapshot_update(context, snapshot_id, values, session=None):
     return snapshot_ref
 
 def snapshot_get(context, snapshot_id, session=None):
-    result = model_query(context, models.Snapshot, session=session).\
+    result = model_query(context, models.SnapShot, session=session).\
             filter_by(id=snapshot_id).\
             first()
     return result
 
 def snapshot_get_by_pool_image(context,pool,image, session=None):
-    result = model_query(context, models.Snapshot, session=session).\
+    result = model_query(context, models.SnapShot, session=session).\
             filter_by(pool=pool).\
             filter_by(image=image).\
             all()

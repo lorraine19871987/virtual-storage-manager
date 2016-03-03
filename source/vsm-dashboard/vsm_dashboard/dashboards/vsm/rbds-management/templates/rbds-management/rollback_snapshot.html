@@ -20,7 +20,7 @@
 {% block title %}Create RBD{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_page_header.html" with title=_("Create Snapshot") %}
+  {% include "horizon/common/_page_header.html" with title=_("Rollback Snapshot") %}
   <link href="{{ STATIC_URL }}dashboard/css/poolmgmt.css" rel="stylesheet">
 
 {% endblock page_header %}
@@ -46,26 +46,28 @@
                         <!-- <span class="required-star">*</span> -->
                         <span class="help-block"></span>
                         <div class="input">
-                          	<select id="selImage" class="form-control">
+                          	<select id="selImage" class="form-control" onchange="ChangeRBD(this)">
                           	</select>
                         </div>
                     </div>
-			    	<div class="control-group form-field clearfix required">
-                        <label>Snapshot Name:</label>
+                    <div class="control-group form-field clearfix required">
+                        <label>Snapshot:</label>
+                        <!-- <span class="required-star">*</span> -->
                         <span class="help-block"></span>
                         <div class="input">
-                            <input id="txtSnapshotName" maxlength="255"  type="text"  class="form-control">
+                          	<select id="selSnapshot" class="form-control">
+                          	</select>
                         </div>
                     </div>
 			    </fieldset>
 			</div>
 			<div class="right">
 			    <h3>{% trans "Description" %}:</h3>
-			    <p>{% trans "From here you can create a snapshot of the RBD." %}</p>
+			    <p>{% trans "From here you can rollback RBD to a snapshot." %}</p>
 			</div>
 		</form>
 		 <div id="divFormOptions" class="vsm-options-bar">
-	    	<button id="btnGreateSnapshot" class="btn btn-primary" onclick="CreateSnapshot()">Submit</button>
+	    	<button id="btnRollbackSnapshot" class="btn btn-primary" onclick="RollebackSnapshot()">Submit</button>
 	    	<a id="btnCancel" class="btn btn-default" href="/dashboard/vsm/rbds-management/">Cancel</a>
 	    </div>
 	</div>
@@ -75,6 +77,6 @@
 {% block js %}
     {{ block.super }}
     <script src='{{ STATIC_URL }}dashboard/js/vsm.spin.js' type='text/javascript' charset='utf-8'></script>
-    <script src='{{ STATIC_URL }}dashboard/js/createsnapshot.js' type='text/javascript' charset='utf-8'></script>
+    <script src='{{ STATIC_URL }}dashboard/js/rollbacksnapshot.js' type='text/javascript' charset='utf-8'></script>
 {% endblock %}
 
