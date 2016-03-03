@@ -107,3 +107,8 @@ def flatten_rbds(request):
     ret,message = vsmapi.rbd_flatten(request, rbd_id_list)
     rs = json.dumps(message)
     return HttpResponse(rs)
+
+def get_image_formt(request):
+    image_formt_list = [(1,'default'),(2,'supports cloning')]
+    resp = json.dumps({"image_formt_list":image_formt_list})
+    return HttpResponse(resp)
