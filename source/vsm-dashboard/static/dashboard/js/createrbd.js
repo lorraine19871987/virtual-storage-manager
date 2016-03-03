@@ -1,30 +1,28 @@
 
 $(function(){
     GetPool();
+    GetImageFormat();
 })
 
 
-function AddPool(){
+function CreateRBD(){
 	//Check the field is should not null
-	if($("#txtPoolName").val() == ""){
+	if($("#txtRBDName").val() == ""){
 		showTip("error","The field is marked as '*' should not be empty");
 		return  false;
 	}
 	var data = {
-			"pool":{
-				"name":$("#txtPoolName").val(),
-				"storageGroupId":$("#selStorageGroup").val(),
-                'storageGroupName': $("#selStorageGroup")[0].options[$("#selStorageGroup")[0].selectedIndex].text,
-				"replicatedStorageGroupId":'replica',
-                'auto_growth_pg': $("#txtPGNumber").val(),
-				'tag': $("#txtTag").val(),
-				'clusterId': "0",
-				'createdBy': "VSM",
-				'enablePoolQuota': $("#chkPoolQuota")[0].checked,
-				'poolQuota': $("#txtPoolQuota").val(),
-			}
+			"rbds":[]
 	}
-
+    var rbd = {
+                'pool':$("#selPool").val(),
+                'image':$("#txtRBDName").val(),
+                'size' :$("#txtImageSize").val(),
+                'format':$("#selFormat").val(),
+                'objects':'',
+                'order':22,
+			}
+	data.rbds.append(rbd)
 	var postData = JSON.stringify(data);
 	token = $("input[name=csrfmiddlewaretoken]").val();
 	$.ajax({
@@ -54,28 +52,62 @@ function AddPool(){
     });
 }
 
-function GetPool(){
+function GetImageFormat(){
     $.ajax({
 		type: "get",
-		url: "/dashboard/vsm/poolsmanagement/ge/",
+		url: "/dashboard/vsm/rbds_management/get_image_formt/",
 		data: "",
 		dataType:"json",
 		success: function(data){
 				console.log(data);
-                var storage_group_list = data.storage_group_list;
-                if(storage_group_list.length == 0){
+                var image_formt_list = data.image_formt_list;
+                if(image_formt_list.length == 0){
                     //TODO Nothing
                 }
                 else{
-                    $("#selStorageGroup")[0].options.length = 0;
-                    for(var i=0;i<storage_group_list.length;i++){
+                    $("#selFormat")[0].options.length = 0;
+                    for(var i=0;i<image_formt_list.length;i++){
+                        var item = new Option()
+                        item.value = image_formt_list[i][0];
+                        item.text = image_formt_list[i][1];
+                        $("#selFormat")[0].options.add(item);
+                    }
+
+                }
+		   	},
+		error: function (XMLHttpRequest, textStatus, errorThrown) {
+				if(XMLHttpRequest.status == 500)
+                	showTip("error","INTERNAL SERVER ERROR")
+			},
+		headers: {
+			},
+		complete: function(){
+
+		}
+    });
+}
+
+function GetPool(){
+    $.ajax({
+		type: "get",
+		url: "/dashboard/vsm/poolsmanagement/list_pools_for_sel_input/",
+		data: "",
+		dataType:"json",
+		success: function(data){
+				console.log(data);
+                var pool_list = data.pool_list;
+                if(pool_list.length == 0){
+                    //TODO Nothing
+                }
+                else{
+                    $("#selPool")[0].options.length = 0;
+                    for(var i=0;i<pool_list.length;i++){
                         var item = new Option()
                         item.value = storage_group_list[i][0];
                         item.text = storage_group_list[i][1];
-                        item.setAttribute("pgNumber",storage_group_list[i][2]);
                         $("#selStorageGroup")[0].options.add(item);
                     }
-                    $("#txtPGNumber").val(storage_group_list[0][2]);
+
                 }
 		   	},
 		error: function (XMLHttpRequest, textStatus, errorThrown) {
