@@ -252,6 +252,20 @@ def rbd_add(request, body):
     '''
     return vsmclient(request).rbd_pools.add_rbd(body=body)
 
+def rbd_clone(request, body):
+    '''
+    :param request:
+    :param body:{'rbds':[
+                        {
+                        'src_snap_id' :1,#int
+                        'dest_pool':,#str
+                        'dest_image':,#str
+                        ]
+                }
+    :return:
+    '''
+    return vsmclient(request).rbd_pools.add_clone(body=body)
+
 def rbd_remove(request, body):
     '''
     :param request:

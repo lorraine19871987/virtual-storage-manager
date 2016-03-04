@@ -124,6 +124,21 @@ class RBDPoolsManager(base.ManagerWithFind):
         url = '/rbd_pools/flatten_rbd'
         return self.api.client.post(url, body=body)
 
+    def clone_rbd(self, body):
+        '''
+        :param request:
+        :param body:{'rbds':[
+                        {
+                        'src_snap_id' :1,#int
+                        'dest_pool':,#str
+                        'dest_image':,#str
+                        ]
+                }
+        :return:
+        '''
+        url = '/rbd_pools/clone_rbd'
+        return self.api.client.post(url, body=body)
+
     def rbd_snapshot_create(self, body):
         '''
         :param request:

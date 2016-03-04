@@ -89,6 +89,23 @@ def create_new_rbd(request):
     resp = json.dumps(ret)
     return HttpResponse(resp)
 
+@csrf_exempt
+def clone_rbd_view(request):
+    template = "vsm/rbds-management/clone_rbd.html"
+    context = {}
+    ret = render(request,template,context)
+    return ret
+
+def clone_rbd(request):
+    body = json.loads(request.body)
+    try:
+        rsp, ret = vsmapi.rbd_clone(request,body=body)
+        ret = ret['message']
+    except:
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
+    return HttpResponse(resp)
+
 def remove_rbds(request):
     data = json.loads(request.body)
     rbd_id_list = data["rbd_id_list"]
@@ -148,16 +165,20 @@ def get_image_formt(request):
 
 def list_rbds_by_pool(request):
     rbd_list = []
-    pool_name = request.GET.get("pool_name",None)
+    pool_name = request.GET.get("pool_name", None)
+    rbd_format = request.GET.get("rbd_format", None)
     if pool_name is None:
-        pool_id = int(request.GET.get("pool_id",None))
+        pool_id = int(request.GET.get("pool_id", None))
         rsp, pool_objs = vsmapi.pools_list(request)
         pool_obj = [pool['name'] for pool in pool_objs['pool'] if pool['pool_id'] == pool_id ]
         pool_name = pool_obj[0]
     rbd_obj_list= vsmapi.rbd_pool_status(request)
     for rbd in rbd_obj_list:
         if rbd.pool == pool_name:
-            rbd_list.append((rbd.id,rbd.image_name))
+            if rbd_format is not None and rbd.format != rbd_format:
+                pass
+            else:
+                rbd_list.append((rbd.id,rbd.image_name))
     resp = json.dumps({"rbd_list":rbd_list})
     return HttpResponse(resp)
 

@@ -50,6 +50,13 @@ class CreateSnapshotAction(tables.LinkAction):
     url = "/dashboard/vsm/rbds-management/create_snapshot_view/"
     classes = ('btn-primary',)
 
+class CloneRBDAction(tables.LinkAction):
+    name = "clone_rbd"
+    verbose_name = _("Clone")
+    url = "/dashboard/vsm/rbds-management/clone_rbd_view/"
+    classes = ('btn-primary',)
+
+
 class RollbackSnapshotAction(tables.LinkAction):
     name = "rollback_snapshot"
     verbose_name = _("Rollback Snapshot")
@@ -76,8 +83,8 @@ class RBDsTable(tables.DataTable):
         name = "rbd_list"
         verbose_name = _("RBD List")
         multi_select = True
-        table_actions = (RemoveRBDsAction,CreateRBDAction, \
-                         FlattenRBDsAction,CreateSnapshotAction,RollbackSnapshotAction)
+        table_actions = (CreateRBDAction, CloneRBDAction, FlattenRBDsAction, RemoveRBDsAction, \
+                         CreateSnapshotAction, RollbackSnapshotAction)
 
 
     def get_object_id(self, datum):

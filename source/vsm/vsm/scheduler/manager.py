@@ -2160,7 +2160,7 @@ class SchedulerManager(manager.Manager):
     def flatten_rbd(self, context, body):
         cluster_id = body.get('cluster_id',None)
         active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
-        LOG.info('remove_rbd sync call to host = %s' % active_monitor['host'])
+        LOG.info('flatten_rbd sync call to host = %s' % active_monitor['host'])
         error_message = []
         error_code = []
         info = []
@@ -2189,6 +2189,54 @@ class SchedulerManager(manager.Manager):
                             'error_code':','.join(error_code),}
         }
 
+    def clone_rbd(self, context, body):
+        cluster_id = body.get('cluster_id',None)
+        active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
+        LOG.info('clone_rbd sync call to host = %s' % active_monitor['host'])
+        error_message = []
+        error_code = []
+        info = []
+        for rbd in body.get('rbds'):
+            rbd_ref = db.rbd_get_by_pool_and_image(context,rbd['dest_pool'],rbd['dest_image'])
+            if rbd_ref:
+                error_code.append('-1')
+                error_message.append('RBD device %s in pool %s already exist!'%(rbd['image'],pool['name']))
+                continue
+            parent_snapshot = db.snapshot_get(context,rbd['src_snap_id'])
+            if parent_snapshot:
+                values = {'pool': rbd['dest_pool'],
+                          'image': rbd['dest_image'],
+                          'parent_snapshot':rbd['src_snap_id'],
+                          # 'proctect_action' : True,
+                          # 'parent_snap': '',#str
+                          # 'objects': rbd.get('objects',''),#int
+                          # 'order': rbd.get('order',22), #int bit}
+                }
+                if parent_snapshot['status'] != 'protected':
+                    values['proctect_action'] = True
+                    values['parent_snap'] = '%s/%s@%s'%(parent_snapshot['pool'], \
+                                                        parent_snapshot['image'],\
+                                                        parent_snapshot['name'])
+                ret = self._agent_rpcapi.clone_rbd(context,values,active_monitor['host'])
+                error_message = error_message + ret['error_message']
+                error_code = error_code + ret['error_code']
+                if len(ret['error_code']) == 0:
+                    values_db = {
+                          'pool': values['pool'],
+                          'image': values['image'],
+                          'parent_snapshot':values['parent_snapshot'],
+                    }
+                    db.rbd_create(context,values_db)
+                    info.append('Clone RBD device %s success!'%rbd['dest_image'])
+            else:
+                error_code.append('-3')
+                error_message.append('Source snapshot (%s)is not exist!'%(rbd['src_snap_id']))
+
+        return {'message':{
+                            'error_msg':','.join(error_message),
+                            'info':','.join(info),
+                            'error_code':','.join(error_code),}
+        }
     def rbd_snapshot_remove(self, context, body):
         cluster_id = body.get('cluster_id',None)
         active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
