@@ -1220,6 +1220,9 @@ def snapshot_get_by_pool_image(context,pool,image, session=None):
 def snapshot_get_by_pool_image_snapname(context,pool,image,name, session=None):
     return IMPL.snapshot_get_by_pool_image_snapname(context,pool,image,name,session=session)
 
+def snap_update_or_create_by_pool_image_snapname(context, values, session=None):
+    return IMPL.snap_update_or_create_by_pool_image_snapname(context, values, session=session)
+
 #rbd
 def rbd_create(context, values):
     return IMPL.rbd_create(context, values)

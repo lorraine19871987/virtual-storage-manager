@@ -2629,7 +2629,25 @@ class CephDriver(object):
                  'info']
         rbd_image_dict = self._run_cmd_to_json(args, pretty=False)
         return rbd_image_dict
- 
+
+    def get_snaps_info(self,pool,image):
+        snap_list = []
+        args = ['rbd', 'snap', 'ls',\
+             '%s/%s'%(pool,image),\
+             '--pretty-format',\
+             '--format', 'json']
+        snap_list_src = self._run_cmd_to_json(args, pretty=False)
+
+        for snap in snap_list_src:
+            snap_values = {}
+            snap_values['pool'] = pool
+            snap_values['image'] = image
+            snap_values['size'] = snap['size']
+            snap_values['name'] = snap['name']
+            snap_values['snap_id'] = snap['id']
+            snap_list.append(snap_values)
+        return snap_list
+
     def get_rbd_status(self):
         pool_list = self.get_osd_lspools()
         if pool_list:

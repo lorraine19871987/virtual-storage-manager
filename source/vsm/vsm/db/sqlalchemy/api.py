@@ -3830,6 +3830,23 @@ def snapshot_get_by_pool_image(context,pool,image, session=None):
             all()
     return result
 
+def snap_update_or_create_by_pool_image_snapname(context, values, session=None):
+    if not session:
+        session = get_session()
+    with session.begin():
+        snapshot_ref = snapshot_get_by_pool_image_snapname(context, \
+                        values['pool'],values['image'],values['name'], session=session)
+        if snapshot_ref:
+            values['updated_at'] = timeutils.utcnow()
+            convert_datetimes(values, 'created_at', 'deleted_at', 'updated_at')
+            snapshot_ref.update(values)
+        else:
+            snapshot_ref = models.SnapShot()
+            session.add(snapshot_ref)
+            snapshot_ref.update(values)
+        snapshot_ref.save(session=session)
+    return snapshot_ref
+
 def snapshot_get_by_pool_image_snapname(context,pool,image,name,session=None):
     result = model_query(context, models.SnapShot, session=session).\
             filter_by(pool=pool).\

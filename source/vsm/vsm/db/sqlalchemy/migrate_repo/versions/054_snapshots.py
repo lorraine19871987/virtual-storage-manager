@@ -31,6 +31,7 @@ def upgrade(migrate_engine):
         Column('pool', String(length=255), nullable=False),
         Column('image', String(length=255), nullable=False),
         Column('size', BigInteger, nullable=True),
+        Column('snap_id', BigInteger, nullable=True),
         Column('name', String(length=255), nullable=False),
         Column('status', String(length=255), nullable=False, default='nomal'),
         Column('created_at', DateTime(timezone=False)),
