@@ -2280,6 +2280,11 @@ class AgentManager(manager.Manager):
         self.ceph_driver.rm_rbd(body)
         return ret
 
+    def flatten_rbd(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.flatten_rbd(body)
+        return ret
+
     def rbd_snapshot_remove(self,context,body):
         ret = {'error_code':[],'error_message':[]}
         self.ceph_driver.rm_snapshot(body)

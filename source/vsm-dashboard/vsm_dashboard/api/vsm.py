@@ -261,6 +261,15 @@ def rbd_remove(request, body):
     '''
     return vsmclient(request).rbd_pools.remove_rbd(body=body)
 
+def rbd_flatten(request, body):
+    '''
+    :param request:
+    :param body:{'rbds':[1,3]
+                }
+    :return:
+    '''
+    return vsmclient(request).rbd_pools.flatten_rbd(body=body)
+
 def rbd_snapshot_create(request, body):
     '''
     :param request:

@@ -2157,6 +2157,38 @@ class SchedulerManager(manager.Manager):
                             'error_code':','.join(error_code),}
         }
 
+    def flatten_rbd(self, context, body):
+        cluster_id = body.get('cluster_id',None)
+        active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
+        LOG.info('remove_rbd sync call to host = %s' % active_monitor['host'])
+        error_message = []
+        error_code = []
+        info = []
+        for rbd_id in body.get('rbds'):
+            rbd_ref = db.rbd_get(context,int(rbd_id))
+            if rbd_ref and rbd_ref['parent_snapshot']:
+                parent_snapshot = db.snapshot_get(context,rbd_ref['parent_snapshot'])
+                if parent_snapshot['status'] == 'protected':
+                    values = {'pool': rbd_ref['pool'],
+                              'image': rbd_ref['image'],
+                              'parent_snapshot': None,
+                    }
+
+                    ret = self._agent_rpcapi.flatten_rbd(context,values,active_monitor['host'])
+                    error_message = error_message + ret['error_message']
+                    error_code = error_code + ret['error_code']
+                    if len(ret['error_code']) == 0:
+                        db.rbd_update(context,rbd_ref['id'],values)
+                        info.append('Flatten RBD device %s success!'%rbd_ref['image'])
+                else:
+                    error_code.append('-1')
+                    error_message.append('Please protect parent snapshot of RBD device %s firstly!'%(rbd_ref['image']))
+        return {'message':{
+                            'error_msg':','.join(error_message),
+                            'info':','.join(info),
+                            'error_code':','.join(error_code),}
+        }
+
     def rbd_snapshot_remove(self, context, body):
         cluster_id = body.get('cluster_id',None)
         active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)

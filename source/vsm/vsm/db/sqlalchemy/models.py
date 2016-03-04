@@ -761,7 +761,9 @@ class RBD(BASE, VsmBase):
     format = Column(Integer, nullable=False)
     objects = Column(Integer, nullable=False)
     order = Column(Integer, nullable=False)
-    parent_snapshot = Column(String(length=255), nullable=True)
+    parent_snapshot = Column(Integer,
+                        ForeignKey('snapshots.id'),
+                        nullable=True)
 
 class MDS(BASE, VsmBase):
     """ ceph MDS report """
@@ -830,4 +832,5 @@ class SnapShot(BASE, VsmBase):
     image = Column(String(length=255), nullable=False)
     size = Column(BigInteger, nullable=True)
     name = Column(String(length=255), nullable=False)
+    status = Column(String(length=255), nullable=False, default='nomal')
     created_at = Column(DateTime(timezone=False), nullable=False)
