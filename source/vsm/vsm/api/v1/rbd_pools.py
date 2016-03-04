@@ -168,6 +168,11 @@ class Controller(wsgi.Controller):
         context = req.environ['vsm.context']
         return self.scheduler_api.remove_rbd(context,body)
 
+    def flatten_rbd(self, req, body=None):
+        LOG.info('CEPH_LOG flatten_rbd body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.flatten_rbd(context,body)
+
     def rbd_snapshot_create(self, req, body=None):
         LOG.info('CEPH_LOG rbd_snapshot_create body %s ' % body)
         context = req.environ['vsm.context']

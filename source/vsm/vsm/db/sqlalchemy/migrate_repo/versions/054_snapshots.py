@@ -32,6 +32,7 @@ def upgrade(migrate_engine):
         Column('image', String(length=255), nullable=False),
         Column('size', BigInteger, nullable=True),
         Column('name', String(length=255), nullable=False),
+        Column('status', String(length=255), nullable=False, default='nomal'),
         Column('created_at', DateTime(timezone=False)),
         Column('updated_at', DateTime(timezone=False)),
         Column('deleted_at', DateTime(timezone=False)),

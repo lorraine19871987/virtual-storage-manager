@@ -181,6 +181,9 @@ class API(object):
     def remove_rbd(self,context,body):
         return self.scheduler_rpcapi.remove_rbd(context,body)
 
+    def flatten_rbd(self,context,body):
+        return self.scheduler_rpcapi.flatten_rbd(context,body)
+
     def rbd_snapshot_remove(self,context,body):
         return self.scheduler_rpcapi.rbd_snapshot_remove(context,body)
 

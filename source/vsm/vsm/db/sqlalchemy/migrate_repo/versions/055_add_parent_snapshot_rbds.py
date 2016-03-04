@@ -15,9 +15,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from sqlalchemy import Boolean, Column, DateTime
+from sqlalchemy import Boolean, Column, DateTime,ForeignKey
 from sqlalchemy import Integer, MetaData, String
 from sqlalchemy import Table, Index
+from vsm.db.sqlalchemy import models
 
 def upgrade(migrate_engine):
     # Upgrade operations go here. Don't create your own engine;
@@ -30,11 +31,11 @@ def upgrade(migrate_engine):
         autoload=True
     )
 
-    parent_snapshot = Column('parent_snapshot',String(length=255),nullable=True)
+    parent_snapshot = Column('parent_snapshot', Integer, ForeignKey(models.parent_snapshot), nullable=True)
+
 
     try:
         rbds.create_column(parent_snapshot)
-        #osd_state.update().values(status="OUT").execute()
     except Exception:
         raise
 
@@ -46,8 +47,7 @@ def downgrade(migrate_engine):
         'rbds', meta,
         autoload=True
     )
-    parent_snapshot = Column('parent_snapshot',String(length=255),nullable=True)
-
+    parent_snapshot = Column('parent_snapshot', Integer, ForeignKey(models.parent_snapshot), nullable=True)
     try:
         rbds.drop_column(parent_snapshot)
     except Exception:

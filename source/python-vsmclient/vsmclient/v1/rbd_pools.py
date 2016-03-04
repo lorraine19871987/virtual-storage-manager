@@ -114,6 +114,16 @@ class RBDPoolsManager(base.ManagerWithFind):
         url = '/rbd_pools/remove_rbd'
         return self.api.client.post(url, body=body)
 
+    def flatten_rbd(self, body):
+        '''
+        :param request:
+        :param body:{'rbds':[1,3]
+                    }
+        :return:
+        '''
+        url = '/rbd_pools/flatten_rbd'
+        return self.api.client.post(url, body=body)
+
     def rbd_snapshot_create(self, body):
         '''
         :param request:
