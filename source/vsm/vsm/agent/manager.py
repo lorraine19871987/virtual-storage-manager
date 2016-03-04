@@ -2285,6 +2285,14 @@ class AgentManager(manager.Manager):
         self.ceph_driver.flatten_rbd(body)
         return ret
 
+    def clone_rbd(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        if body.get('proctect_action',False):
+            snapshot_name = body.get('parent_snap')
+            self.ceph_driver.protect_snapshot({"snap":snapshot_name})
+        self.ceph_driver.clone_rbd(body)
+        return ret
+
     def rbd_snapshot_remove(self,context,body):
         ret = {'error_code':[],'error_message':[]}
         self.ceph_driver.rm_snapshot(body)

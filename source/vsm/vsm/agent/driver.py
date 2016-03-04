@@ -2547,8 +2547,19 @@ class CephDriver(object):
         return (out, err)
 
     def flatten_rbd(self,values):
-        (out, err) = utils.execute("rbd", "flatten", values['image'],  \
+        (out, err) = utils.execute("rbd", "flatten", values['snap'],  \
                       "--pool", values['pool'],  run_as_root=True)
+        return (out, err)
+
+    def clone_rbd(self,values):
+        (out, err) = utils.execute("rbd", "clone", values['parent_snap'],  \
+                      "%s/%s"%(values['dest_pool'],values['dest_image']) , \
+                                   run_as_root=True)
+        return (out, err)
+
+    def protect_snap(self,values):
+        (out, err) = utils.execute("rbd", "snap", "protect", values['image'],  \
+                        run_as_root=True)
         return (out, err)
 
     def rm_snapshot(self,values):

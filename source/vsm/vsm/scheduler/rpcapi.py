@@ -251,6 +251,9 @@ class SchedulerAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
     def flatten_rbd(self,ctxt,body):
         return self.call(ctxt, self.make_msg('flatten_rbd', body=body))
 
+    def clone_rbd(self,ctxt,body):
+        return self.call(ctxt, self.make_msg('clone_rbd', body=body))
+
     def rbd_snapshot_remove(self,ctxt,body):
         return self.call(ctxt, self.make_msg('rbd_snapshot_remove', body=body))
 
