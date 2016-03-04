@@ -210,6 +210,7 @@ class APIRouter(vsm.api.openstack.APIRouter):
                                     "remove_rbd": "post",
                                     "clone_rbd": "post",
                                     "add_rbd": "post",
+                                    "flatten_rbd": "post",
                                     "snapshot_get_by_rbd_id":"get"},
                         member={'action':'POST'})
 

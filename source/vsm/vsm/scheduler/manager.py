@@ -2200,7 +2200,7 @@ class SchedulerManager(manager.Manager):
             rbd_ref = db.rbd_get_by_pool_and_image(context,rbd['dest_pool'],rbd['dest_image'])
             if rbd_ref:
                 error_code.append('-1')
-                error_message.append('RBD device %s in pool %s already exist!'%(rbd['image'],pool['name']))
+                error_message.append('RBD device %s in pool %s already exist!'%(rbd['dest_pool'],rbd['dest_image']))
                 continue
             parent_snapshot = db.snapshot_get(context,rbd['src_snap_id'])
             if parent_snapshot:
@@ -2231,6 +2231,11 @@ class SchedulerManager(manager.Manager):
                           'parent_snapshot':values['parent_snapshot'],
                     }
                     db.rbd_create(context,values_db)
+                    values_snapshot = {
+                        'status':'protected',
+
+                        }
+                    db.snapshot_update(context,parent_snapshot['id'],values_snapshot)
                     info.append('Clone RBD device %s success!'%rbd['dest_image'])
             else:
                 error_code.append('-3')

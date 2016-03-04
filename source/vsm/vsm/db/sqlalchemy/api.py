@@ -3830,6 +3830,13 @@ def snapshot_get_by_pool_image(context,pool,image, session=None):
             all()
     return result
 
+def snapshot_get_by_pool_image_snapname(context,pool,image,name,session=None):
+    result = model_query(context, models.SnapShot, session=session).\
+            filter_by(pool=pool).\
+            filter_by(image=image).\
+            filter_by(name=name).\
+            first()
+    return result
 #rbd
 def rbd_create(context, values):
     rbd_ref = models.RBD()
