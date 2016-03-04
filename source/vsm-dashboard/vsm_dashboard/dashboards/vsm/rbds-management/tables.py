@@ -64,12 +64,6 @@ class RollbackSnapshotAction(tables.LinkAction):
     classes = ('btn-primary',)
 
 class RBDsTable(tables.DataTable):
-    STATUS_CHOICES = (
-        ("active", True),
-        ("available", True),
-        ("Active", True),
-    )
-
     id = tables.Column("id", verbose_name=_("ID"))
     pool = tables.Column("pool", verbose_name=_("Pool"))
     image_name = tables.Column("image_name", verbose_name=_("Image Name"))

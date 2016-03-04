@@ -1423,6 +1423,11 @@ class AgentManager(manager.Manager):
         rbd_image_list = []
         for rbd in rbd_list:
             rbd_image = rbd['image']
+            if rbd.get('parent_snapshot',None):
+                parent_snapshot = rbd['parent_snapshot']
+                parent_snapshot_ref = db.snapshot_get_by_pool_image_snapname(context, \
+                    parent_snapshot['pool'], parent_snapshot['image'], parent_snapshot['snapshot'],)
+                rbd['parent_snapshot'] = parent_snapshot_ref.id
             rbd_image_list.append(rbd_image)
         # rbd_list = rbd_list[:100]
         old_rbd_list = self._conductor_rpcapi.rbd_get_all(context,

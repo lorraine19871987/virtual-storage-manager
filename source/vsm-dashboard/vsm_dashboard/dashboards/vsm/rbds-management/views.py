@@ -56,7 +56,10 @@ class IndexView(tables.DataTableView):
                               _('Unable to retrieve sever list. '))
 
         rbd_status = []
+        format_display = {'1':"default",'2':"support cloning"}
+
         for _rbd in _rbd_status:
+            print '0000000000======dir==\n',dir(_rbd)
             rbd = {
                       "id": _rbd.id,
                       "pool": _rbd.pool,
@@ -64,7 +67,8 @@ class IndexView(tables.DataTableView):
                       "size": _rbd.size/(1024*1024),
                       "objects": _rbd.objects,
                       "order": _rbd.order,
-                      "format": _rbd.format,
+                      "format": format_display[str(_rbd.format)],
+                      "parent_snapshot": _rbd.parent_snapshot,
                       "updated_at": get_time_delta(_rbd.updated_at),
                       }
 

@@ -2478,6 +2478,9 @@ class CephDriver(object):
                             rbd_dict['format'] = rbd_image['format']
                             rbd_dict['objects'] = image_dict['objects']
                             rbd_dict['order'] = image_dict['order']
+                            if image_dict.get('parent'):
+                                rbd_dict['parent_snapshot'] = image_dict.get('parent')
+
                             rbd_list.append(rbd_dict)
             return rbd_list
         else:
@@ -2547,7 +2550,7 @@ class CephDriver(object):
         return (out, err)
 
     def flatten_rbd(self,values):
-        (out, err) = utils.execute("rbd", "flatten", values['snap'],  \
+        (out, err) = utils.execute("rbd", "flatten", values['image'],  \
                       "--pool", values['pool'],  run_as_root=True)
         return (out, err)
 
@@ -2555,11 +2558,13 @@ class CephDriver(object):
         (out, err) = utils.execute("rbd", "clone", values['parent_snap'],  \
                       "%s/%s"%(values['pool'],values['image']) , \
                                    run_as_root=True)
+        LOG.info('clone_rbd---%s###\n%s'%(out,err))
         return (out, err)
 
     def protect_snapshot(self,values):
         (out, err) = utils.execute("rbd", "snap", "protect", values['snap'],  \
                         run_as_root=True)
+        LOG.info('protect_snapshot---%s###\n%s'%(out,err))
         return (out, err)
 
     def rm_snapshot(self,values):

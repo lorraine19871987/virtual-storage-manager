@@ -10,7 +10,7 @@ $("#rbd_list__action_flatten_rbds").click(function(){
         if(this.children[0].children[0].checked) {
             is_selected = true;
             var rbd_id = this.children[0].children[0].value;
-            var parent_snapshot = this.children[8].val();
+            var parent_snapshot = this.children[9].innerHTML;
             if ( parent_snapshot == '-'){
                 is_parent_snapshot_valid = false
             }
