@@ -59,7 +59,6 @@ class IndexView(tables.DataTableView):
         format_display = {'1':"default",'2':"support cloning"}
 
         for _rbd in _rbd_status:
-            print '0000000000======dir==\n',dir(_rbd)
             rbd = {
                       "id": _rbd.id,
                       "pool": _rbd.pool,
@@ -171,7 +170,7 @@ def list_rbds_by_pool(request):
     rbd_list = []
     pool_name = request.GET.get("pool_name", None)
     rbd_format = int(request.GET.get("format", -1))
-    print '--------format---',rbd_format
+
     if pool_name is None:
         pool_id = int(request.GET.get("pool_id", None))
         rsp, pool_objs = vsmapi.pools_list(request)
@@ -195,10 +194,10 @@ def list_snapshots_by_image(request):
         if rbd.id == rbd_id:
             rsp, snapshots = vsmapi.snapshot_get_by_image(request,{'rbd_id':rbd_id})
             snapshots = snapshots['snapshots']
-            print '444==',snapshots
+
             for snap in snapshots:
                 snapshot_list.append((snap['id'],snap['name']))
-            print '999===',snapshot_list
+
             # if rbd.parent_snapshot:
             #     snapshot_list.append(('',rbd.parent_snapshot))#TODO
             break
