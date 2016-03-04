@@ -18,13 +18,15 @@ from django.conf.urls import patterns, url
 from .views import IndexView,create_new_rbd,create_new_rbd_view, \
     remove_rbds,flatten_rbds,get_image_formt,rollback_snapshot_view,\
     create_snapshot,create_snapshot_view,list_rbds_by_pool,\
-    list_snapshots_by_image,rollback_snapshot
+    list_snapshots_by_image,rollback_snapshot,clone_rbd,clone_rbd_view
 
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
     url(r'^create_new_rbd/$', create_new_rbd, name='create_new_rbd'),
     url(r'^remove_rbds/$', remove_rbds, name='remove_rbds'),
+    url(r'^clone_rbd_view/$', clone_rbd_view, name='clone_rbd_view'),
+    url(r'^clone_rbd/$', clone_rbd, name='clone_rbd'),
     url(r'^flatten_rbds/$', flatten_rbds, name='flatten_rbds'),
     url(r'^get_image_formt/$', get_image_formt, name='get_image_formt'),
     # url(r'^devices/(?P<action>\w+)$', DevicesAction, name='devicesaction'),

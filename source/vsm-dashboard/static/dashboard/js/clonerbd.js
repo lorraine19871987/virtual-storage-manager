@@ -44,7 +44,7 @@ function ChangeRBD(obj){
     var rbd_selected = obj.options[obj.selectedIndex].value;
     $.ajax({
 		type: "get",
-		url: "/dashboard/vsm/rbds-management/list_snapshots_by_pool?rbd_id="+rbd_selected,
+		url: "/dashboard/vsm/rbds-management/list_snapshots_by_image?rbd_id="+rbd_selected,
 		data: "",
 		dataType:"json",
 		success: function(data){
@@ -54,12 +54,12 @@ function ChangeRBD(obj){
                     //TODO Nothing
                 }
                 else{
-                    $("#selSnapshot")[0].options.length = 0;
+                    $("#selSrcSnapshot")[0].options.length = 0;
                     for(var i=0;i<snapshot_list.length;i++){
                         var item = new Option()
                         item.value = snapshot_list[i][0];
                         item.text = snapshot_list[i][1];
-                        $("#selSnapshot")[0].options.add(item);
+                        $("#selSrcSnapshot")[0].options.add(item);
                     }
 
                 }
@@ -82,7 +82,7 @@ $(document).ajaxStart(function(){
 });
 function CloneRBD(){
 	//Check the field is should not null
-	if($("#txtRBDName").text == "" or $("#selSrcSnapshot").val() == "" or $("#selDesstPool").val() == ""){
+	if($("#txtRBDName").val() == "" || $("#selSrcSnapshot").val() == "" || $("#selDestPool").val() == ""){
 		showTip("error","The field is marked as '*' should not be empty");
 		return  false;
 	}
@@ -91,8 +91,8 @@ function CloneRBD(){
 	}
     var rbd = {
                 'src_snap_id':$("#selSrcSnapshot").val(),
-                'dest_pool':$("#selDesstPool")[0].options[$("#selDesstPool")[0].selectedIndex].text,
-                'dest_image':$("#txtRBDName").text,
+                'dest_pool':$("#selDestPool")[0].options[$("#selDestPool")[0].selectedIndex].text,
+                'dest_image':$("#txtRBDName").val(),
 			}
 	data["rbds"].push(rbd)
 	var postData = JSON.stringify(data);
@@ -140,14 +140,17 @@ function GetPool(){
 
                 }
                 else{
-                    $("#selsrcPool")[0].options.length = 0;
-                    $("#seldestPool")[0].options.length = 0;
+                    $("#selSrcPool")[0].options.length = 0;
+                    $("#selDestPool")[0].options.length = 0;
                     for(var i=0;i<pool_list.length;i++){
                         var item = new Option()
                         item.value = pool_list[i][0];
                         item.text = pool_list[i][1];
-                        $("#selsrcPool")[0].options.add(item);
-                        $("#seldestPool")[0].options.add(item);
+                        $("#selSrcPool")[0].options.add(item);
+                        var item_dest = new Option()
+                        item_dest.value = pool_list[i][0];
+                        item_dest.text = pool_list[i][1];
+                        $("#selDestPool")[0].options.add(item_dest);
                     }
                     GetRBD(pool_list[0][1])
                 }
@@ -179,12 +182,12 @@ function GetRBD(pool_name){
                     return 0
                 }
                 else{
-                    $("#selImage")[0].options.length = 0;
+                    $("#selSrcImage")[0].options.length = 0;
                     for(var i=0;i<rbd_list.length;i++){
                         var item = new Option()
                         item.value = rbd_list[i][0];
                         item.text = rbd_list[i][1];
-                        $("#selImage")[0].options.add(item);
+                        $("#selSrcImage")[0].options.add(item);
                     }
                     GetSnapshot(rbd_list[0][0])
                 }

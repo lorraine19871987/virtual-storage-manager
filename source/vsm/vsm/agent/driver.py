@@ -2553,12 +2553,12 @@ class CephDriver(object):
 
     def clone_rbd(self,values):
         (out, err) = utils.execute("rbd", "clone", values['parent_snap'],  \
-                      "%s/%s"%(values['dest_pool'],values['dest_image']) , \
+                      "%s/%s"%(values['pool'],values['image']) , \
                                    run_as_root=True)
         return (out, err)
 
-    def protect_snap(self,values):
-        (out, err) = utils.execute("rbd", "snap", "protect", values['image'],  \
+    def protect_snapshot(self,values):
+        (out, err) = utils.execute("rbd", "snap", "protect", values['snap'],  \
                         run_as_root=True)
         return (out, err)
 
