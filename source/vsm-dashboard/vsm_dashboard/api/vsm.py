@@ -264,7 +264,7 @@ def rbd_clone(request, body):
                 }
     :return:
     '''
-    return vsmclient(request).rbd_pools.add_clone(body=body)
+    return vsmclient(request).rbd_pools.clone_rbd(body=body)
 
 def rbd_remove(request, body):
     '''

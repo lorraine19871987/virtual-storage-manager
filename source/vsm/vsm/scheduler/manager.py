@@ -2207,7 +2207,7 @@ class SchedulerManager(manager.Manager):
                 values = {'pool': rbd['dest_pool'],
                           'image': rbd['dest_image'],
                           'parent_snapshot':rbd['src_snap_id'],
-                          # 'proctect_action' : True,
+                          'size' : 0,
                           # 'parent_snap': '',#str
                           # 'objects': rbd.get('objects',''),#int
                           # 'order': rbd.get('order',22), #int bit}
@@ -2224,6 +2224,10 @@ class SchedulerManager(manager.Manager):
                     values_db = {
                           'pool': values['pool'],
                           'image': values['image'],
+                          'size': values['size'],
+                          'format':2,
+                          'objects':0,
+                          'order':22,
                           'parent_snapshot':values['parent_snapshot'],
                     }
                     db.rbd_create(context,values_db)

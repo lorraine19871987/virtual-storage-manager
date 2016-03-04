@@ -44,7 +44,7 @@ function ChangeRBD(obj){
     var rbd_selected = obj.options[obj.selectedIndex].value;
     $.ajax({
 		type: "get",
-		url: "/dashboard/vsm/rbds-management/list_snapshots_by_pool?rbd_id="+rbd_selected,
+		url: "/dashboard/vsm/rbds-management/list_snapshots_by_image?rbd_id="+rbd_selected,
 		data: "",
 		dataType:"json",
 		success: function(data){

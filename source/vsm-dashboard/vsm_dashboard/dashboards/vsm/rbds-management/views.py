@@ -166,7 +166,8 @@ def get_image_formt(request):
 def list_rbds_by_pool(request):
     rbd_list = []
     pool_name = request.GET.get("pool_name", None)
-    rbd_format = request.GET.get("rbd_format", None)
+    rbd_format = int(request.GET.get("format", -1))
+    print '--------format---',rbd_format
     if pool_name is None:
         pool_id = int(request.GET.get("pool_id", None))
         rsp, pool_objs = vsmapi.pools_list(request)
@@ -175,7 +176,7 @@ def list_rbds_by_pool(request):
     rbd_obj_list= vsmapi.rbd_pool_status(request)
     for rbd in rbd_obj_list:
         if rbd.pool == pool_name:
-            if rbd_format is not None and rbd.format != rbd_format:
+            if rbd_format != -1 and rbd.format != rbd_format:
                 pass
             else:
                 rbd_list.append((rbd.id,rbd.image_name))
