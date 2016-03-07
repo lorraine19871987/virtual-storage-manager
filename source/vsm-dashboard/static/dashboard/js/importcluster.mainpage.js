@@ -37,7 +37,7 @@ $("#server_list__action_remove_cluster").click(function(){
 		data: JSON.stringify(cluster_id_list),
 		dataType:"json",
 		success: function(data){
-				//console.log(data);
+				console.log(data);
                 if(data.error_code.length == 0){
                     window.location.href="/dashboard/vsm/cluster-import/";
                     showTip("info",data.info);
