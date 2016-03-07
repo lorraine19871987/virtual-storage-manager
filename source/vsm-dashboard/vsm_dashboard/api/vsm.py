@@ -409,6 +409,13 @@ def import_cluster(request, body=None):
     """
     return vsmclient(request).clusters.import_cluster(body)
 
+
+def cluster_remove(request, body=None):
+    """check_pre_existing_cluster.
+        body : None
+    """
+    return vsmclient(request).clusters.undo_import_cluster(body)
+
 def detect_crushmap(request, body=None):
     """check_pre_existing_cluster.
         body : {u'cluster_conf': u'/etc/ceph/ceph.conf',

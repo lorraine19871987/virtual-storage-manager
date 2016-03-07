@@ -113,17 +113,27 @@ def remove_rbds(request):
     data = json.loads(request.body)
     rbd_id_list = data["rbd_id_list"]
     rbds = {'rbds':rbd_id_list}
-    ret,message = vsmapi.rbd_remove(request, rbds)
-    rs = json.dumps(message)
-    return HttpResponse(rs)
+    #ret,message = vsmapi.rbd_remove(request, rbds)
+    try:
+        rsp, ret = vsmapi.rbd_remove(request, rbds)
+        ret = ret['message']
+    except:
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
+    return HttpResponse(resp)
+
 
 def flatten_rbds(request):
     data = json.loads(request.body)
     rbd_id_list = data["rbd_id_list"]
     rbds = {'rbds':rbd_id_list}
-    ret,message = vsmapi.rbd_flatten(request, rbds)
-    rs = json.dumps(message)
-    return HttpResponse(rs)
+    try:
+        rsp, ret = vsmapi.rbd_flatten(request, rbds)
+        ret = ret['message']
+    except:
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
+    return HttpResponse(resp)
 
 @csrf_exempt
 def create_snapshot_view(request):
