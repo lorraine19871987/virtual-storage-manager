@@ -61,7 +61,7 @@ class ListServerTable(tables.DataTable):
     class Meta:
         name = "server_list"
         verbose_name = _("Server List")
-        table_actions = (ImportClusterAction,)
+        table_actions = (ImportClusterAction,RemoveClusterAction)
         status_columns = ['status']
         multi_select = False
 
