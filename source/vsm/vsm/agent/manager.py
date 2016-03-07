@@ -2154,7 +2154,7 @@ class AgentManager(manager.Manager):
                   'ceph_conf':ceph_conf,
                   }
         cluster_all = db.cluster_get_all(context)
-        if len(cluster_all) == 1:
+        if len(cluster_all) >= 1:
             cluster_id = cluster_all[0].id
             db.cluster_update(context,cluster_id,values)
 
