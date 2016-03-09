@@ -60,7 +60,6 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-
 set -e
 set -o xtrace
 
