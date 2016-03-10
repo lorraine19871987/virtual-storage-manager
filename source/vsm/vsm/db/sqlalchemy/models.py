@@ -761,6 +761,9 @@ class RBD(BASE, VsmBase):
     format = Column(Integer, nullable=False)
     objects = Column(Integer, nullable=False)
     order = Column(Integer, nullable=False)
+    parent_snapshot = Column(Integer,
+                        ForeignKey('snapshots.id'),
+                        nullable=True)
 
 class MDS(BASE, VsmBase):
     """ ceph MDS report """
@@ -819,3 +822,16 @@ class Config(BASE, VsmBase):
     section = Column('section', String(length=255), nullable=False)
     description = Column('description', String(length=255), nullable=True)
     alterable = Column('alterable', Boolean(create_constraint=True, name=None))
+
+class SnapShot(BASE, VsmBase):
+    """ ceph snapshot report """
+    __tablename__ = 'snapshots'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    pool = Column(String(length=255), nullable=False)
+    image = Column(String(length=255), nullable=False)
+    size = Column(BigInteger, nullable=True)
+    snap_id = Column(BigInteger, nullable=True)
+    name = Column(String(length=255), nullable=False)
+    status = Column(String(length=255), nullable=False, default='nomal')
+    created_at = Column(DateTime(timezone=False), nullable=False)

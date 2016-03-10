@@ -1141,8 +1141,8 @@ def storage_metadata_update(context, storage_id, metadata, delete):
 @require_context
 def snapshot_create(context, values):
     values['snapshot_metadata'] = _metadata_refs(values.get('metadata'),
-                                                 models.SnapshotMetadata)
-    snapshot_ref = models.Snapshot()
+                                                 models.SnapShotMetadata)
+    snapshot_ref = models.SnapShot()
     if not values.get('id'):
         values['id'] = str(uuid.uuid4())
     snapshot_ref.update(values)
@@ -1157,7 +1157,7 @@ def snapshot_create(context, values):
 def snapshot_destroy(context, snapshot_id):
     session = get_session()
     with session.begin():
-        session.query(models.Snapshot).\
+        session.query(models.SnapShot).\
             filter_by(id=snapshot_id).\
             update({'status': 'deleted',
                     'deleted': True,
@@ -1166,7 +1166,7 @@ def snapshot_destroy(context, snapshot_id):
 
 @require_context
 def snapshot_get(context, snapshot_id, session=None):
-    result = model_query(context, models.Snapshot, session=session,
+    result = model_query(context, models.SnapShot, session=session,
                          project_only=True).\
         filter_by(id=snapshot_id).\
         first()
@@ -1182,14 +1182,14 @@ def snapshot_get_all(context):
 
 @require_context
 def snapshot_get_all_for_storage(context, storage_id):
-    return model_query(context, models.Snapshot, read_deleted='no',
+    return model_query(context, models.SnapShot, read_deleted='no',
                        project_only=True).\
         filter_by(storage_id=storage_id).all()
 
 @require_context
 def snapshot_get_all_by_project(context, project_id):
     authorize_project_context(context, project_id)
-    return model_query(context, models.Snapshot).\
+    return model_query(context, models.SnapShot).\
         filter_by(project_id=project_id).\
         all()
 
@@ -1197,8 +1197,8 @@ def snapshot_get_all_by_project(context, project_id):
 def snapshot_data_get_for_project(context, project_id, session=None):
     authorize_project_context(context, project_id)
     result = model_query(context,
-                         func.count(models.Snapshot.id),
-                         func.sum(models.Snapshot.storage_size),
+                         func.count(models.SnapShot.id),
+                         func.sum(models.SnapShot.storage_size),
                          read_deleted="no",
                          session=session).\
         filter_by(project_id=project_id).\
@@ -1218,7 +1218,7 @@ def snapshot_update(context, snapshot_id, values):
 ####################
 
 def _snapshot_metadata_get_query(context, snapshot_id, session=None):
-    return model_query(context, models.SnapshotMetadata,
+    return model_query(context, models.SnapShotMetadata,
                        session=session, read_deleted="no").\
         filter_by(snapshot_id=snapshot_id)
 
@@ -1282,7 +1282,7 @@ def snapshot_metadata_update(context, snapshot_id, metadata, delete):
             meta_ref = snapshot_metadata_get_item(context, snapshot_id,
                                                   meta_key, session)
         except exception.SnapshotMetadataNotFound as e:
-            meta_ref = models.SnapshotMetadata()
+            meta_ref = models.SnapShotMetadata()
             item.update({"key": meta_key, "snapshot_id": snapshot_id})
 
         meta_ref.update(item)
@@ -2435,6 +2435,19 @@ def cluster_update_ceph_conf(context, cluster_id, ceph_conf, session=None):
 
         cluster_ref.save(session=session)
 
+def cluster_remove(context,session=None):
+    session = get_session()
+    sql_str = '''update clusters set info_dict=null,ceph_conf=''; \
+                 update init_nodes set status='available'; \
+                 update osd_states  set osd_name='osd.x',state='Uninitialized',operation_status='Uninitialized'; \
+                 delete from mdses;  \
+                 delete from storage_pools; \
+                 delete from storage_groups; \
+                 alter table storage_groups auto_increment=1; \
+                 delete from summary; \
+                 delete from zones  where type is null;
+    '''
+    session.execute(sql_str)
 def cluster_increase_deleted_times(context, cluster_id, session=None):
     if not session:
         session = get_session()
@@ -3783,7 +3796,64 @@ def pg_update_or_create(context, values, session=None):
     else:
         pg = pg_create(context, values)
     return pg
+#snapshot
+def snapshot_create(context, values):
+    snapshot_ref = models.SnapShot()
+    snapshot_ref.update(values)
+    try:
+        snapshot_ref.save()
+    except db_exc.DBDuplicateEntry:
+        raise exception.RBDExists
+    return snapshot_ref
 
+def snapshot_update(context, snapshot_id, values, session=None):
+    if not session:
+        session = get_session()
+    with session.begin():
+        snapshot_ref = snapshot_get(context, snapshot_id, session=session)
+        values['updated_at'] = timeutils.utcnow()
+        convert_datetimes(values, 'created_at', 'deleted_at', 'updated_at')
+        snapshot_ref.update(values)
+        snapshot_ref.save(session=session)
+    return snapshot_ref
+
+def snapshot_get(context, snapshot_id, session=None):
+    result = model_query(context, models.SnapShot, session=session).\
+            filter_by(id=snapshot_id).\
+            first()
+    return result
+
+def snapshot_get_by_pool_image(context,pool,image, session=None):
+    result = model_query(context, models.SnapShot, session=session).\
+            filter_by(pool=pool).\
+            filter_by(image=image).\
+            all()
+    return result
+
+def snap_update_or_create_by_pool_image_snapname(context, values, session=None):
+    if not session:
+        session = get_session()
+    with session.begin():
+        snapshot_ref = snapshot_get_by_pool_image_snapname(context, \
+                        values['pool'],values['image'],values['name'], session=session)
+        if snapshot_ref:
+            values['updated_at'] = timeutils.utcnow()
+            convert_datetimes(values, 'created_at', 'deleted_at', 'updated_at')
+            snapshot_ref.update(values)
+        else:
+            snapshot_ref = models.SnapShot()
+            session.add(snapshot_ref)
+            snapshot_ref.update(values)
+        snapshot_ref.save(session=session)
+    return snapshot_ref
+
+def snapshot_get_by_pool_image_snapname(context,pool,image,name,session=None):
+    result = model_query(context, models.SnapShot, session=session).\
+            filter_by(pool=pool).\
+            filter_by(image=image).\
+            filter_by(name=name).\
+            first()
+    return result
 #rbd
 def rbd_create(context, values):
     rbd_ref = models.RBD()

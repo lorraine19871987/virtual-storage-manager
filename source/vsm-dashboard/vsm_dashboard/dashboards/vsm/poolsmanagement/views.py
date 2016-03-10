@@ -171,3 +171,11 @@ def get_default_pg_number_storage_group(request):
             storage_group_list.append((key, group_list[key], default_pg_num['pg_num_default']))
     resp = json.dumps({"storage_group_list":storage_group_list})
     return HttpResponse(resp)
+
+def list_pools_for_sel_input(request):
+    pool_list = []
+    storage_pool_list= vsmapi.pool_list(request)
+    for pool in storage_pool_list:
+        pool_list.append((pool['pool_id'],pool['name']))
+    resp = json.dumps({"pool_list":pool_list})
+    return HttpResponse(resp)

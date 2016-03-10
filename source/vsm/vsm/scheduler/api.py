@@ -174,3 +174,24 @@ class API(object):
 
     def get_default_pg_num_by_storage_group(self,context,body):
         return self.scheduler_rpcapi.get_default_pg_num_by_storage_group(context,body)
+
+    def add_rbd(self,context,body):
+        return self.scheduler_rpcapi.add_rbd(context,body)
+
+    def remove_rbd(self,context,body):
+        return self.scheduler_rpcapi.remove_rbd(context,body)
+
+    def flatten_rbd(self,context,body):
+        return self.scheduler_rpcapi.flatten_rbd(context,body)
+
+    def clone_rbd(self,context,body):
+        return self.scheduler_rpcapi.clone_rbd(context,body)
+
+    def rbd_snapshot_remove(self,context,body):
+        return self.scheduler_rpcapi.rbd_snapshot_remove(context,body)
+
+    def rbd_snapshot_create(self,context,body):
+        return self.scheduler_rpcapi.rbd_snapshot_create(context,body)
+
+    def rbd_snapshot_rollback(self,context,body):
+        return self.scheduler_rpcapi.rbd_snapshot_rollback(context,body)

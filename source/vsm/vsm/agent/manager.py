@@ -1421,8 +1421,20 @@ class AgentManager(manager.Manager):
     def update_rbd_status(self, context):
         rbd_list = self.ceph_driver.get_rbd_status()
         rbd_image_list = []
+        snapshots_all = []#[{"name":"snap5","size":1072693248,"pool":'poola','image':'image1'},{"name":"pool-image5-snap","size":1072693248}]
+        snap_id_list = []
         for rbd in rbd_list:
             rbd_image = rbd['image']
+            snapshots_all = snapshots_all + self.ceph_driver.get_snaps_info(rbd['pool'],rbd['image'])
+            #LOG.info('get snap----111:%s'%self.ceph_driver.get_snaps_info(rbd['pool'],rbd['image']))
+            if rbd.get('parent_snapshot',None):
+                parent_snapshot = rbd['parent_snapshot']
+                parent_snapshot_ref = db.snapshot_get_by_pool_image_snapname(context, \
+                    parent_snapshot['pool'], parent_snapshot['image'], parent_snapshot['snapshot'],)
+                if parent_snapshot_ref:
+                    rbd['parent_snapshot'] = parent_snapshot_ref.id
+                else:
+                    rbd['parent_snapshot'] = None
             rbd_image_list.append(rbd_image)
         # rbd_list = rbd_list[:100]
         old_rbd_list = self._conductor_rpcapi.rbd_get_all(context,
@@ -1439,7 +1451,13 @@ class AgentManager(manager.Manager):
                 db.rbd_update_or_create(context, old_rbd)
         for rbd in rbd_list:
             db.rbd_update_or_create(context, rbd)
-
+        LOG.info('update snps begin==%s'%snapshots_all)
+        snap_id_list = [snap['snap_id'] for snap in snapshots_all]
+        snap_id_list = list(set(snap_id_list))
+        for snap in snapshots_all:
+            if snap['snap_id'] in snap_id_list:
+                db.snap_update_or_create_by_pool_image_snapname(context,snap)
+                snap_id_list.remove(snap['snap_id'])
     #@require_active_host
     @periodic_task(run_immediately=True, service_topic=FLAGS.agent_topic,
                    spacing=_get_interval_time('ceph_osd_pool_stats'))
@@ -2088,7 +2106,7 @@ class AgentManager(manager.Manager):
                   'ceph_conf':ceph_conf,
                   }
         cluster_all = db.cluster_get_all(context)
-        if len(cluster_all) == 1:
+        if len(cluster_all) >= 1:
             cluster_id = cluster_all[0].id
             db.cluster_update(context,cluster_id,values)
 
@@ -2270,10 +2288,42 @@ class AgentManager(manager.Manager):
         LOG.info('get_default_pg_num_by_storage_group:%s'%pg_num_default)
         return pg_num_default
 
+    def add_rbd(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.create_rbd(body)
+        return ret
 
+    def remove_rbd(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.rm_rbd(body)
+        return ret
 
+    def flatten_rbd(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.flatten_rbd(body)
+        return ret
 
+    def clone_rbd(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        if body.get('proctect_action',False):
+            snapshot_name = body.get('parent_snap')
+            self.ceph_driver.protect_snapshot({"snap":snapshot_name})
+        self.ceph_driver.clone_rbd(body)
+        return ret
 
+    def rbd_snapshot_remove(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.rm_snapshot(body)
+        return ret
 
+    def rbd_snapshot_rollback(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.rollback_snapshot(body)
+        return ret
+
+    def rbd_snapshot_create(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.create_snapshot(body)
+        return ret
 
 

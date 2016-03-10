@@ -2458,7 +2458,25 @@ class CephDriver(object):
                  'info']
         rbd_image_dict = self._run_cmd_to_json(args, pretty=False)
         return rbd_image_dict
- 
+
+    def get_snaps_info(self,pool,image):
+        snap_list = []
+        args = ['rbd', 'snap', 'ls',\
+             '%s/%s'%(pool,image),\
+             '--pretty-format',\
+             '--format', 'json']
+        snap_list_src = self._run_cmd_to_json(args, pretty=False)
+
+        for snap in snap_list_src:
+            snap_values = {}
+            snap_values['pool'] = pool
+            snap_values['image'] = image
+            snap_values['size'] = snap['size']
+            snap_values['name'] = snap['name']
+            snap_values['snap_id'] = snap['id']
+            snap_list.append(snap_values)
+        return snap_list
+
     def get_rbd_status(self):
         pool_list = self.get_osd_lspools()
         if pool_list:
@@ -2478,6 +2496,9 @@ class CephDriver(object):
                             rbd_dict['format'] = rbd_image['format']
                             rbd_dict['objects'] = image_dict['objects']
                             rbd_dict['order'] = image_dict['order']
+                            if image_dict.get('parent'):
+                                rbd_dict['parent_snapshot'] = image_dict.get('parent')
+
                             rbd_list.append(rbd_dict)
             return rbd_list
         else:
@@ -2535,6 +2556,49 @@ class CephDriver(object):
     def get_crush_rule_dump_by_name(self, name):
         args = ['ceph', 'osd', 'crush', 'rule', 'dump', name]
         return self._run_cmd_to_json(args)
+
+    def create_rbd(self,values):
+        (out, err) = utils.execute("rbd", "create", values['image'], "--size", values['size'], \
+                      "--pool", values['pool'],  run_as_root=True)
+        return (out, err)
+
+    def rm_rbd(self,values):
+        (out, err) = utils.execute("rbd", "rm", values['image'],  \
+                      "--pool", values['pool'],  run_as_root=True)
+        return (out, err)
+
+    def flatten_rbd(self,values):
+        (out, err) = utils.execute("rbd", "flatten", values['image'],  \
+                      "--pool", values['pool'],  run_as_root=True)
+        return (out, err)
+
+    def clone_rbd(self,values):
+        (out, err) = utils.execute("rbd", "clone", values['parent_snap'],  \
+                      "%s/%s"%(values['pool'],values['image']) , \
+                                   run_as_root=True)
+        LOG.info('clone_rbd---%s###\n%s'%(out,err))
+        return (out, err)
+
+    def protect_snapshot(self,values):
+        (out, err) = utils.execute("rbd", "snap", "protect", values['snap'],  \
+                        run_as_root=True)
+        LOG.info('protect_snapshot---%s###\n%s'%(out,err))
+        return (out, err)
+
+    def rm_snapshot(self,values):
+        (out, err) = utils.execute("rbd", "snap" ,"rm","--snap", values['name'],  \
+                      "--image",values['image'],"--pool", values['pool'],  run_as_root=True)
+        return (out, err)
+
+    def create_snapshot(self,values):
+        (out, err) = utils.execute("rbd", "snap" ,"create","%s/%s"%(values['pool'],values['image']),\
+                      "--snap", values['name'],  run_as_root=True)
+        return (out, err)
+
+    def rollback_snapshot(self,values):
+        (out, err) = utils.execute("rbd", "snap" ,"rollback","--snap", values['name'],  \
+                      "--image",values['image'],"--pool", values['pool'],  run_as_root=True)
+        return (out, err)
 
     def get_summary(self, sum_type, sum_dict=None):
         if sum_type in [FLAGS.summary_type_pg, FLAGS.summary_type_osd,

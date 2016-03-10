@@ -26,7 +26,7 @@ from vsm.api.views import rbd_pools as rbd_pool_views
 from vsm import conductor
 from vsm import scheduler
 from vsm import exception
-
+from vsm import db
 LOG = logging.getLogger(__name__)
 
 FLAGS = flags.FLAGS
@@ -148,6 +148,50 @@ class Controller(wsgi.Controller):
                                'nearfull': False,
                                'full': False,
                                }}
+
+    def snapshot_get_by_rbd_id(self, req, body=None):
+        LOG.info('CEPH_LOG snapshot_get_by_rbd_id body %s ' % body)
+        context = req.environ['vsm.context']
+        rbd_id = req.GET.get('rbd_id')
+        rbd = db.rbd_get(context,rbd_id)
+        snaps = db.snapshot_get_by_pool_image(context,rbd.pool,rbd.image)
+        LOG.info('CEPH_LOG snapshot_get_by_rbd_id snaps %s ' % snaps)
+        return {'snapshots':snaps}
+
+    def add_rbd(self, req, body=None):
+        LOG.info('CEPH_LOG add_rbd body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.add_rbd(context,body)
+
+    def remove_rbd(self, req, body=None):
+        LOG.info('CEPH_LOG remove_rbd body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.remove_rbd(context,body)
+
+    def flatten_rbd(self, req, body=None):
+        LOG.info('CEPH_LOG flatten_rbd body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.flatten_rbd(context,body)
+
+    def clone_rbd(self, req, body=None):
+        LOG.info('CEPH_LOG clone_rbd body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.clone_rbd(context,body)
+
+    def rbd_snapshot_create(self, req, body=None):
+        LOG.info('CEPH_LOG rbd_snapshot_create body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.rbd_snapshot_create(context,body)
+
+    def rbd_snapshot_remove(self, req, body=None):
+        LOG.info('CEPH_LOG rbd_snapshot_remove body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.rbd_snapshot_remove(context,body)
+
+    def rbd_snapshot_rollback(self, req, body=None):
+        LOG.info('CEPH_LOG rbd_snapshot_rollback body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.rbd_snapshot_rollback(context,body)
 
 def create_resource(ext_mgr):
     return wsgi.Resource(Controller(ext_mgr))

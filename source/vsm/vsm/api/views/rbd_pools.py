@@ -35,6 +35,7 @@ class ViewBuilder(common.ViewBuilder):
                 "objects": rbd_pool['objects'],
                 "order": rbd_pool['order'],
                 "format": rbd_pool['format'],
+                "parent_snapshot": rbd_pool['parent_snapshot'],
             }
         }
         rbd['rbd_pool']['updated_at'] = time.strftime("%Y-%m-%d %H:%M:%S", time.strptime(rbd_pool['updated_at'], "%Y-%m-%dT%H:%M:%S.000000"))
@@ -51,6 +52,7 @@ class ViewBuilder(common.ViewBuilder):
                 "objects": rbd_pool['objects'],
                 "order": rbd_pool['order'],
                 "format": rbd_pool['format'],
+                "parent_snapshot": rbd_pool['parent_snapshot'],
             }
         }
         try:
