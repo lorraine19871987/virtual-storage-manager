@@ -764,6 +764,9 @@ class RBD(BASE, VsmBase):
     parent_snapshot = Column(Integer,
                         ForeignKey('snapshots.id'),
                         nullable=True)
+    auto_snapshot_start = Column('auto_snapshot_start', DateTime(timezone=False), nullable=True)
+    auto_snapshot_interval = Column('auto_snapshot_start', Integer,  nullable=True)
+
 
 class MDS(BASE, VsmBase):
     """ ceph MDS report """

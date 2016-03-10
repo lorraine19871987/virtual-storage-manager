@@ -2112,6 +2112,8 @@ class SchedulerManager(manager.Manager):
                       'format': rbd['format'],#int
                       'objects': rbd.get('objects',''),#int
                       'order': rbd.get('order',22), #int bit}
+                      'auto_snapshot_start':rbd.get('autosnapstart',None),
+                      'auto_snapshot_interval':rbd.get('auto_snapshot_interval',None),
             }
             ret = self._agent_rpcapi.add_rbd(context,values,active_monitor['host'])
             error_message = error_message + ret['error_message']
@@ -2208,7 +2210,9 @@ class SchedulerManager(manager.Manager):
                           'image': rbd['dest_image'],
                           'parent_snapshot':rbd['src_snap_id'],
                           'size' : 0,
-                          # 'parent_snap': '',#str
+                          'auto_snapshot_start':rbd.get('autosnapstart',None),
+                          'auto_snapshot_interval':rbd.get('auto_snapshot_interval',None),
+
                           # 'objects': rbd.get('objects',''),#int
                           # 'order': rbd.get('order',22), #int bit}
                 }
