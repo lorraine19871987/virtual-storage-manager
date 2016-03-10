@@ -351,3 +351,10 @@ def add_zone_to_crushmap_and_db(request, body):
     :return:
     '''
     return vsmclient(request).zones.add_zone_to_crushmap_and_db(body)
+
+
+def cluster_remove(request, body=None):
+    """check_pre_existing_cluster.
+        body : None
+    """
+    return vsmclient(request).clusters.undo_import_cluster(body)

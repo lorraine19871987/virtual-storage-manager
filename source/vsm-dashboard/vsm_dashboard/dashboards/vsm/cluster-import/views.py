@@ -120,6 +120,19 @@ def validate_conf(request):
     resp = json.dumps(resp)
     return HttpResponse(resp)
 
+def remove_cluster(request):
+    # data = json.loads(request.body)
+    # cluster_id_list = data["cluster_id_list"]
+    # clusters = {'clusters':cluster_id_list}
+    # #ret,message = vsmapi.rbd_remove(request, rbds)
+    try:
+        rsp, ret = vsmapi.cluster_remove(request)
+        ret = ret['message']
+    except:
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
+    return HttpResponse(resp)
+
 
 def import_cluster(request):
     status = ""

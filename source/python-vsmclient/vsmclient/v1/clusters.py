@@ -165,6 +165,9 @@ class ClusterManager(base.ManagerWithFind):
         url = "/clusters/import_cluster"
         return self.api.client.post(url,body=body)
 
+    def undo_import_cluster(self,body):
+        url = "/clusters/undo_import_cluster"
+        return self.api.client.post(url,body=body)
 
     def detect_crushmap(self,body):
         url = "/clusters/detect_crushmap"

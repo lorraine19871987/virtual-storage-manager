@@ -2435,6 +2435,20 @@ def cluster_update_ceph_conf(context, cluster_id, ceph_conf, session=None):
 
         cluster_ref.save(session=session)
 
+def cluster_remove(context,session=None):
+    session = get_session()
+    sql_str = '''update clusters set info_dict=null,ceph_conf=''; \
+                 update init_nodes set status='available'; \
+                 update osd_states  set osd_name='osd.x',state='Uninitialized',operation_status='Uninitialized'; \
+                 delete from mdses;  \
+                 delete from storage_pools; \
+                 delete from storage_groups; \
+                 alter table storage_groups auto_increment=1; \
+                 delete from summary; \
+                 delete from zones  where type is null;
+    '''
+    session.execute(sql_str)
+
 def cluster_increase_deleted_times(context, cluster_id, session=None):
     if not session:
         session = get_session()
