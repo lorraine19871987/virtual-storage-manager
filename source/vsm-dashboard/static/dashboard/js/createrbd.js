@@ -21,6 +21,8 @@ function CreateRBD(){
                 'format':$("#selFormat").val(),
                 'objects':'',
                 'order':22,
+                'autosnapstart':$("#txtAutoSnapStartTime").val(),
+                'autosnapinterval' :$("#txtAutoSnapInterval").val(),
 			}
 	data["rbds"].push(rbd)
 	var postData = JSON.stringify(data);

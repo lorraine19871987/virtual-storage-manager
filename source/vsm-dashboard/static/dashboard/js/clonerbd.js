@@ -93,6 +93,8 @@ function CloneRBD(){
                 'src_snap_id':$("#selSrcSnapshot").val(),
                 'dest_pool':$("#selDestPool")[0].options[$("#selDestPool")[0].selectedIndex].text,
                 'dest_image':$("#txtRBDName").val(),
+                'autosnapstart':$("#txtAutoSnapStartTime").val(),
+                'autosnapinterval' :$("#txtAutoSnapInterval").val(),
 			}
 	data["rbds"].push(rbd)
 	var postData = JSON.stringify(data);
