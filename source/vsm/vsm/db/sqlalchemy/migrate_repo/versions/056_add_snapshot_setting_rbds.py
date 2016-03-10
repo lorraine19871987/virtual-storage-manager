@@ -32,7 +32,7 @@ def upgrade(migrate_engine):
     )
 
     auto_snapshot_start = Column('auto_snapshot_start', DateTime(timezone=False), nullable=True)
-    auto_snapshot_interval = Column('auto_snapshot_start', Integer,  nullable=True)
+    auto_snapshot_interval = Column('auto_snapshot_interval', Integer,  nullable=True)
 
 
     try:
@@ -50,7 +50,7 @@ def downgrade(migrate_engine):
         autoload=True
     )
     auto_snapshot_start = Column('auto_snapshot_start', DateTime(timezone=False), nullable=True)
-    auto_snapshot_interval = Column('auto_snapshot_start', Integer,  nullable=True)
+    auto_snapshot_interval = Column('auto_snapshot_interval', Integer,  nullable=True)
     try:
         rbds.drop_column(auto_snapshot_start)
         rbds.drop_column(auto_snapshot_interval)
