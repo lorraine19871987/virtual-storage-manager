@@ -98,6 +98,7 @@ class Controller(wsgi.Controller):
         device_id = req.GET.get('device_id',None)
         device_path = req.GET.get('device_path',None)
         LOG.info('test git')
+        LOG.info('test git  github cmd')
         if device_id:
                 body = {'server': db.init_node_get_by_device_id(context,device_id),
                         'device_path': device_path
