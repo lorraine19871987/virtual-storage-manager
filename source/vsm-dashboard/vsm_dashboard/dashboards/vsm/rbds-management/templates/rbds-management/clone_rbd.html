@@ -75,11 +75,11 @@
                             <input id="txtRBDName" maxlength="255"  type="text"  class="form-control">
                         </div>
                     </div>
-                                        <div class="control-group form-field clearfix ">
+                    <div class="control-group form-field clearfix ">
                         <label>Auto snapshot start at:</label>
                         <span class="help-block"></span>
                         <div class="input">
-                          	<input id="txtAutoSnapStartTime" maxlength="255"  type="datetime" class="form-control" >
+                          	<input id="txtAutoSnapStartTime" readonly="readonly" type="text" class="form-control calendarFocus" >
                         </div>
                     </div>
                     <div class="control-group form-field clearfix ">
@@ -106,6 +106,8 @@
 
 {% block js %}
     {{ block.super }}
+    <script type="text/javascript" src="{{ STATIC_URL }}/lib/jquery-calendar.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}dashboard/css/jquery-calendar.css" />
     <script src='{{ STATIC_URL }}dashboard/js/vsm.spin.js' type='text/javascript' charset='utf-8'></script>
     <script src='{{ STATIC_URL }}dashboard/js/clonerbd.js' type='text/javascript' charset='utf-8'></script>
 {% endblock %}

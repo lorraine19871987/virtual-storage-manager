@@ -1,6 +1,7 @@
 
 $(function(){
     GetPool();
+    $("#txtAutoSnapStartTime").calendar();
 })
 
 
