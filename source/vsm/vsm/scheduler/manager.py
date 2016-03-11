@@ -2112,8 +2112,8 @@ class SchedulerManager(manager.Manager):
                       'format': rbd['format'],#int
                       'objects': rbd.get('objects',''),#int
                       'order': rbd.get('order',22), #int bit}
-                      'auto_snapshot_start':rbd.get('autosnapstart',None),
-                      'auto_snapshot_interval':rbd.get('auto_snapshot_interval',None),
+                      'auto_snapshot_start':rbd.get('autosnapstart',None) and datetime.datetime.strptime(rbd['autosnapstart'], '%Y-%m-%d %H:%M') or None,
+                      'auto_snapshot_interval':rbd.get('autosnapinterval',None) and int(rbd['autosnapinterval']) or None,
             }
             ret = self._agent_rpcapi.add_rbd(context,values,active_monitor['host'])
             error_message = error_message + ret['error_message']
