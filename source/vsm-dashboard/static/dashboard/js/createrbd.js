@@ -1,9 +1,11 @@
 
+
+
 $(function(){
     GetPool();
     GetImageFormat();
+    $("#txtAutoSnapStartTime").calendar();
 })
-
 
 function CreateRBD(){
 	//Check the field is should not null
