@@ -2730,7 +2730,7 @@ class CephDriver(object):
 
     def create_rbd(self,values):
         (out, err) = utils.execute("rbd", "create", values['image'], "--size", values['size'], \
-                      "--pool", values['pool'],  run_as_root=True)
+                      "--pool", values['pool'], "--format",values['format'], run_as_root=True)
         return (out, err)
 
     def rm_rbd(self,values):

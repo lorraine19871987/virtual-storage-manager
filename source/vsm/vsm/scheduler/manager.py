@@ -2210,15 +2210,15 @@ class SchedulerManager(manager.Manager):
                           'image': rbd['dest_image'],
                           'parent_snapshot':rbd['src_snap_id'],
                           'size' : 0,
-                          'auto_snapshot_start':rbd.get('autosnapstart',None),
-                          'auto_snapshot_interval':rbd.get('auto_snapshot_interval',None),
+                          'auto_snapshot_start':rbd.get('autosnapstart',None) and datetime.datetime.strptime(rbd['autosnapstart'], '%Y-%m-%d %H:%M') or None,
+                          'auto_snapshot_interval':rbd.get('autosnapinterval',None) and int(rbd['autosnapinterval']) or None,
 
                           # 'objects': rbd.get('objects',''),#int
                           # 'order': rbd.get('order',22), #int bit}
                 }
                 if parent_snapshot['status'] != 'protected':
                     values['proctect_action'] = True
-                    values['parent_snap'] = '%s/%s@%s'%(parent_snapshot['pool'], \
+                values['parent_snap'] = '%s/%s@%s'%(parent_snapshot['pool'], \
                                                         parent_snapshot['image'],\
                                                         parent_snapshot['name'])
                 ret = self._agent_rpcapi.clone_rbd(context,values,active_monitor['host'])
@@ -2233,6 +2233,8 @@ class SchedulerManager(manager.Manager):
                           'objects':0,
                           'order':22,
                           'parent_snapshot':values['parent_snapshot'],
+                          'auto_snapshot_start':values['auto_snapshot_start'],
+                          'auto_snapshot_interval':values['auto_snapshot_interval'],
                     }
                     db.rbd_create(context,values_db)
                     values_snapshot = {
