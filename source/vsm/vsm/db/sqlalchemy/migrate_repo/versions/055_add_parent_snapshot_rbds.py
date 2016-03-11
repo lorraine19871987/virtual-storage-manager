@@ -31,7 +31,7 @@ def upgrade(migrate_engine):
         autoload=True
     )
 
-    parent_snapshot = Column('parent_snapshot', Integer, ForeignKey(models.SnapShot.id), nullable=True)
+    parent_snapshot = Column('parent_snapshot', Integer,  nullable=True)
 
 
     try:
@@ -47,7 +47,7 @@ def downgrade(migrate_engine):
         'rbds', meta,
         autoload=True
     )
-    parent_snapshot = Column('parent_snapshot', Integer, ForeignKey(models.SnapShot.id), nullable=True)
+    parent_snapshot = Column('parent_snapshot', Integer,  nullable=True)
     try:
         rbds.drop_column(parent_snapshot)
     except Exception:

@@ -761,9 +761,7 @@ class RBD(BASE, VsmBase):
     format = Column(Integer, nullable=False)
     objects = Column(Integer, nullable=False)
     order = Column(Integer, nullable=False)
-    parent_snapshot = Column(Integer,
-                        ForeignKey('snapshots.id'),
-                        nullable=True)
+    parent_snapshot = Column(Integer,nullable=True)
     auto_snapshot_start = Column('auto_snapshot_start', DateTime(timezone=False), nullable=True)
     auto_snapshot_interval = Column('auto_snapshot_interval', Integer,  nullable=True)
 
