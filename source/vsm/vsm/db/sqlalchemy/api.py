@@ -3880,7 +3880,7 @@ def _rbd_get(context, rbd_id, session=None):
     return result
 
 def rbd_get_query(context, model, session):
-    return model_query(context, model,models.SnapShot, read_deleted="no", session=session).outerjoin(models.SnapShot,model.RBD.parent_snapshot == models.SnapShot)
+    return model_query(context, model,models.SnapShot, read_deleted="no", session=session).outerjoin(models.SnapShot,models.RBD.parent_snapshot == models.SnapShot.id)
 
 def rbd_get_all(context, limit=None, marker=None, sort_keys=None, sort_dir=None, session=None):
     if not session:
@@ -3898,10 +3898,12 @@ def rbd_get_all(context, limit=None, marker=None, sort_keys=None, sort_dir=None,
         if 'id' not in sort_keys:
             sort_keys.insert(0, 'id')
 
-    return sqlalchemyutils.paginate_query(query, models.RBD,
+    ret = sqlalchemyutils.paginate_query(query, models.RBD,
                                           limit, sort_keys=sort_keys,
                                           marker=marker_item,
                                           sort_dir=sort_dir)
+    LOG.info("ret------rbd_get_all---%s"%ret)
+    return ret
 
 #    return model_query(context, models.RBD, read_deleted="no",
 #                       session=session).all()
