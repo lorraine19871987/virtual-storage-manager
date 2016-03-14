@@ -63,21 +63,19 @@ $("#btnCreateConfiguration").click(function(){
 
 $("#btnUpdateConfiguration").click(function(){
      //Check the field is should not null
-    if(   $("#id_name").val() == ""
-       || $("#id_section").val() == ""
-       || $("#id_default_value").val() == ""
-       || $("#id_current_value").val() == "" ){
+    if(   $("#id_section").val() == ""
+       || $("#id_current_value").val() == ""
+       || $("#id_description").val() == "" ){
         showTip("error","The field is marked as '*' should not be empty");
         return  false;
     }
 
     var postData = {
-        "id":$("#hfConfigID").val(),
-        "name":$("#id_name").val(),
+        "id":$("#id_id").val(),
         "section":$("#id_section").val(),
-        "default_value":$("#id_default_value").val(),
         "current_value":$("#id_current_value").val(),
-    }
+        "description":$("#id_description").val()
+    };
 
     //execuate post
     Post("update_action",postData);
@@ -104,10 +102,13 @@ function Post(method,data){
         data: JSON.stringify(data),
         type: "post",
         dataType: "json",
-        url: "/dashboard/vsm/configuration/"+method+"/",
+        url: "/dashboard/vsm/ceph_config_mgmt/"+method+"/",
         success: function (data) {
             if(data.status == "OK"){
-                window.location.href="/dashboard/vsm/configuration/";
+                window.location.href="/dashboard/vsm/ceph_config_mgmt/";
+                showTip("info", data.message)
+            } else if(data.status == "Error") {
+                showTip("error", data.message)
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {

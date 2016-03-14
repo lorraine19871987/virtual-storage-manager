@@ -17,15 +17,12 @@
 
 from oslo.config import cfg
 
-from vsm.scheduler import manager
-from vsm.scheduler import rpcapi
-from vsm import exception as exc
 from vsm.openstack.common import log as logging
-from vsm.openstack.common.rpc import common as rpc_common
-from vsm import utils
+from vsm.scheduler import rpcapi
 
 CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
+
 
 class API(object):
     """Scheduler API that does updates via RPC to the SchedulerManager."""
@@ -195,3 +192,15 @@ class API(object):
 
     def rbd_snapshot_rollback(self,context,body):
         return self.scheduler_rpcapi.rbd_snapshot_rollback(context,body)
+		
+    def get_ceph_config(self, context):
+        return self.scheduler_rpcapi.get_ceph_config(context)
+
+    def config_into_ceph_conf(self, context, config):
+        return self.scheduler_rpcapi.config_into_ceph_conf(context, config)
+
+    def config_out_ceph_conf(self, context, config):
+        return self.scheduler_rpcapi.config_out_ceph_conf(context, config)
+
+    def config_into_effect(self, context, config):
+        return self.scheduler_rpcapi.config_into_effect(context, config)

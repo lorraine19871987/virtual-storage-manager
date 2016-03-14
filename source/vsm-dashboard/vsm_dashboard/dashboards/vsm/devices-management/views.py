@@ -60,13 +60,20 @@ class IndexView(tables.DataTableView):
         if _osds:
             logging.debug("resp osds in view: %s" % _osds)
         osds = []
-        settings = vsmapi.get_setting_dict(self.request)
-        if 'disk_near_full_threshold' not in settings.keys():
-            vsmapi.update_setting(self.request,'disk_near_full_threshold','75')
-        if 'disk_full_threshold' not in settings.keys():
-            vsmapi.update_setting(self.request,'disk_full_threshold','85')
-        disk_near_full_threshold = int(settings.get('disk_near_full_threshold',75))
-        disk_full_threshold = int(settings.get('disk_full_threshold',85))
+        configs = vsmapi.config_get_all(self.request, search_opts={'category': 'VSM'})
+        config_dict = {}
+        for config in configs:
+            config_dict.setdefault(config.name, config.value)
+        if 'disk_near_full_threshold' not in config_dict.keys():
+            vsmapi.config_create(self.request, name='disk_near_full_threshold',
+                                 value='75', category='VSM', section='vsm_settings',
+                                 alterable=True, description='disk near full threshold')
+        if 'disk_full_threshold' not in config_dict.keys():
+            vsmapi.config_create(self.request, name='disk_full_threshold',
+                                 value='85', category='VSM', section='vsm_settings',
+                                 alterable=True, description='disk full threshold')
+        disk_near_full_threshold = int(config_dict.get('disk_near_full_threshold',75))
+        disk_full_threshold = int(config_dict.get('disk_full_threshold',85))
         for _osd in _osds:
             osd = {
                     'id': _osd.id,

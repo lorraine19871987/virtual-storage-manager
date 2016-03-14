@@ -1038,6 +1038,9 @@ def osd_state_get_by_device_id_and_service_id_and_cluster_id(\
     return IMPL.osd_state_get_by_device_id_and_service_id_and_cluster_id(\
         context, device_id, service_id, cluster_id)
 
+def monitor_get_by_name(context, mon_name):
+    return IMPL.monitor_get_by_name(context, mon_name)
+
 def update_deleted_osd_state_by_service_id(context, service_id, values):
     return IMPL.update_deleted_osd_state_by_service_id(context, service_id, values)
 
@@ -1265,6 +1268,9 @@ def mds_get_all(context):
 def mds_get_by_id(context, id):
     return IMPL.mds_get(context, id)
 
+def mds_get_by_name(context, mds_name):
+    return IMPL.mds_get_by_name(context, mds_name)
+
 def mds_get_by_gid(context, gid):
     return IMPL.mds_get_by_gid(context, gid)
 
@@ -1273,17 +1279,6 @@ def mds_update(context, mds_id, values):
 
 def mds_update_or_create(context, values):
     return IMPL.mds_update_or_create(context, values)
-
-#region vsm settings db api
-def vsm_settings_update_or_create(context, values):
-    return IMPL.vsm_settings_update_or_create(context, values)
-
-def vsm_settings_get_all(context):
-    return IMPL.vsm_settings_get_all(context)
-
-def vsm_settings_get_by_name(context, name):
-    return IMPL.vsm_settings_get_by_name(context, name)
-#endregion
 
 #long_call
 def long_call_create(context, values):
@@ -1330,3 +1325,25 @@ def clean_performance_history_data(context,days):
 def get_poolusage(context, poolusage_id):
     return IMPL.get_poolusage(context, poolusage_id=poolusage_id)
 #endregion
+
+# config db api
+def config_get_all(context, marker=None, limit=None,
+                   sort_key=None, sort_dir=None, filters=None):
+    return IMPL.config_get_all(context, marker=marker, limit=limit,
+                               sort_key=sort_key, sort_dir=sort_dir,
+                               filters=filters)
+
+def config_create(context, values):
+    return IMPL.config_create(context, values)
+
+def config_get(context, config_id):
+    return IMPL.config_get(context, config_id)
+
+def config_get_by_name_and_section(context, config_name, section):
+    return IMPL.config_get_by_name_and_section(context, config_name, section)
+
+def config_update(context, config_id, fields):
+    return IMPL.config_update(context, config_id, fields)
+
+def config_delete(context, config_id):
+    return IMPL.config_delete(context, config_id)

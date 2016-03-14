@@ -315,7 +315,10 @@ class StoragePoolController(wsgi.Controller):
         size = db.get_size_by_storage_group_name(context,storage_group_name)
         size = int(size)
         if size == 0:
-            pool_default_size = db.vsm_settings_get_by_name(context,'osd_pool_default_size')
+            pool_default_size = \
+                db.config_get_by_name_and_section(context,
+                                                  'osd_pool_default_size',
+                                                  'vsm_settings')
             size = int(pool_default_size.value)
         #LOG.info('size=====%s'%size)
         #osd_num = 2 #TODO self.scheduler_api.get_osd_num_from_crushmap_by_rule(context, rule_id)
@@ -506,10 +509,10 @@ class StoragePoolController(wsgi.Controller):
         """compute pg_num"""
         try:
             pg_count_factor = 200
-            settings = db.vsm_settings_get_all(context)
-            for setting in settings:
-                if setting['name'] == 'pg_count_factor':
-                    pg_count_factor = int(setting['value'])
+            configs = db.config_get_all(context, filters={'category': 'VSM'})
+            for config in configs:
+                if config['name'] == 'pg_count_factor':
+                    pg_count_factor = int(config['value'])
             
             pg_num = pg_count_factor * osd_num//replication_num
         except ZeroDivisionError,e:

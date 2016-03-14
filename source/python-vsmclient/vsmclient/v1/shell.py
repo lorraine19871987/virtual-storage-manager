@@ -95,10 +95,6 @@ def _find_storage_pool(cs, storage_pool):
     """Get a storage pool by name or ID."""
     return utils.find_storage_pool(cs, storage_pool)
 
-def _find_setting(cs, setting):
-    """Get a setting by name or ID."""
-    return utils.find_setting(cs, setting)
-
 
 def _print_cluster(cluster):
     if isinstance(cluster, dict):
@@ -159,12 +155,6 @@ def _print_storage_pool(storage_pool):
         utils.print_dict(storage_pool)
     else:
         utils.print_dict(storage_pool._info)
-
-def _print_setting(setting):
-    if isinstance(setting, dict):
-        utils.print_dict(setting)
-    else:
-        utils.print_dict(setting._info)
 
 
 def _translate_keys(collection, convert):
@@ -1242,43 +1232,6 @@ def do_storage_pool_list_ec_profiles(cs, args):
     ec_profiles = cs.storage_pools.ec_profiles()
     columns = ["ID", "Name"]
     utils.print_list(ec_profiles, columns)
-
-
-###################setting##########################
-@utils.arg('setting-name',
-           metavar='<setting-name>',
-           help='Name of setting.')
-@utils.service_type('vsm')
-def do_setting_show(cs, args):
-    """Shows details info of setting."""
-    setting = cs.vsm_settings.get(args.setting_name)
-    _print_setting(setting)
-
-@utils.service_type('vsm')
-def do_setting_list(cs, args):
-    """Lists all settings."""
-    settings = cs.vsm_settings.list(detailed=False, search_opts=None)
-    columns = ["ID", "Name", "Value"]
-    utils.print_list(settings, columns)
-
-@utils.arg('name',
-           metavar='<name>',
-           help='Name of setting.')
-@utils.arg('--value',
-           metavar='<value>',
-           help='Value of setting.')
-@utils.service_type('vsm')
-def do_setting_create(cs, args):
-    """Creates a setting[if exist, for updating]."""
-    setting = {
-        "name": args.name,
-        "value": args.value
-    }
-    try:
-        cs.vsm_settings.create(setting)
-        print("Succeed to create or update setting.")
-    except:
-        raise exceptions.CommandError("Failed to create or update setting.")
 
 
 ###################zone##########################

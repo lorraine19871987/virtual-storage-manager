@@ -22,21 +22,18 @@ Conductor Service
 """
 
 import json
-from oslo.config import cfg
-import datetime
-from vsm import context
+
 from vsm import db
 from vsm import exception
 from vsm import flags
 from vsm import manager
-from vsm.openstack.common import excutils
-from vsm.openstack.common import importutils
 from vsm.openstack.common import log as logging
-from vsm.openstack.common.notifier import api as notifier
-from vsm.openstack.common import timeutils
+
 
 LOG = logging.getLogger(__name__)
+
 FLAGS = flags.FLAGS
+
 
 class ConductorManager(manager.Manager):
     """Chooses a host to create storages."""
@@ -222,6 +219,9 @@ class ConductorManager(manager.Manager):
     def init_node_create(self, context, values):
         return db.init_node_create(context, values)
 
+    def init_node_get(self, context):
+        return db.init_node_get_all(context)
+
     def init_node_update(self, context, id, values):
         return db.init_node_update(context, id, values)
 
@@ -353,6 +353,10 @@ class ConductorManager(manager.Manager):
             context, device_id, service_id, cluster_id):
         return db.osd_state_get_by_device_id_and_service_id_and_cluster_id(\
             context, device_id, service_id, cluster_id)
+
+    def mon_get_by_name(self, context, mon_name):
+        return db.monitor_get_by_name(context, mon_name)
+
     #device
     def device_get_all(self, context):
         error = self._set_error(context)
@@ -614,6 +618,9 @@ class ConductorManager(manager.Manager):
 
     def mds_get(self, context, id):
         return db.mds_get_by_id(context, id)
+
+    def mds_get_by_name(self, context, mds_name):
+        return db.mds_get_by_name(context, mds_name)
     
     def zones_hosts_get_by_storage_group(self, context, storage_group):
         osds = db.osd_state_get_all(context)
@@ -647,3 +654,24 @@ class ConductorManager(manager.Manager):
 
     def delete_pool_usage(self, context, poolusage_id):
         return db.destroy_storage_pool_usage(context, poolusage_id)
+
+    def config_get(self, context, config_id):
+        return db.config_get(context, config_id)
+
+    def config_get_by_name_and_section(self, context, config_name, section):
+        return db.config_get_by_name_and_section(context, config_name, section)
+
+    def config_get_all(self, context, marker=None, limit=None,
+                       sort_key=None, sort_dir=None, filters=None):
+        return db.config_get_all(context, marker=marker, limit=limit,
+                                 sort_key=sort_key, sort_dir=sort_dir,
+                                 filters=filters)
+
+    def config_update(self, context, config_id, fields):
+        return db.config_update(context, config_id, fields)
+
+    def config_create(self, context, body):
+        return db.config_create(context, body)
+
+    def config_delete(self, context, config_id):
+        return db.config_delete(context, config_id)

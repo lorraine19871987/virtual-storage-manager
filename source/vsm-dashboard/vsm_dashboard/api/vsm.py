@@ -354,23 +354,6 @@ def license_get(request):
 def license_update(request, value):
     return vsmclient(request).licenses.license_update(value)
 
-def get_setting_dict(request,):
-    # TODO
-    setting_list = vsmclient(request).vsm_settings.list()
-    setting_dict = {}
-    for setting in setting_list:
-        setting_dict.setdefault(setting.name, setting.value)
-    return setting_dict
-
-def get_settings(request,):
-    return vsmclient(request).vsm_settings.list()
-
-def get_setting_by_name(request, name):
-    return vsmclient(request).vsm_settings.get(name)
-
-def update_setting(request, name, value):
-    return vsmclient(request).vsm_settings.create({'name': name, 'value':value})
-
 def get_metrics(request,search_opts):
     return vsmclient(request).performance_metrics.get_metrics(search_opts=search_opts)
 
@@ -442,3 +425,30 @@ def add_zone_to_crushmap_and_db(request, body):
     :return:
     '''
     return vsmclient(request).zones.add_zone_to_crushmap_and_db(body)
+
+def config_get(request, config_id):
+    return vsmclient(request).configs.get(config_id)
+
+def config_get_all(request, detailed=False, search_opts=None):
+    return vsmclient(request).configs.list(detailed=detailed, search_opts=search_opts)
+
+def config_delete(request, config_id):
+    return vsmclient(request).configs.delete(config_id)
+
+def config_create(request, name, value, category,
+                  section, alterable, description=None):
+    return vsmclient(request).configs.create(name,
+                                             value,
+                                             category,
+                                             section,
+                                             alterable,
+                                             description=description)
+
+def config_update(request, config_id, section=None, value=None, description=None):
+    return vsmclient(request).configs.update(config_id,
+                                             section=section,
+                                             value=value,
+                                             description=description)
+
+def config_detect(request):
+    return vsmclient(request).configs.detect()

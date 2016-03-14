@@ -14,11 +14,10 @@
 #    under the License.
 
 """Client side of the conductor RPC API."""
+
 import logging
 from oslo.config import cfg
 
-from vsm.openstack.common import jsonutils
-from vsm.openstack.common import rpc
 import vsm.openstack.common.rpc.proxy
 
 CONF = cfg.CONF
@@ -162,6 +161,9 @@ class ConductorAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
         return  self.call(context, self.make_msg('init_node_create', \
                           values=values))
 
+    def init_node_get(self, context):
+        return self.call(context, self.make_msg('init_node_get'))
+
     def init_node_get_by_primary_public_ip(self, context, primary_public_ip):
         return self.call(context, self.\
                          make_msg('init_node_get_by_primary_public_ip',\
@@ -249,6 +251,9 @@ class ConductorAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
         make_msg('osd_state_get_by_device_id_and_service_id_and_cluster_id',\
                device_id=device_id, service_id=service_id, \
                cluster_id=cluster_id))
+
+    def mon_get_by_name(self, context, mon_name):
+        return self.call(context, self.make_msg('mon_get_by_name', mon_name=mon_name))
 
     #device
     def device_get_all(self, context):
@@ -400,6 +405,9 @@ class ConductorAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
         return self.call(context,
                          self.make_msg('mds_get', id=id))
 
+    def mds_get_by_name(self, context, mds_name):
+        return self.call(context, self.make_msg('mds_get_by_name', mds_name=mds_name))
+
     def ceph_error(self, context):
         return self.call(context, \
                          self.make_msg('ceph_error'))
@@ -437,3 +445,37 @@ class ConductorAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
     def delete_pool_usage(self, context, poolusage_id):
         return self.call(context, self.make_msg('delete_pool_usage',
                                                 poolusage_id=poolusage_id))
+
+    def config_get(self, context, config_id):
+        return self.call(context,
+                         self.make_msg('config_get', config_id=config_id))
+
+    def config_get_by_name_and_section(self, context, config_name, section):
+        return self.call(context,
+                         self.make_msg('config_get_by_name_and_section',
+                                       config_name=config_name,
+                                       section=section))
+
+    def config_get_all(self, context, marker=None, limit=None,
+                       sort_key=None, sort_dir=None, filters=None):
+        return self.call(context,
+                         self.make_msg('config_get_all',
+                                       marker=marker, limit=limit,
+                                       sort_key=sort_key, sort_dir=sort_dir,
+                                       filters=filters))
+
+    def config_update(self, context, config_id, fields):
+        return self.call(context,
+                         self.make_msg('config_update',
+                                       config_id=config_id,
+                                       fields=fields))
+
+    def config_create(self, context, body):
+        return self.call(context,
+                         self.make_msg('config_create',
+                                       body=body))
+
+    def config_delete(self, context, config_id):
+        return self.call(context,
+                         self.make_msg('config_delete',
+                                       config_id=config_id))

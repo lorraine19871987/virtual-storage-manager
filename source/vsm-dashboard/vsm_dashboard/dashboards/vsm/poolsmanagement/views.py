@@ -69,6 +69,7 @@ class CreateErasureCodedPoolView(forms.ModalFormView):
 class AddCacheTierView(TemplateView):
     template_name = 'vsm/poolsmanagement/add_cache_tier.html'
     success_url = reverse_lazy('horizon:vsm:poolsmanagement:index')
+
     def get_context_data(self, **kwargs):
         context = super(AddCacheTierView, self).get_context_data(**kwargs)
         #get pool list
@@ -76,9 +77,9 @@ class AddCacheTierView(TemplateView):
         context["pool_list"] = [(pool.pool_id, pool.name) for pool in pools if not pool.cache_tier_status]
         context["cache_mode_list"] = [('writeback', "Writeback"), ('readonly', "Read-only")]
         context["hit_set_type_list"] = [('bloom', "bloom")]
-        #get the settings
-        setting_list = vsmapi.get_settings(None)
-        context["settings"] = dict([(setting.name, setting.value) for setting in setting_list])
+        # get vsm configs
+        vsm_configs = vsmapi.config_get_all(None, search_opts={"category": "VSM"})
+        context["settings"] = dict([(config.name, config.value) for config in vsm_configs])
         return context
 
 

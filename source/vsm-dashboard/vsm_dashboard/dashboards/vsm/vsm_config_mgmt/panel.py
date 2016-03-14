@@ -19,8 +19,8 @@ from django.utils.translation import ugettext_lazy as _
 import horizon
 from vsm_dashboard.dashboards.vsm import dashboard
 
-class Settings(horizon.Panel):
-    name = _("Settings")
-    slug = 'settings'
+class VSMConfigMgmt(horizon.Panel):
+    name = _("Manage VSM Config")
+    slug = 'vsm_config_mgmt'
 
-dashboard.VizDash.register(Settings)
+dashboard.VizDash.register(VSMConfigMgmt)

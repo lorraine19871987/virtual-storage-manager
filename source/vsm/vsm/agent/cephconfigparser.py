@@ -27,17 +27,20 @@ Tools for ceph config.
 
 import os
 import uuid
-from vsm import utils
-from vsm import context as vsm_context
-from vsm import manager
-from vsm import flags
-from vsm import db
+
 from vsm.agent import rpcapi as agent_rpc
+from vsm import context as vsm_context
+from vsm import db
+from vsm import flags
+from vsm import manager
 from vsm.openstack.common import log as logging
 from vsm.openstack.common.gettextutils import _
+from vsm import utils
 
 LOG = logging.getLogger(__name__)
+
 FLAGS = flags.FLAGS
+
 
 class Section(object):
     def __init__(self, name=None, options=None):
@@ -174,6 +177,12 @@ class Parser(object):
 
         self._sections.pop(sec_name)
 
+    def remove_section_param(self, section, param_key):
+        section = section.strip()
+        if not self.has_section(section):
+            return
+        self._sections[section].pop(param_key)
+
     def get(self, sec_name, key, default_val=None):
         if not self.has_section(sec_name):
             return None
@@ -287,6 +296,14 @@ class CephConfigParser(manager.Manager):
 
     def as_dict(self):
         return self._parser.as_dict()
+
+    def add_or_update_section_param(self, section, param_key, param_value):
+        if not self._parser.has_section(section):
+            self._parser.add_section(section)
+        self._parser.set(section, param_key, param_value)
+
+    def delete_section_param(self, section, param_key):
+        self._parser.remove_section_param(section, param_key)
 
     def add_global(self,
                    pg_num=None,
@@ -403,7 +420,9 @@ class CephConfigParser(manager.Manager):
 
     def add_osd_header(self,
                        journal_size=0,
-                       osd_type='xfs',osd_heartbeat_interval=10,osd_heartbeat_grace=10):
+                       osd_type='xfs',
+                       osd_heartbeat_interval=10,
+                       osd_heartbeat_grace=10):
         if self._parser.has_section('osd'):
             return
 

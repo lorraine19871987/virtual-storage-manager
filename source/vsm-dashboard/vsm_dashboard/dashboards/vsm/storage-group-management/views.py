@@ -43,9 +43,6 @@ class IndexView(tables.DataTableView):
             _sgs = vsmapi.storage_group_status(self.request,)
             if _sgs:
                 logging.debug("resp body in view: %s" % _sgs)
-            settings = vsmapi.get_setting_dict(self.request)
-            sg_near_full_threshold = settings['storage_group_near_full_threshold']
-            sg_full_threshold = settings['storage_group_full_threshold']
         except:
             exceptions.handle(self.request,
                               _('Unable to retrieve sever list. '))

@@ -17,12 +17,9 @@
 
 from oslo.config import cfg
 
-from vsm.conductor import manager
 from vsm.conductor import rpcapi
-from vsm import exception as exc
 from vsm.openstack.common import log as logging
-from vsm.openstack.common.rpc import common as rpc_common
-from vsm import utils
+
 
 conductor_opts = [
     cfg.StrOpt('manager',
@@ -36,6 +33,7 @@ CONF.register_group(conductor_group)
 CONF.register_opts(conductor_opts, conductor_group)
 
 LOG = logging.getLogger(__name__)
+
 
 class API(object):
     """Conductor API that does updates via RPC to the ConductorManager."""
@@ -95,13 +93,6 @@ class API(object):
         return self.conductor_rpcapi.count_hosts_by_storage_group_id(context, \
                                      storage_group_id)
 
-    #def get_server_list(self, context):
-    #    return self.conductor_rpcapi.get_server_list(context)
-
-    #def get_service_by_host_and_topic(self, context, host, topic):
-    #    return self.conductor_rpcapi.get_service_by_host_and_topic(context, host, topic)
-################################<ly
-
     #init_node
     def init_node_get_by_id_and_type(self, context, id, type):
         return self.conductor_rpcapi.\
@@ -114,15 +105,18 @@ class API(object):
         return self.conductor_rpcapi.\
                init_node_create(context, values)
 
+    def init_node_get(self, context):
+        return self.conductor_rpcapi.init_node_get(context)
+
     def init_node_get_by_primary_public_ip(self, context, primary_public_ip):
         return self.conductor_rpcapi.\
                init_node_get_by_primary_public_ip(context, primary_public_ip)
 
-    def init_node_get_by_secondary_public_ip(self, context, \
+    def init_node_get_by_secondary_public_ip(self, context,
                                              secondary_public_ip):
         return self.conductor_rpcapi.\
-               init_node_get_by_secondary_public_ip(context, \
-               secondary_public_ip)
+               init_node_get_by_secondary_public_ip(context,
+                                                    secondary_public_ip)
 
     def init_node_get_by_cluster_ip(self, context, cluster_ip):
         return self.conductor_rpcapi.\
@@ -140,18 +134,16 @@ class API(object):
                                                                    status)
     #osd_state
     def osd_get(self, context, osd_id):
-        return self.conductor_rpcapi.\
-               osd_get(context, osd_id)
+        return self.conductor_rpcapi.osd_get(context, osd_id)
 
     def osd_delete(self, context, osd_id):
-        return self.conductor_rpcapi.\
-               osd_delete(context, osd_id)
+        return self.conductor_rpcapi.osd_delete(context, osd_id)
 
     def osd_remove(self, context, osd_id):
-        return self.conductor_rpcapi.\
-               osd_remove(context, osd_id)
+        return self.conductor_rpcapi.osd_remove(context, osd_id)
 
-    def osd_state_get_all(self, context, limit=None, marker=None, sort_keys=None, sort_dir=None,search_opts={}):
+    def osd_state_get_all(self, context, limit=None, marker=None,
+                          sort_keys=None, sort_dir=None,search_opts={}):
         return self.conductor_rpcapi.\
                osd_state_get_all(context, limit, marker, sort_keys, sort_dir, search_opts)
 
@@ -196,6 +188,10 @@ class API(object):
         return self.conductor_rpcapi.\
                osd_state_get_by_device_id_and_service_id_and_cluster_id(\
                context, device_id, service_id, cluster_id)
+
+    def mon_get_by_name(self, context, mon_name):
+        return self.conductor_rpcapi.mon_get_by_name(context, mon_name)
+
     #device
     def device_get_all(self, context):
         return self.conductor_rpcapi.device_get_all(context)
@@ -303,6 +299,9 @@ class API(object):
     def mds_get(self, context, id):
         return self.conductor_rpcapi.mds_get(context, id)
 
+    def mds_get_by_name(self, context, mds_name):
+        return self.conductor_rpcapi.mds_get_by_name(context, mds_name)
+
     def ceph_error(self, context):
         return self.conductor_rpcapi.\
                ceph_error(context)
@@ -328,3 +327,26 @@ class API(object):
 
     def get_appnode(self, context, id):
         return self.conductor_rpcapi.get_appnode(context, id)
+
+    def config_get(self, context, config_id):
+        return self.conductor_rpcapi.config_get(context, config_id)
+
+    def config_get_by_name_and_section(self, context, config_name, section):
+        return self.conductor_rpcapi.\
+            config_get_by_name_and_section(context, config_name, section)
+
+    def config_get_all(self, context, marker=None, limit=None,
+                       sort_key=None, sort_dir=None, filters=None):
+        return self.conductor_rpcapi.\
+            config_get_all(context, marker=marker, limit=limit,
+                           sort_key=sort_key, sort_dir=sort_dir,
+                           filters=filters)
+
+    def config_update(self, context, config, fields):
+        return self.conductor_rpcapi.config_update(context, config['id'], fields)
+
+    def config_create(self, context, body):
+        return self.conductor_rpcapi.config_create(context, body)
+
+    def config_delete(self, context, config):
+        return self.conductor_rpcapi.config_delete(context, config['id'])

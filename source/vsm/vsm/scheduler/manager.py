@@ -25,29 +25,22 @@ Scheduler Service
 
 import random
 import time
-from oslo.config import cfg
-import datetime
-import time
-from vsm import db
-from vsm import exception
-from vsm import flags
-from vsm import manager
-from vsm import utils
-from vsm.openstack.common import excutils
-from vsm.openstack.common import importutils
-from vsm.openstack.common import log as logging
-from vsm.openstack.common.notifier import api as notifier
-from vsm.openstack.common import timeutils
-from vsm.openstack.common.rpc import common as rpc_exc
-from vsm.conductor import rpcapi as conductor_rpcapi
-from vsm.agent import rpcapi as agent_rpc
-from vsm.conductor import api as conductor_api
+
 from vsm.agent import cephconfigparser
 from vsm.agent.crushmap_parser import CrushMap
+from vsm.agent import rpcapi as agent_rpc
+from vsm.conductor import api as conductor_api
+from vsm.conductor import rpcapi as conductor_rpcapi
+from vsm import db
 from vsm.exception import *
+from vsm import manager
+from vsm.openstack.common.rpc import common as rpc_exc
+from vsm import utils
 
 LOG = logging.getLogger(__name__)
+
 FLAGS = flags.FLAGS
+
 
 class SchedulerManager(manager.Manager):
     """Chooses a host to create storages."""
@@ -639,10 +632,10 @@ class SchedulerManager(manager.Manager):
         """compute pg_num"""
         try:
             pg_count_factor = 100
-            settings = db.vsm_settings_get_all(context)
-            for setting in settings:
-                if setting['name'] == 'pg_count_factor':
-                    pg_count_factor = int(setting['value'])
+            configs = db.config_get_all(context, filters={'category': 'VSM'})
+            for config in configs:
+                if config['name'] == 'pg_count_factor':
+                    pg_count_factor = int(config['value'])
 
             pg_num = pg_count_factor * osd_num//replication_num
 
@@ -654,12 +647,12 @@ class SchedulerManager(manager.Manager):
         return pg_num
 
     def _judge_drive_ext_threshold(self, context):
-        storage_groups = db.storage_group_get_all(context);
+        storage_groups = db.storage_group_get_all(context)
         active_monitor = self._get_active_monitor(context)
-        update_pool_state_tag = False;
+        update_pool_state_tag = False
         for storage_group in storage_groups:
             osd_num = db.osd_state_count_by_storage_group_id(context, storage_group['id'])
-            update_db_tag = False;
+            update_db_tag = False
             if osd_num >= 2 * storage_group['drive_extended_threshold']:
                 pools = db.pool_get_by_ruleset(context, storage_group['rule_id'])
                 for pool in pools:
@@ -673,14 +666,14 @@ class SchedulerManager(manager.Manager):
                     if pg_num > max_pg_num:
                         pg_num = max_pg_num
                         update_pool_state_tag = True
-                        update_db_tag = True;
+                        update_db_tag = True
                         self._agent_rpcapi.set_pool_pg_pgp_num(context, \
                                            active_monitor['host'], \
                                            pool['name'], pg_num, pg_num)
 
                     elif pg_num > pool.get('pg_num'):
                         update_pool_state_tag = True
-                        update_db_tag = True;
+                        update_db_tag = True
                         self._agent_rpcapi.set_pool_pg_pgp_num(context, \
                                            active_monitor['host'], \
                                            pool['name'], pg_num, pg_num)
@@ -698,7 +691,7 @@ class SchedulerManager(manager.Manager):
             self._agent_rpcapi.update_pool_state(context, active_monitor['host'])
 
     def _update_drive_ext_threshold(self, context):
-        storage_groups = db.storage_group_get_all(context);
+        storage_groups = db.storage_group_get_all(context)
         for storage_group in storage_groups:
             drive_num = db.osd_state_count_by_storage_group_id(context, storage_group['id'])
             values = {
@@ -1480,7 +1473,10 @@ class SchedulerManager(manager.Manager):
                 raise
 
         # Set at least 3 mons when creating cluster
-        pool_default_size = db.vsm_settings_get_by_name(context,'osd_pool_default_size')
+        pool_default_size = \
+            db.config_get_by_name_and_section(context,
+                                              'osd_pool_default_size',
+                                              'vsm_settings')
         pool_default_size = int(pool_default_size.value)
         nums = len(server_list)
         mds_node = None
@@ -2338,3 +2334,61 @@ class SchedulerManager(manager.Manager):
                             'info':','.join(info),
                             'error_code':','.join(error_code),}
         }
+
+    def get_ceph_config(self, context):
+        ceph_configs = self._get_ceph_config(context)
+        return ceph_configs
+
+    def config_into_ceph_conf(self, context, config):
+        server_list = db.init_node_get_all(context)
+        active_server_list = [x for x in server_list if x['status'] == "Active"]
+        idx = random.randint(0, len(active_server_list)-1)
+        active_server = active_server_list[idx]
+        return self._agent_rpcapi.config_into_ceph_conf(context, config, active_server['host'])
+
+    def config_out_ceph_conf(self, context, config):
+        server_list = db.init_node_get_all(context)
+        active_server_list = [x for x in server_list if x['status'] == "Active"]
+        idx = random.randint(0, len(active_server_list)-1)
+        active_server = active_server_list[idx]
+        return self._agent_rpcapi.config_out_ceph_conf(context, config, active_server['host'])
+
+    def config_into_effect(self, context, config):
+        section = config.get('section')
+        nodes = self._conductor_api.init_node_get(context)
+        if "." in section:
+            ip_address = ""
+            sec_l = section.split('.')
+            if sec_l[0] == "mds":
+                mds_info = self._conductor_api.mds_get_by_name(context, sec_l[1])
+                ip_address = mds_info['address'].split(':')[0]
+            elif sec_l[0] == "osd":
+                osds = self._conductor_api.osd_state_get_all(context)
+                for osd in osds:
+                    if osd["osd_name"] == section:
+                        ip_address = osd['public_ip']
+                        break
+            elif sec_l[0] == "mon":
+                mon_info = self._conductor_api.mon_get_by_name(context, sec_l[1])
+                ip_address = mon_info['address'].split(':')[0]
+            for node in nodes:
+                if ip_address in [node['raw_ip'], node['primary_public_ip'],
+                                  node['secondary_public_ip'],
+                                  node['cluster_ip']]:
+                    self._agent_rpcapi.config_into_effect(context, node['host'],
+                                                          config['name'],
+                                                          config['value'],
+                                                          sec_l[0], sec_l[1])
+                    break
+        else:
+            if section == "global":
+                for node in nodes:
+                    self._agent_rpcapi.config_into_effect(context, node['host'],
+                                                          config['name'],
+                                                          config['value'])
+            else:
+                for node in nodes:
+                    self._agent_rpcapi.config_into_effect(context, node['host'],
+                                                          config['name'],
+                                                          config['value'],
+                                                          section)
