@@ -23,39 +23,37 @@ Drivers for testdbs.
 
 """
 
-import os
-import time
 import json
+import operator
+import os
 import platform
+import time
+
+from vsm.agent import cephconfigparser
+from vsm.agent.crushmap_parser import CrushMap
+from vsm.agent import rpcapi as agent_rpc
+from vsm import conductor
+from vsm.conductor import rpcapi as conductor_rpcapi
 from vsm import db
 from vsm import exception
 from vsm import flags
 from vsm.openstack.common import log as logging
-from vsm import utils
-from vsm.openstack.common.gettextutils import _
-from vsm import conductor
-from vsm.conductor import rpcapi as conductor_rpcapi
-from vsm.agent import rpcapi as agent_rpc
-from vsm.agent import cephconfigparser
 from vsm.openstack.common.rpc import common as rpc_exc
-import glob
-from crushmap_parser import CrushMap
-import operator
+from vsm import utils
 
 try:
     from novaclient.v1_1 import client as nc
 except:
     from novaclient.v2 import client as nc
-
 try:
     from cinderclient.v1 import client as cc
 except:
     from cinderclient.v2 import client as cc
 
-import re
-
 LOG = logging.getLogger(__name__)
+
 FLAGS = flags.FLAGS
+
 
 class CephDriver(object):
     """Excute commands relating to Ceph."""
@@ -524,22 +522,26 @@ class CephDriver(object):
         config = cephconfigparser.CephConfigParser()
         osd_num = db.device_get_count(context)
         LOG.info("osd_num:%d" % osd_num)
-        settings = db.vsm_settings_get_all(context)
-        for setting in settings:
-            if setting['name'] == 'ceph_near_full_threshold':
-                cnfth = setting['value']
-            elif setting['name'] == 'ceph_full_threshold':
-                cfth = setting['value']
-            elif setting['name'] == 'pg_count_factor':
-                pg_count_factor = int(setting['value'])
-            elif setting['name'] == 'heartbeat_interval':
-                heartbeat_interval = setting['value']
-            elif setting['name'] == 'osd_heartbeat_interval':
-                osd_heartbeat_interval = setting['value']
-            elif setting['name'] == 'osd_heartbeat_grace':
-                osd_heartbeat_grace = setting['value']
-            elif setting['name'] == 'osd_pool_default_size':
-                pool_default_size = setting['value']
+        configs = db.config_get_all(context, filters={'category': 'VSM'})
+        cnfth = '75'
+        cfth = '90'
+        heartbeat_interval = '5'
+        osd_heartbeat_interval = '10'
+        osd_heartbeat_grace = '10'
+        pool_default_size = '3'
+        for conf in configs:
+            if conf['name'] == 'ceph_near_full_threshold':
+                cnfth = conf['value']
+            elif conf['name'] == 'ceph_full_threshold':
+                cfth = conf['value']
+            elif conf['name'] == 'heartbeat_interval':
+                heartbeat_interval = conf['value']
+            elif conf['name'] == 'osd_heartbeat_interval':
+                osd_heartbeat_interval = conf['value']
+            elif conf['name'] == 'osd_heartbeat_grace':
+                osd_heartbeat_grace = conf['value']
+            elif conf['name'] == 'osd_pool_default_size':
+                pool_default_size = conf['value']
 
         config.add_global(heartbeat_interval=heartbeat_interval,
                           osd_heartbeat_interval=osd_heartbeat_interval,
@@ -579,12 +581,20 @@ class CephDriver(object):
                 LOG.info('strg list: %s' % strgs)
                 if strgs and is_first_osd:
                     fs_type = strgs[0]['file_system']
-                    osd_heartbeat_interval= db.vsm_settings_get_by_name(context,'osd_heartbeat_interval').get('value')
-                    osd_heartbeat_grace= db.vsm_settings_get_by_name(context,'osd_heartbeat_grace').get('value')
+                    osd_heartbeat_interval = \
+                        db.config_get_by_name_and_section(context,
+                                                          'osd_heartbeat_interval',
+                                                          'vsm_settings').get('value')
+                    osd_heartbeat_grace = \
+                        db.config_get_by_name_and_section(context,
+                                                          'osd_heartbeat_grace',
+                                                          'vsm_settings').get('value')
                     # validate fs type
                     if fs_type in ['xfs', 'ext3', 'ext4', 'btrfs']:
                         #config.add_osd_header(osd_type=fs_type)
-                        config.add_osd_header(osd_type=fs_type,osd_heartbeat_interval=osd_heartbeat_interval,osd_heartbeat_grace=osd_heartbeat_grace)
+                        config.add_osd_header(osd_type=fs_type,
+                                              osd_heartbeat_interval=osd_heartbeat_interval,
+                                              osd_heartbeat_grace=osd_heartbeat_grace)
                     else:
                         config.add_osd_header()
                     is_first_osd = False
@@ -2939,6 +2949,19 @@ class CephDriver(object):
             utils.execute("service", "openstack-cinder-api", "restart", run_as_root=True)
             utils.execute("service", "openstack-cinder-volume", "restart", run_as_root=True)
             LOG.info("Restart openstack-cinder-api and openstack-cinder-volume successfully")
+
+    def config_into_ceph_conf(self, context, config):
+        ceph_config = cephconfigparser.CephConfigParser(FLAGS.ceph_conf)
+        ceph_config.add_or_update_section_param(config.get('section'),
+                                      config.get('name'),
+                                      config.get('value'))
+        ceph_config.save_conf(FLAGS.ceph_conf)
+
+    def config_out_ceph_conf(self, context, config):
+        ceph_config = cephconfigparser.CephConfigParser(FLAGS.ceph_conf)
+        ceph_config.delete_section_param(config.get('section'),
+                                         config.get('name'))
+        ceph_config.save_conf(FLAGS.ceph_conf)
 
 class DbDriver(object):
     """Executes commands relating to TestDBs."""

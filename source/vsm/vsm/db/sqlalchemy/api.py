@@ -17,10 +17,12 @@
 
 """Implementation of SQLAlchemy backend."""
 
-import json
 import datetime
+import json
+import time
 import uuid
 import warnings
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload, joinedload_all
@@ -34,11 +36,11 @@ from vsm.db.sqlalchemy import models
 from vsm.db.sqlalchemy.session import get_session
 from vsm import exception
 from vsm import flags
+from vsm.openstack.common.db import exception as db_exc
 from vsm.openstack.common import log as logging
 from vsm.openstack.common import timeutils
 from vsm.openstack.common import uuidutils
-from vsm.openstack.common.db import exception as db_exc
-import time
+
 FLAGS = flags.FLAGS
 
 LOG = logging.getLogger(__name__)
@@ -4036,61 +4038,6 @@ def mds_update_or_create(context, values, session=None):
         mds = mds_create(context, values)
     return mds
 
-#region vsm settings db ops
-
-def _vsm_settings_query(context, session=None):
-    return model_query(
-        context, models.VsmSettings, read_deleted='no', session=session)
-
-def vsm_settings_create(context, values, session=None):
-
-    if not session:
-        session = get_session()
-
-    with session.begin(subtransactions=True):
-        settings_ref = models.VsmSettings()
-        session.add(settings_ref)
-        settings_ref.update(values)
-    return settings_ref
-
-def vsm_settings_update(context, setting_id, values, session=None):
-    if not session:
-        session = get_session()
-    with session.begin():
-        setting_ref = _vsm_settings_query(context, session=session).\
-            filter_by(id=setting_id).\
-            first()
-        values['updated_at'] = timeutils.utcnow()
-        convert_datetimes(values, 'created_at', 'deleted_at', 'updated_at')
-        setting_ref.update(values)
-        setting_ref.save(session=session)
-    return setting_ref
-
-def vsm_settings_update_or_create(context, values, session=None):
-    if not session:
-        session = get_session()
-
-    if not values.get('name'):
-        return None
-
-    setting_ref = vsm_settings_get_by_name(context, values['name'], session=session)
-
-    if setting_ref:
-        setting = vsm_settings_update(context, setting_ref['id'], values, session=session)
-    else:
-        setting = vsm_settings_create(context, values, session=session)
-    return setting
-
-def vsm_settings_get_all(context):
-    return _vsm_settings_query(context).all()
-
-def vsm_settings_get_by_name(context, name, session=None):
-    return _vsm_settings_query(context, session).\
-        filter_by(name=name).\
-        first()
-
-#endregion
-
 #long_call
 def long_call_get_by_uuid(context, uuid, session=None):
     if not session:
@@ -4234,12 +4181,17 @@ def sum_performance_metrics(context, search_opts, session=None):#for iops bandwi
     timestamp_start = search_opts.has_key('timestamp_start') and int(search_opts['timestamp_start']) or None
     timestamp_end = search_opts.has_key('timestamp_end') and int(search_opts['timestamp_end']) or None
     correct_cnt = search_opts.has_key('correct_cnt') and int(search_opts['correct_cnt']) or None
-    setting_ref = vsm_settings_get_by_name(context, 'ceph_diamond_collect_interval', session=session)
-    if setting_ref:
-        diamond_collect_interval = int(setting_ref['value'])
+    config = config_get_by_name_and_section(context, 'ceph_diamond_collect_interval', 'vsm_settings')
+    if config:
+        diamond_collect_interval = int(config['value'])
     else:
         diamond_collect_interval = 15
-        vsm_settings_update_or_create(context, {'name':'ceph_diamond_collect_interval','value':diamond_collect_interval}, session=session)
+        config_create(context, {'name': 'ceph_diamond_collect_interval',
+                                'value': diamond_collect_interval,
+                                'category': 'VSM',
+                                'section': 'vsm_settings',
+                                'alterable': True,
+                                'description': 'ceph diamond collect interval'})
     if timestamp_start is None and timestamp_end:
         timestamp_start = timestamp_end - diamond_collect_interval
     elif timestamp_start  and  timestamp_end is None:
@@ -4280,12 +4232,17 @@ def latency_performance_metrics(context, search_opts, session=None):#for latency
     latency_type = metrics_name.split('_')[2]
     timestamp_start = search_opts.has_key('timestamp_start') and int(search_opts['timestamp_start']) or None
     timestamp_end = search_opts.has_key('timestamp_end') and int(search_opts['timestamp_end']) or None
-    setting_ref = vsm_settings_get_by_name(context, 'ceph_diamond_collect_interval', session=session)
-    if setting_ref:
-        diamond_collect_interval = int(setting_ref['value'])
+    config = config_get_by_name_and_section(context, 'ceph_diamond_collect_interval', 'vsm_settings')
+    if config:
+        diamond_collect_interval = int(config['value'])
     else:
         diamond_collect_interval = 15
-        vsm_settings_update_or_create(context, {'name':'ceph_diamond_collect_interval','value':diamond_collect_interval}, session=session)
+        config_create(context, {'name': 'ceph_diamond_collect_interval',
+                                'value': diamond_collect_interval,
+                                'category': 'VSM',
+                                'section': 'vsm_settings',
+                                'alterable': True,
+                                'description': 'ceph diamond collect interval'})
     if timestamp_start is None and timestamp_end:
         timestamp_start = timestamp_end - diamond_collect_interval
     elif timestamp_start  and  timestamp_end is None:
@@ -4330,12 +4287,17 @@ def cpu_data_get_usage(context, search_opts, session=None):#for cpu_usage
     metrics_name = search_opts['metrics_name']
     timestamp_start = search_opts.has_key('timestamp_start') and int(search_opts['timestamp_start']) or None
     timestamp_end = search_opts.has_key('timestamp_end') and int(search_opts['timestamp_end']) or None
-    setting_ref = vsm_settings_get_by_name(context, 'cpu_diamond_collect_interval', session=session)
-    if setting_ref:
-        diamond_collect_interval = int(setting_ref['value'])
+    config = config_get_by_name_and_section(context, 'cpu_diamond_collect_interval', 'vsm_settings')
+    if config:
+        diamond_collect_interval = int(config['value'])
     else:
         diamond_collect_interval = 15
-        vsm_settings_update_or_create(context, {'name':'cpu_diamond_collect_interval','value':diamond_collect_interval}, session=session)
+        config_create(context, {'name': 'cpu_diamond_collect_interval',
+                                'value': diamond_collect_interval,
+                                'category': 'VSM',
+                                'section': 'vsm_settings',
+                                'alterable': True,
+                                'description': 'cpu diamond collect interval'})
     if timestamp_start is None and timestamp_end:
         timestamp_start = timestamp_end - diamond_collect_interval
     elif timestamp_start  and  timestamp_end is None:
@@ -4364,3 +4326,102 @@ def get_poolusage(context, poolusage_id):
         filter_by(id=poolusage_id).\
         first()
     return result
+
+# config db
+def config_get_all(context, marker=None, limit=None, sort_key=None,
+                   sort_dir=None, filters=None):
+    query = model_query(context, models.Config, read_deleted="yes")
+
+    if filters:
+        filter_dict = {}
+        filter_list = []
+        for k, v in filters.iteritems():
+            if k != "name":
+                filter_dict[k] = v
+            else:
+                filter_list.append((models.Config.name.like("%%%s%%" % v)))
+        query = query.\
+            filter_by(**filter_dict).\
+            filter(or_(*filter_list))
+
+    return query.all()
+
+def config_create(context, values):
+    session = get_session()
+
+    config_ref = models.Config()
+    with session.begin(subtransactions=True):
+        old_config = _config_get_by_name_and_section(context, values['name'],
+                                                     values['section'])
+        if old_config:
+            raise exception.ConfigExist(config_name=values['name'])
+
+        session.add(config_ref)
+        config_ref.update(values)
+
+    return config_ref
+
+def _config_get_query(context, session=None, project_only=False):
+    return model_query(context, models.Config, session=session,
+                       project_only=project_only, read_deleted="no")
+
+def _config_get(context, config_id):
+    result = _config_get_query(context, session=None, project_only=True).\
+        filter_by(id=config_id).\
+        first()
+
+    if not result:
+        raise exception.ConfigNotFound(config_id_or_name=config_id)
+
+    return result
+
+def _config_get_by_name(context, config_name):
+    result = _config_get_query(context, session=None, project_only=True).\
+        filter_by(name=config_name).\
+        first()
+
+    # if not result:
+    #     raise exception.ConfigNotFound(config_id_or_name=config_name)
+
+    return result
+
+def _config_get_by_name_and_section(context, config_name, section):
+    result = _config_get_query(context, session=None, project_only=True).\
+        filter_by(name=config_name).\
+        filter_by(section=section).\
+        first()
+    return result
+
+def config_get_by_name(context, config_name):
+    return _config_get_by_name(context, config_name)
+
+def config_get(context, config_id):
+    return _config_get(context, config_id)
+
+def config_get_by_name_and_section(context, config_name, section):
+    result = _config_get_by_name_and_section(context, config_name, section)
+    # LOG.info("===================result: %s" % result)
+    if not result:
+        raise exception.ConfigNotFound(config_id_or_name=config_name)
+    return result
+
+def config_update(context, config_id, fields):
+    session = get_session()
+
+    with session.begin():
+        model_query(context, models.Config, session=session). \
+            filter_by(id=config_id). \
+            update(fields)
+    config_ref = _config_get(context, config_id)
+
+    return config_ref
+
+def config_delete(context, config_id):
+    session = get_session()
+    now = timeutils.utcnow()
+    with session.begin():
+        model_query(context, models.Config, session=session).\
+            filter_by(id=config_id).\
+            update({'deleted': True,
+                    'deleted_at': now,
+                    'updated_at': literal_column('updated_at')})

@@ -28,8 +28,8 @@
 {% block main %}
     {% csrf_token %}
     <div id="divPoolForm" >
-	    <div class="left">
 	    <form>
+            <div class="left">
 		    <fieldset>
 		    	<div class="control-group form-field clearfix required">
 	                <label>Cache Tier Pool:</label>
@@ -173,10 +173,8 @@
 	</div>
 {% endblock %}
 
-
 {% block js %}
     {{ block.super }}
     <script src='{{ STATIC_URL }}dashboard/js/vsm.spin.js' type='text/javascript' charset='utf-8'></script>
-    <script src="{{ STATIC_URL }}dashboard/js/addcachetier.js"></script> 
+    <script src="{{ STATIC_URL }}dashboard/js/addcachetier.js"></script>
 {% endblock %}
-

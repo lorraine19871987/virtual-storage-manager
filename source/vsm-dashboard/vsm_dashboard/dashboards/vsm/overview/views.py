@@ -170,9 +170,12 @@ def get_capacity():
 #get the OSD data
 def get_OSD():
     #get the full or near full threshold
-    settings = vsmapi.get_setting_dict(None)
-    disk_near_full_threshold = int(settings['disk_near_full_threshold'])
-    disk_full_threshold = int(settings['disk_full_threshold'])
+    configs = vsmapi.config_get_all(None, search_opts={'category': 'VSM'})
+    config_dict = {}
+    for config in configs:
+        config_dict.setdefault(config.name, config.value)
+    disk_near_full_threshold = int(config_dict['disk_near_full_threshold'])
+    disk_full_threshold = int(config_dict['disk_full_threshold'])
 
     in_up = 0
     in_down = 0
@@ -269,7 +272,10 @@ def get_MDS():
 #get the storage data
 def get_storage():
     #get the threshold for storage group
-    settings = vsmapi.get_setting_dict(None)
+    configs = vsmapi.config_get_all(None, search_opts={'category': 'VSM'})
+    config_dict = {}
+    for config in configs:
+        config_dict.setdefault(config.name, config.value)
     _sgs = vsmapi.storage_group_status(None)
 
     _num = 0
@@ -279,9 +285,9 @@ def get_storage():
     for _sg in _sgs:
         _sg.capacity_total = 1 if not _sg.capacity_total else _sg.capacity_total
         capcity_percent_used = 0 if not _sg.capacity_total else _sg.capacity_used * 100 / _sg.capacity_total
-        if capcity_percent_used > float(settings["storage_group_full_threshold"]):
+        if capcity_percent_used > float(config_dict["storage_group_full_threshold"]):
              _num_full+=1
-        elif capcity_percent_used > float(settings["storage_group_near_full_threshold"]):
+        elif capcity_percent_used > float(config_dict["storage_group_near_full_threshold"]):
             _num_near_full+=1
         else:
             _num_normal+=1

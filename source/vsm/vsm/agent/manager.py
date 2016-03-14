@@ -20,34 +20,32 @@
 """
 Agent Service
 """
-import random
-import re
-import os
+
+import glob
 import json
-import time
+import operator
+import os
 import platform
-from vsm import db
+import time
+
+from vsm.agent import cephconfigparser
+from vsm.agent.crushmap_parser import CrushMap
+from vsm.agent import driver
+from vsm.agent import rpcapi as agent_rpc
+from vsm.conductor import rpcapi as conductor_rpcapi
 from vsm import context
+from vsm import db
+from vsm import exception
 from vsm import flags
 from vsm import manager
-from vsm import utils
-from vsm import exception
-from decorator import decorator
-from vsm.openstack.common import log as logging
-from vsm.openstack.common import timeutils
-from vsm.conductor import rpcapi as conductor_rpcapi
-from vsm.agent import driver
-from vsm.agent import cephconfigparser
 from vsm.manifest.parser import ManifestParser
 from vsm.manifest import sys_info
+from vsm.openstack.common import log as logging
 from vsm.openstack.common.periodic_task import periodic_task
+from vsm.openstack.common import timeutils
 from vsm.openstack.common.rpc import common as rpc_exc
-from vsm.agent import rpcapi as agent_rpc
-from vsm import context
+from vsm import utils
 
-import operator
-from crushmap_parser import CrushMap
-import glob
 CTXT = context.get_admin_context()
 
 LOG = logging.getLogger(__name__)
@@ -61,11 +59,11 @@ FLAGS = flags.FLAGS
 
 def _get_interval_time(key):
     LOG.debug('get interval_time %s' % key)
-    setting = db.vsm_settings_get_by_name(CTXT, key)
-    if setting:
-        LOG.debug('interval_time for %s : %s' % (key, setting.get('value')))
-        return abs(int(setting.get('value', 30)))
-    else:
+    try:
+        config = db.config_get_by_name_and_section(CTXT, key, 'vsm_settings')
+        LOG.debug('interval_time for %s : %s' % (key, config.get('value')))
+        return abs(int(config.get('value', 30)))
+    except exception.ConfigNotFound:
         return 30
 
 class AgentManager(manager.Manager):
@@ -1119,7 +1117,6 @@ class AgentManager(manager.Manager):
             device_values["mount_point"]=osd_mount_point
             db.device_update(context,device["id"],device_values)
 
-
     def _get_cluster_id(self, context):
         init_node = db.init_node_get_by_host(context, FLAGS.host)
         return init_node['cluster_id']
@@ -1176,16 +1173,22 @@ class AgentManager(manager.Manager):
             values['state'] = osd_status
             self._conductor_rpcapi.\
                 osd_state_update(context, values)
+
     @periodic_task(service_topic=FLAGS.agent_topic,
                    spacing=10)
     def clean_performance_history_data(self, context):
         key = 'keep_performance_data_days'
-        setting = db.vsm_settings_get_by_name(CTXT, key)
-        if setting:
-            days = setting.get('value')
+        config = db.config_get_by_name_and_section(context, key, "vsm_settings")
+        if config:
+            days = config.get('value')
         else:
             days = '7'
-            db.vsm_settings_update_or_create(context, {'name':key,'value':days})
+            db.config_create(context, {'name': key,
+                                       'value': days,
+                                       'category': 'VSM',
+                                       'section': 'vsm_settings',
+                                       'alterable': True,
+                                       'description': 'keep performance data days'})
         db.clean_performance_history_data(context,days)
 
     #@require_active_host
@@ -1245,10 +1248,10 @@ class AgentManager(manager.Manager):
         """compute pg_num"""
         try:
             pg_count_factor = 100
-            settings = db.vsm_settings_get_all(context)
-            for setting in settings:
-                if setting['name'] == 'pg_count_factor':
-                    pg_count_factor = int(setting['value'])
+            configs = db.config_get_all(context, filters={'category': 'VSM'})
+            for config in configs:
+                if config['name'] == 'pg_count_factor':
+                    pg_count_factor = int(config['value'])
 
             pg_num = pg_count_factor * osd_num//replication_num
 
@@ -1258,16 +1261,17 @@ class AgentManager(manager.Manager):
             msg = _("Could not compute proper pg_num.")
             raise
         return pg_num
+
     @periodic_task(run_immediately=True,
                    service_topic=FLAGS.agent_topic,
-                   spacing=FLAGS.update_ceph_version_info)
+                   spacing=_get_interval_time('update_ceph_version_info'))
     def get_ceph_version_to_db(self, context):
         ceph_ver = self.ceph_driver.get_ceph_version()
         db.init_node_update(context,self._init_node_id,{'ceph_ver':ceph_ver})
 
     @periodic_task(run_immediately=True,
                    service_topic=FLAGS.agent_topic,
-                   spacing=FLAGS.reset_pg_heart_beat)
+                   spacing=_get_interval_time('reset_pg_heart_beat'))
     def update_pg_and_pgp(self, context):
         LOG.info("Updating pg_num and pg_placement_num for pools")
         db_pools = db.pool_get_all(context)
@@ -1280,17 +1284,20 @@ class AgentManager(manager.Manager):
             #reset pgs
             max_pg_num_per_osd = pool['max_pg_num_per_osd']
             if not max_pg_num_per_osd:
-                settings = db.vsm_settings_get_all(context)
-                for setting in settings:
-                    if setting['name'] == 'pg_count_factor':
-                         max_pg_num_per_osd = int(setting['value'])
+                configs = db.config_get_all(context, filters={'category': 'VSM'})
+                for config in configs:
+                    if config['name'] == 'pg_count_factor':
+                         max_pg_num_per_osd = int(config['value'])
             auto_growth_pg = pool['auto_growth_pg']
             if auto_growth_pg:
                 max_pg_num_finally = auto_growth_pg
             else:
                 size = pool['size']
                 if pool['size'] == 0:
-                    pool_default_size = db.vsm_settings_get_by_name(context,'osd_pool_default_size')
+                    pool_default_size = \
+                        db.config_get_by_name_and_section(context,
+                                                          'osd_pool_default_size',
+                                                          'vsm_settings')
                     size = int(pool_default_size.value)
                 max_pg_num_finally = max_pg_num_per_osd * osd_num_per_group//size
             if max_pg_num_finally > pool['pg_num']:
@@ -1491,7 +1498,7 @@ class AgentManager(manager.Manager):
                 address = mds['address'].split(':')
                 if len(address)>0:
                     LOG.info('mds addresss========%s'%address[0])
-                    node = db.init_node_get_by_cluster_ip(context,address[0])
+                    node = db.init_node_get_by_secondary_public_ip(context,address[0])
                     if node['mds'] != 'yes':
                         values = {'mds':'yes'}
                         db.init_node_update(context,node['id'],values)
@@ -1783,7 +1790,6 @@ class AgentManager(manager.Manager):
         return True
 
     def get_available_disks(self, context):
-        #LOG.info('333333333')
         available_disk_name = self.ceph_driver.get_available_disks(context)
         LOG.info('available_disk_name=====%s'%available_disk_name)
         devices = db.device_get_all_by_service_id(context,self._service_id)
@@ -1946,7 +1952,6 @@ class AgentManager(manager.Manager):
         for value_dict in zone_values:
             db.zone_update_or_create(context,value_dict)
 
-
     def _insert_storage_group_from_crushmap_to_db(self,context,crushmap):
         '''
         :param context:
@@ -2021,7 +2026,6 @@ class AgentManager(manager.Manager):
             values = {'data_drives_number':server['data_drives_number'],'status':'Active'}
             db.init_node_update(context,server['id'],values)
 
-
     def _insert_devices_from_config_to_db(self,context,config_dict):
         '''TODO: device_type interface_type  mount_point path state journal_state'''
         device_values = []
@@ -2050,7 +2054,6 @@ class AgentManager(manager.Manager):
                 db.device_update(context,device_ref['id'],device)
             else:
                 db.device_create(context,device)
-
 
     def _insert_osd_states_from_config_to_db(self,context,config_dict,crushmap):
         cluster_id = db.cluster_get_all(context)[0]['id']
@@ -2209,7 +2212,6 @@ class AgentManager(manager.Manager):
                 message['error'].append('missing field %s for %s in ceph configration file.'%(fields_missing,mon_name))
         return message
 
-
     def check_pre_existing_crushmap(self, context, body):
         keyring_file_path = body.get('monitor_keyring')
         crushmap = self.get_crushmap_json_format(keyring_file_path)
@@ -2280,9 +2282,14 @@ class AgentManager(manager.Manager):
             return -1
         size = int(size)
         if size == 0:
-            pool_default_size = db.vsm_settings_get_by_name(context,'osd_pool_default_size')
+            pool_default_size = \
+                db.config_get_by_name_and_section(context,
+                                                  'osd_pool_default_size',
+                                                  'vsm_settings')
             size = int(pool_default_size.value)
-        pg_count_factor = db.vsm_settings_get_by_name(context,'pg_count_factor')
+        pg_count_factor = db.config_get_by_name_and_section(context,
+                                                            'pg_count_factor',
+                                                            'vsm_settings')
         pg_count_factor = int(pg_count_factor.value)
         pg_num_default = pg_count_factor * osd_num_per_group//size
         LOG.info('get_default_pg_num_by_storage_group:%s'%pg_num_default)
@@ -2326,4 +2333,48 @@ class AgentManager(manager.Manager):
         self.ceph_driver.create_snapshot(body)
         return ret
 
+    def config_into_ceph_conf(self, context, config):
+        return self.ceph_driver.config_into_ceph_conf(context, config)
 
+    def config_out_ceph_conf(self, context, config):
+        return self.ceph_driver.config_out_ceph_conf(context, config)
+
+    def config_into_effect(self, context, config_name, config_value,
+                           service_type, id_or_name):
+        cn = "-".join(config_name.split(" "))
+        cv = config_value
+        st = service_type
+        if not st:
+            try:
+                utils.execute("ceph", "tell", "osd.*", "injectargs",
+                              "--%s %s" % (cn, cv), run_as_root=True)
+            except:
+                LOG.warn("No osd type, pass")
+            try:
+                utils.execute("ceph", "tell", "mon.*", "injectargs",
+                              "--%s %s" % (cn, cv), run_as_root=True)
+            except:
+                LOG.warn("No mon type, pass")
+            try:
+                utils.execute("ceph", "tell", "mds.*", "injectargs",
+                              "--%s %s" % (cn, cv), run_as_root=True)
+            except:
+                LOG.warn("No mds type, pass")
+            # utils.execute('service', 'ceph', 'restart', run_as_root=True)
+        elif not id_or_name:
+            try:
+                utils.execute("ceph", "tell", "%s.*" % st,
+                              "injectargs", "--%s %s" % (cn, cv),
+                              run_as_root=True)
+            except:
+                LOG.warn("No %s type, pass" % st)
+            # utils.execute('service', 'ceph', 'restart', service_type, run_as_root=True)
+        else:
+            try:
+                utils.execute("ceph", "tell", "%s.%s" % (st, str(id_or_name)),
+                              "injectargs", "--%s %s" % (cn, cv),
+                              run_as_root=True)
+            except:
+                LOG.warn("No %s.%s, pass" % (st, str(id_or_name)))
+            # utils.execute('service', 'ceph', 'restart',
+            #               str(service_type)+'.'+str(id_or_name), run_as_root=True)

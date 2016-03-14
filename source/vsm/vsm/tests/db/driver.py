@@ -324,19 +324,3 @@ class TestRbdDriver(object):
 
     def rbd_update_or_create(self, context, values):
         return db.rbd_update_or_create(context, values)
-
-class TestSettingDriver(object):
-    def __init__(self):
-        pass
-
-    def setting_create(self, context, values):
-        return db.vsm_settings_update_or_create(context, values)
-
-    def setting_update(self, context, values):
-        return db.vsm_settings_update_or_create(context, values)
-
-    def settings_get_all(self, context):
-        return db.vsm_settings_get_all(context)
-
-    def settings_get_by_name(self, context, name):
-        return db.vsm_settings_get_by_name(context, name)

@@ -35,7 +35,11 @@ class ModalChartMixin(object):
 
    def get_context_data(self, **kwargs):
         context = super(ModalChartMixin, self).get_context_data(**kwargs)
-        context['settings'] = vsmapi.get_setting_dict(self.request)
+        configs = vsmapi.config_get_all(self.request, search_opts={'category': 'VSM'})
+        config_dict = {}
+        for config in configs:
+            config_dict.setdefault(config.name, config.value)
+        context['settings'] = config_dict
         return context
 
 class IndexView(ModalChartMixin, tables.DataTableView):
@@ -49,9 +53,12 @@ class IndexView(ModalChartMixin, tables.DataTableView):
             _sgs = vsmapi.storage_group_status(self.request,)
             if _sgs:
                 logging.debug("resp body in view: %s" % _sgs)
-            settings = vsmapi.get_setting_dict(self.request)
-            sg_near_full_threshold = settings['storage_group_near_full_threshold']
-            sg_full_threshold = settings['storage_group_full_threshold']
+            configs = vsmapi.config_get_all(self.request, search_opts={'category': 'VSM'})
+            config_dict = {}
+            for config in configs:
+                config_dict.setdefault(config.name, config.value)
+            sg_near_full_threshold = config_dict['storage_group_near_full_threshold']
+            sg_full_threshold = config_dict['storage_group_full_threshold']
         except:
             exceptions.handle(self.request,
                               _('Unable to retrieve sever list. '))
@@ -86,7 +93,10 @@ class IndexView(ModalChartMixin, tables.DataTableView):
 #get pie charts data
 def chart_data(request):
     charts = []
-    _cfg = vsmapi.get_setting_dict(None)
+    configs = vsmapi.config_get_all(request, search_opts={'category': 'VSM'})
+    config_dict = {}
+    for config in configs:
+        config_dict.setdefault(config.name, config.value)
     _sgs = vsmapi.storage_group_status(None)
 
     for _sg in _sgs:
@@ -98,9 +108,9 @@ def chart_data(request):
 
         #0:normal;1:near full;2:full;  
         status = 0 
-        if capacity_percent_used < int(_cfg["storage_group_near_full_threshold"]):
+        if capacity_percent_used < int(config_dict["storage_group_near_full_threshold"]):
             status = 0
-        elif capacity_percent_used < int(_cfg["storage_group_full_threshold"]):
+        elif capacity_percent_used < int(config_dict["storage_group_full_threshold"]):
             status = 1
         else:
             status = 2

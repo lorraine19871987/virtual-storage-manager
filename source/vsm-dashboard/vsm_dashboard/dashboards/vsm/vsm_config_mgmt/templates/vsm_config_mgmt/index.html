@@ -1,4 +1,3 @@
-
 <!-- Copyright 2014 Intel Corporation, All Rights Reserved.
 
  Licensed under the Apache License, Version 2.0 (the"License");
@@ -13,47 +12,47 @@
  KIND, either express or implied. See the License for the
  specific language governing permissions and limitations
  under the License.
- --> 
+ -->
 
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans "Settings" %}{% endblock %}
+{% block title %}{% trans "Manage VSM Config" %}{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_page_header.html" with title=_("Settings") %}
+  {% include "horizon/common/_page_header.html" with title=_("Manage VSM Config") %}
+
 {% endblock page_header %}
 
 {% block main %}
-
 <div class="table_wrapper">
   <form action="/dashboard/vsm/" method="POST"><div style='display:none'>{% csrf_token %}</div>
 
   <table id="pools" class="table table-bordered table-striped datatable">
     <thead>
       <tr class='table_caption'>
-        <th class='table_header' colspan='8'>
+        <th class='table_header' colspan='5'>
           <div class="table_actions clearfix">
           </div>
         </th>
       </tr>
       <tr>
-          <th  class="normal_column">Name</th>
-          <th  class="normal_column">Current Value</th>
-          <th  class="normal_column">New Value</th>
-          <th  class="normal_column">Action</th>
+          <th  class="sortable normal_column">Name</th>
+          <th  class="sortable normal_column">Section</th>
+          <th  class="sortable normal_column">Default Value</th>
+          <th  class="sortable normal_column">New Value</th>
+          <th  class="sortable normal_column">Action</th>
       </tr>
     </thead>
 
     <tbody>
 {% for setting in settings %}
-      <tr id="settings__row__{{ setting.name }}" name="{{ setting.name }}">
-          <td class="sortable normal_column">{{ setting.verbose_name }}</td>
-          <td class="sortable normal_column">{{ setting.value }}</td>
+      <tr id="settings__row__{{ setting.name }}" name="{{ setting.name }}" configid="{{ setting.id }}"
+              section="{{ setting.section }}" description="{{ setting.description }}" >
+          <td class="sortable normal_column">{{ setting.name }}</td>
+          <td class="sortable normal_column">{{ setting.section }}</td>
+          <td class="sortable normal_column">{{ setting.default_value }}</td>
           <td class="sortable normal_column">
-              <input id="txt_{{ setting.verbose_name }}" type="text" value="{{ setting.value }}" class="form-control new_value" onchange="check_text(this)" />
-              {% if  setting.verbose_name  == 'CPU_DIAMOND_COLLECT_INTERVAL' or setting.verbose_name  == 'CEPH_DIAMOND_COLLECT_INTERVAL'  %}
-              <input id="id_enable_{{ setting.verbose_name }}" class="enable_or_disable" type="checkbox" name="enable_collect" > Disable
-              {% else %}{% endif %}
+              <input id="txt_{{ setting.name }}" type="text" value="{{ setting.value }}" class="form-control new_value" onchange="check_text(this)" />
           </td>
           <td class="sortable normal_column">
               <a href="#" class="btn btn-primary update">Update</a>
@@ -66,7 +65,7 @@
 
     <tfoot>
       <tr>
-        <td colspan="8">
+        <td colspan="5">
           <span class="table_count"></span>
         </td>
       </tr>
@@ -75,11 +74,11 @@
 
   </form>
 </div>
-
 {% endblock %}
+
 
 {% block js %}
     {{ block.super }}
-    <script src='{{ STATIC_URL }}dashboard/js/settings.js' type='text/javascript' charset='utf-8'></script>
+    <script src='{{ STATIC_URL }}dashboard/js/vsmconfigmgmt.js' type='text/javascript' charset='utf-8'></script>
 {% endblock %}
 

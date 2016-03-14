@@ -14,13 +14,12 @@
 # specific language governing permissions and limitations
 # under the License.
 
-from django.utils.translation import ugettext_lazy as _
+from django.conf.urls import patterns, url
+from .views import IndexView
+from .views import SettingsAction
 
-import horizon
-from vsm_dashboard.dashboards.vsm import dashboard
-
-class Configuration(horizon.Panel):
-    name = _("Configuration")
-    slug = 'configuration'
-
-dashboard.VizDash.register(Configuration)
+urlpatterns = patterns('',
+    url(r'^$', IndexView.as_view(), name='index'),
+    url(r'/', IndexView.as_view(), name='index'),
+    url(r'^(?P<action>\w+)$', SettingsAction, name='setting'),
+)

@@ -706,3 +706,24 @@ class GetNoneError(VsmException):
 class StartCephFaild(VsmException):
     code = "E-3994"
     message = _("Start ceph cluster Failed!")
+
+class ConfigNotFound(NotFound):
+    message = _("Config %(config_id_or_name)s could not be found.")
+
+class ConfigNotSupprtCreateWithCategoryVSM(VsmException):
+    message = _("Not support to create config with VSM category now")
+
+class ConfigCategoryError(VsmException):
+    message = _("The category %(category)s is error")
+
+class ConfigSectionError(VsmException):
+    message = _("The section %(section)s is error")
+
+class ConfigRequiredParameterMiss(VsmException):
+    message = _("The required parameter is missing")
+
+class ConfigExist(VsmException):
+    message = _("The config %(config_name)s exists")
+
+class ConfigParameterValueError(VsmException):
+    message = _("The parameter %(parameter)s value is error")

@@ -17,10 +17,10 @@
 
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}Update Configuration{% endblock %}
+{% block title %}Create Ceph Config{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_page_header.html" with title=_("Update Configuration") %}
+  {% include "horizon/common/_page_header.html" with title=_("Create Ceph Config") %}
   <link href="{{ STATIC_URL }}dashboard/css/settings.css" rel="stylesheet">
 {% endblock page_header %}
 
@@ -32,24 +32,24 @@
   <form>
 		<div class="left">
 	    <fieldset>
-        <input id="hfConfigID" type="hidden" value="{{config_id}}">
         {% include "horizon/common/_form_fields.html" %}
 	    </fieldset>
 		</div>
-    <div class="right">
-		  <h3>{% trans "Description" %}:</h3>
-		</div>
+{#        <div class="right">#}
+{#		  <h3>{% trans "Description" %}:</h3>#}
+{#		</div>#}
  	</form>
  
   <div id="divFormOptions" class="vsm-options-bar">
-    <input id="btnUpdateConfiguration"  class="btn btn-primary" type="submit" value="Update Configuration" />
-    <a id="btnCancel" class="btn btn-default" href="/dashboard/vsm/configuration/">Cancel</a>
+    <input id="btnCreateCephConfig"  class="btn btn-primary" type="submit" value="Save" />
+    <a id="btnCancel" class="btn btn-default" href="/dashboard/vsm/ceph_config_mgmt/">Cancel</a>
   </div>
 </div>
+
 {% endblock %}
 
 {% block js %}
     {{ block.super }}
-    <script src="{{ STATIC_URL }}dashboard/js/settings.js"></script> 
+    <script src="{{ STATIC_URL }}dashboard/js/cephconfigmgmt.js"></script>
 {% endblock %}
 
