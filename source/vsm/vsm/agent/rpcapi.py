@@ -686,7 +686,7 @@ class AgentAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
                         version='1.0', timeout=6000)
         return res
 		
-     def config_into_ceph_conf(self, context, config, host):
+    def config_into_ceph_conf(self, context, config, host):
         topic = rpc.queue_get_for(context, self.topic, host)
         return self.call(context, self.make_msg('config_into_ceph_conf',
                                                 config=config),
