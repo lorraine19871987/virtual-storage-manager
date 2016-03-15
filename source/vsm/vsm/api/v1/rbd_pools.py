@@ -27,6 +27,8 @@ from vsm import conductor
 from vsm import scheduler
 from vsm import exception
 from vsm import db
+import datetime,time
+
 LOG = logging.getLogger(__name__)
 
 FLAGS = flags.FLAGS
@@ -141,6 +143,17 @@ class Controller(wsgi.Controller):
             if rbd_image[0]['parent_snapshot']:
                 rbd_image[0]['parent_snapshot_detail'] = '%s/%s@%s'%(rbd_image[1]['pool'],\
                                                                      rbd_image[1]['image'],rbd_image[1]['name'])
+            auto_snapshot_interval = rbd_image[0]['auto_snapshot_interval']
+            auto_snapshot_start = rbd_image[0]['auto_snapshot_start']
+            if auto_snapshot_start and auto_snapshot_interval:
+                auto_snapshot_start_datetime = datetime.datetime.strptime(auto_snapshot_start.split('.')[0], "%Y-%m-%dT%H:%M:%S")
+                auto_snapshot_start_time = time.mktime(time.strptime(auto_snapshot_start.split('.')[0], "%Y-%m-%dT%H:%M:%S"))
+                now_time = time.time()
+                snap_times = int(now_time-auto_snapshot_start_time)/3600%auto_snapshot_interval
+                pre_snap_time = auto_snapshot_start_datetime + datetime.timedelta(hours=auto_snapshot_interval * snap_times)
+                next_snap_time = pre_snap_time + datetime.timedelta(hours=auto_snapshot_interval)
+                rbd_image[0]['pre_snap_time'] = pre_snap_time.strftime("%Y-%m-%d %H")
+                rbd_image[0]['next_snap_time'] = next_snap_time.strftime("%Y-%m-%d %H")
             rbd_images.append(rbd_image[0])
         return self._view_builder.detail(req, rbd_images)
 
