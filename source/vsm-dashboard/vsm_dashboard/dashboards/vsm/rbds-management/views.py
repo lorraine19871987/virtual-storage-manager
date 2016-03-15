@@ -69,6 +69,8 @@ class IndexView(tables.DataTableView):
                       "format": format_display[str(_rbd.format)],
                       "parent_snapshot": _rbd.parent_snapshot,
                       "parent_snapshot_detail":_rbd.parent_snapshot_detail,
+                      "pre_snap_time":_rbd.pre_snap_time,
+                      "next_snap_time":_rbd.next_snap_time,
                       "updated_at": get_time_delta(_rbd.updated_at),
                       }
 

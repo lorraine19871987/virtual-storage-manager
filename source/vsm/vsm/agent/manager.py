@@ -27,6 +27,7 @@ import time
 import socket
 import platform
 import time
+import datetime
 
 from vsm.agent import cephconfigparser
 from vsm.agent.crushmap_parser import CrushMap
@@ -1453,6 +1454,7 @@ class AgentManager(manager.Manager):
                                                           None,
                                                           None)
         for old_rbd in old_rbd_list:
+            old_rbd = old_rbd[0]
             old_rbd_image = old_rbd["image"]
             if old_rbd_image and old_rbd_image not in rbd_image_list:
                 deleted_at = timeutils.utcnow()
@@ -1722,6 +1724,38 @@ class AgentManager(manager.Manager):
                 raise exception.ExeCmdError
             except exception.ExeCmdError, e:
                 LOG.error("%s:%s" % (e.code, e.message))
+
+    @periodic_task(run_immediately=True, service_topic=FLAGS.agent_topic,
+                   spacing=600)
+    def create_snapshot_for_image(self, context):
+        rbds = self._conductor_rpcapi.rbd_get_all(context,
+                                                          None,
+                                                          None,
+                                                          None,
+                                                          None)
+        LOG.info('periodic_task=----rbds===%s'%rbds)
+        for rbd in rbds:
+            auto_snapshot_start = rbd[0]['auto_snapshot_start']
+            auto_snapshot_interval = rbd[0]['auto_snapshot_interval']
+            LOG.info('periodic_task=----rbds==type of auto_snapshot_start=%s'%type(auto_snapshot_start))
+            if auto_snapshot_start and auto_snapshot_interval:
+                now_time = time.time()
+                auto_snapshot_start_time = time.mktime(time.strptime(auto_snapshot_start.split('.')[0], "%Y-%m-%dT%H:%M:%S"))
+                if now_time >= auto_snapshot_start_time and int(now_time-auto_snapshot_start_time)/3600%auto_snapshot_interval == 0:
+                    now_time_string = time.strftime("%Y/%m/%d/%H", time.localtime(now_time))
+                    values = {
+                        'pool': rbd[0]['pool'],
+                        'image': rbd[0]['image'],
+                        'name': 'auto_snap_%s_%s_%s'%(rbd[0]['pool'],rbd[0]['image'],now_time_string),
+                    }
+                    snapshot_ref = db.snapshot_get_by_pool_image_snapname(context,\
+                                values['pool'],values['image'],values['name'])
+                    if not snapshot_ref:
+                        self.ceph_driver.create_snapshot(values)
+                        db.snapshot_create(context,values)
+
+
+
 
     @periodic_task(service_topic=FLAGS.agent_topic, spacing=_get_interval_time('ceph_status'))
     def update_ceph_status(self, context):
