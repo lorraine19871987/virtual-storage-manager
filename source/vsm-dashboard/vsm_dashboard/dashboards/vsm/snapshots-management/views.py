@@ -35,13 +35,9 @@ class IndexView(tables.DataTableView):
     template_name = 'vsm/snapshots-management/index.html'
 
     def get_data(self):
-        # default_limit = 100;
-        # default_sort_dir = "asc";
-        # default_sort_keys = ['id']
-        # marker = self.request.GET.get('marker', "")
+
 
         _snap_status = []
-        #_rbds= vsmapi.get_rbd_list(self.request,)
         try:
             _snap_status = []#TODO vsmapi.
             if _snap_status:

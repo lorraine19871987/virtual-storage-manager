@@ -1217,6 +1217,9 @@ def snapshot_update(context, snapshot_id, values, session=None):
 def snapshot_get(context, snapshot_id, session=None):
     return IMPL.snapshot_get(context, snapshot_id, session=session)
 
+def snapshot_get_all(context, session=None):
+    return IMPL.snapshot_get_all(context, session=session)
+
 def snapshot_get_by_pool_image(context,pool,image, session=None):
     return IMPL.snapshot_get_by_pool_image(context,pool,image, session=session)
 

@@ -41,6 +41,7 @@ from vsm.api.v1 import storage_pool
 from vsm.api.v1 import types
 from vsm.api.v1 import vsms
 from vsm.api.v1 import zones
+from vsm.api.v1 import snapshots
 from vsm.api import versions
 from vsm.openstack.common import log as logging
 
@@ -249,3 +250,13 @@ class APIRouter(vsm.api.openstack.APIRouter):
                         controller=self.resources['configs'],
                         collection={'detect': "POST"},
                         member={'action': 'POST'})
+
+        self.resources['snapshots'] = snapshots.create_resource(ext_mgr)
+        mapper.resource("snapshots", "snapshots",
+                        controller=self.resources['snapshots'],
+                        collection={
+                            'detail':"get",
+                            'snapshot_create': "post",
+                            'snapshot_remove': "post",
+                            },
+                        member={'action': 'post'})
