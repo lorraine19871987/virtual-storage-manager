@@ -54,6 +54,7 @@ class IndexView(tables.DataTableView):
                       "pool": _snap.pool,
                       "image_name": _snap.image,
                       "created_at": _snap.created_at,
+                      "snap_id": _snap.snap_id,
                       }
 
             snap_status.append(snap)

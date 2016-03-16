@@ -28,7 +28,8 @@ LOG = logging.getLogger(__name__)
 class SnapshotsTable(tables.DataTable):
     id = tables.Column("id", verbose_name=_("ID"), hidden=True)
     snapshot_name = tables.Column("snapshot_name", verbose_name=_("Snapshot Name"))
-    pool = tables.Column("pool", verbose_name=_("Pool"))
+    pool = tables.Column("snap_id", verbose_name=_("Snap ID"))
+    snap_id = tables.Column("pool", verbose_name=_("Pool"))
     image_name = tables.Column("image_name", verbose_name=_("Image Name"))
     created_at = tables.Column("created_at", verbose_name=_("Created at"))
     class Meta:

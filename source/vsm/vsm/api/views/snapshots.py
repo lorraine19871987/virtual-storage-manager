@@ -30,7 +30,8 @@ class ViewBuilder(common.ViewBuilder):
                 "name":snapshot.name,
                 "pool": snapshot.pool,
                 "image": snapshot.image,
-                "created_at": snapshot['created_at'].strftime("%Y-%m-%d %H:%M:%S")#, time.strptime(snapshot['updated_at'], "%Y-%m-%dT%H:%M:%S.000000"))
+                "snap_id":snapshot.snap_id,
+                "created_at": snapshot.created_at.strftime("%Y-%m-%d %H:%M:%S")
         }
 
         return snapshot
