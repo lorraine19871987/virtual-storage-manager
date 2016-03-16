@@ -15,7 +15,7 @@
 
 """Handles all requests to the conductor service."""
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.conductor import rpcapi
 from vsm.openstack.common import log as logging

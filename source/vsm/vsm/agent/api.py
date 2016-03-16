@@ -15,7 +15,7 @@
 
 """Handles all requests to the agent service."""
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.agent import manager
 from vsm.agent import rpcapi

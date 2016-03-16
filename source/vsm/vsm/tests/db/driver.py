@@ -26,7 +26,7 @@ import re
 import string
 import atexit
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 from vsm import db
 from vsm import exception
 from vsm.image import image_utils

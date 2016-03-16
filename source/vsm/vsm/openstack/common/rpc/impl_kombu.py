@@ -28,7 +28,7 @@ import kombu
 import kombu.connection
 import kombu.entity
 import kombu.messaging
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.openstack.common.gettextutils import _
 from vsm.openstack.common import network_utils

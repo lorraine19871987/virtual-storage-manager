@@ -178,7 +178,7 @@ for app in 'nova', 'glance', 'quantum', 'cinder':
     except ImportError:
         pass
 if not CONF:
-    from oslo.config import cfg
+    from vsm.conf_compatible import *
     CONF = cfg.CONF
 
 # alternative middleware configuration in the main application's

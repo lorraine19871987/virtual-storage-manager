@@ -20,7 +20,7 @@ Common Auth Middleware.
 """
 import os
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 import webob.dec
 import webob.exc
 

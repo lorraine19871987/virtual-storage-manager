@@ -29,7 +29,7 @@ import os
 import re
 import tempfile
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm import exception
 from vsm import flags

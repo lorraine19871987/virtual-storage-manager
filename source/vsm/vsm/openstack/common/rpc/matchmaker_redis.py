@@ -18,7 +18,7 @@ The MatchMaker classes should accept a Topic or Fanout exchange key and
 return keys for direct exchanges, per (approximate) AMQP parlance.
 """
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.openstack.common import importutils
 from vsm.openstack.common import log as logging

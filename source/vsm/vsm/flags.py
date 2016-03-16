@@ -30,7 +30,7 @@ import os
 import socket
 import sys
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 from vsm import version
 
 FLAGS = cfg.CONF

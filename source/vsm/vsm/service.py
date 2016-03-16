@@ -29,7 +29,7 @@ import time
 
 import eventlet
 import greenlet
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm import context
 from vsm import db

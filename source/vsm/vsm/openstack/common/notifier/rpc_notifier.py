@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.openstack.common import context as req_context
 from vsm.openstack.common.gettextutils import _

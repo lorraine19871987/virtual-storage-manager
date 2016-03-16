@@ -24,7 +24,7 @@ SHOULD include dedicated exception logging.
 
 """
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 import webob.exc
 
 from vsm import flags

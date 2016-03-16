@@ -15,7 +15,7 @@
 
 import uuid
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.openstack.common import context
 from vsm.openstack.common.gettextutils import _

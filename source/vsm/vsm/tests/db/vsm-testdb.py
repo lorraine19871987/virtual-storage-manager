@@ -23,7 +23,7 @@ eventlet.monkey_patch()
 
 import os
 import sys
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 possible_topdir = os.path.normpath(os.path.join(os.path.abspath(sys.argv[0]),
                                    os.pardir,

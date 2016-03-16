@@ -19,7 +19,7 @@
 Drivers for Agent Services.
 """
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 from vsm import flags
 from vsm import utils
 from vsm.physical import driver

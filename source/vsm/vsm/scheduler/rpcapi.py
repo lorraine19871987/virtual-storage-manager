@@ -16,7 +16,7 @@
 """Client side of the scheduler RPC API."""
 
 import logging
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.openstack.common import jsonutils
 import vsm.openstack.common.rpc.proxy
