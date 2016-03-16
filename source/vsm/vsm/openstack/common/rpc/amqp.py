@@ -37,7 +37,7 @@ from eventlet import semaphore
 # TODO(pekowsk): Remove import cfg and below comment in Havana.
 # This import should no longer be needed when the amqp_rpc_single_reply_queue
 # option is removed.
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.openstack.common import excutils
 from vsm.openstack.common.gettextutils import _

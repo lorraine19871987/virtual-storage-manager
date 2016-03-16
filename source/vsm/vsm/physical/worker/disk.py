@@ -21,7 +21,7 @@ import os
 #import psutil
 from vsm import utils
 from vsm.openstack.common import log as logging
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 LOG = logging.getLogger(__name__)
 

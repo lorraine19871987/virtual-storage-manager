@@ -28,7 +28,7 @@ For some wrappers that add message versioning to rpc, see:
 import inspect
 import logging
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.openstack.common.gettextutils import _
 from vsm.openstack.common import importutils

@@ -15,7 +15,7 @@
 
 """Client side of the agent RPC API."""
 import logging
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.openstack.common import jsonutils
 from vsm.openstack.common import rpc

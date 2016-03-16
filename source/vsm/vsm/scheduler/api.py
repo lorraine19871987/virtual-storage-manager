@@ -15,7 +15,7 @@
 
 """Handles all requests to the scheduler service."""
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 from vsm.openstack.common import log as logging
 from vsm.scheduler import rpcapi

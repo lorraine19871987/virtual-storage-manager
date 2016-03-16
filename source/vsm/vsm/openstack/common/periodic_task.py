@@ -33,7 +33,7 @@ import datetime
 import time
 import random
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 from vsm import flags
 from vsm.openstack.common.gettextutils import _
 from vsm.openstack.common import log as logging

@@ -2,6 +2,7 @@
 
 # Copyright 2010 United States Government as represented by the
 # Administrator of the National Aeronautics and Space Administration.
+# Copyright 2011 Justin Santa Barbara
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,24 +17,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Base class for classes that need modular database access."""
+"""Utilities and helper functions."""
 
-from vsm.conf_compatible import *
-
-from vsm import flags
-from vsm.openstack.common import importutils
-
-db_driver_opt = cfg.StrOpt('db_driver',
-                           default='vsm.db',
-                           help='driver to use for database access')
-
-FLAGS = flags.FLAGS
-FLAGS.register_opt(db_driver_opt)
-
-class Base(object):
-    """DB driver is injected in the init method."""
-
-    def __init__(self, db_driver=None):
-        if not db_driver:
-            db_driver = FLAGS.db_driver
-        self.db = importutils.import_module(db_driver)  # pylint: disable=C0103
+try:
+    from oslo.config import cfg
+except:
+    from oslo_config import cfg
+    

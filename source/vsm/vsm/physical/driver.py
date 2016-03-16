@@ -18,7 +18,7 @@
 Drivers for get diff physical devices.
 """
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 from vsm import flags
 from vsm import utils
 from vsm.openstack.common import importutils

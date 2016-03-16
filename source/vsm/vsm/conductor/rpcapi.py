@@ -16,7 +16,7 @@
 """Client side of the conductor RPC API."""
 
 import logging
-from oslo.config import cfg
+from vsm.conf_compatible import *
 
 import vsm.openstack.common.rpc.proxy
 

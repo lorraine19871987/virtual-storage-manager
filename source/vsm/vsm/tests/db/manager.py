@@ -21,7 +21,7 @@ TestDB Service
 
 import os
 import json
-from oslo.config import cfg
+from vsm.conf_compatible import *
 import datetime
 from vsm import context
 from vsm import db

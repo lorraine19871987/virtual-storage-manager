@@ -18,7 +18,7 @@ Request Body limiting middleware.
 
 """
 
-from oslo.config import cfg
+from vsm.conf_compatible import *
 import webob.dec
 import webob.exc
 

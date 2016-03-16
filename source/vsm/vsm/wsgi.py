@@ -29,7 +29,7 @@ import time
 import eventlet
 import eventlet.wsgi
 import greenlet
-from oslo.config import cfg
+from vsm.conf_compatible import *
 from paste import deploy
 import routes.middleware
 import webob.dec
