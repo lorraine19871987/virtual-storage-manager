@@ -2287,7 +2287,7 @@ class SchedulerManager(manager.Manager):
             pool_ref = db.pool_get(context,pool_id)
             image_id = snapshot.get('image')
             image_ref = db.rbd_get(context,image_id)
-            snapshot_ref = db.snapshot_get_by_pool_image(context,pool_ref['name'],image_ref['image'])
+            snapshot_ref = db.snapshot_get_by_pool_image_snapname(context,pool_ref['name'],image_ref['image'],snapshot['name'])
             if snapshot_ref:
                 error_code.append('-1')
                 snapshot_ref = snapshot_ref[0]

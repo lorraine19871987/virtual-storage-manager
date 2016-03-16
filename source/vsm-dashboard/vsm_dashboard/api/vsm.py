@@ -321,6 +321,9 @@ def snapshot_get_by_image(request, body):
     '''
     return vsmclient(request).rbd_pools.snapshot_get_by_rbd_id(body=body)
 
+def snapshot_get_all(request, paginate_opts=None):
+    return vsmclient(request).rbd_snapshots.list(detailed=True, paginate_opts=paginate_opts)
+
 def mds_summary(request):
     return vsmclient(request).mdses.summary()
 

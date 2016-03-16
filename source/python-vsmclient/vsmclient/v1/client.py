@@ -35,6 +35,7 @@ from vsmclient.v1 import licenses
 from vsmclient.v1 import performance_metrics
 from vsmclient.v1 import pool_usages
 from vsmclient.v1 import configs
+from vsmclient.v1 import rbd_snapshots
 
 class Client(object):
     """
@@ -87,6 +88,7 @@ class Client(object):
         self.performance_metrics = performance_metrics.PerformanceMetricsManager(self)
         self.pool_usages = pool_usages.PoolUsageManager(self)
         self.configs = configs.ConfigsManager(self)
+        self.rbd_snapshots = rbd_snapshots.RBDSnapShotsManager(self)
 
         # Add in any extensions...
         if extensions:
