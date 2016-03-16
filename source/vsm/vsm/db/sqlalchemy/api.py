@@ -1178,9 +1178,13 @@ def snapshot_get(context, snapshot_id, session=None):
 
     return result
 
-@require_admin_context
-def snapshot_get_all(context):
-    return model_query(context, models.Snapshot).all()
+@require_context
+def snapshot_get_all(context,session=None):
+    if not session:
+        session = get_session()
+    return model_query(context, models.SnapShot, read_deleted="no",
+                       session=session).all()
+
 
 @require_context
 def snapshot_get_all_for_storage(context, storage_id):
@@ -3801,6 +3805,8 @@ def pg_update_or_create(context, values, session=None):
 #snapshot
 def snapshot_create(context, values):
     snapshot_ref = models.SnapShot()
+    values['created_at'] = timeutils.utcnow()
+    convert_datetimes(values, 'created_at', 'deleted_at', 'updated_at')
     snapshot_ref.update(values)
     try:
         snapshot_ref.save()
@@ -3843,6 +3849,8 @@ def snap_update_or_create_by_pool_image_snapname(context, values, session=None):
             convert_datetimes(values, 'created_at', 'deleted_at', 'updated_at')
             snapshot_ref.update(values)
         else:
+            values['created_at'] = timeutils.utcnow()
+            convert_datetimes(values, 'created_at', 'deleted_at', 'updated_at')
             snapshot_ref = models.SnapShot()
             session.add(snapshot_ref)
             snapshot_ref.update(values)

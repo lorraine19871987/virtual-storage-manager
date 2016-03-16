@@ -35,3 +35,9 @@ class SnapshotsTable(tables.DataTable):
         name = "snapshots"
         verbose_name = _("Snapshot List")
         table_actions = ()
+
+    def get_object_id(self, datum):
+        if hasattr(datum, "id"):
+            return datum.id
+        else:
+            return datum["id"]

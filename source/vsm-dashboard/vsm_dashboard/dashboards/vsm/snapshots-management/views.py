@@ -35,11 +35,10 @@ class IndexView(tables.DataTableView):
     template_name = 'vsm/snapshots-management/index.html'
 
     def get_data(self):
-
-
         _snap_status = []
         try:
-            _snap_status = []#TODO vsmapi.
+            _snap_status = vsmapi.snapshot_get_all(self.request)
+            print '_snap_status===%s'%_snap_status
             if _snap_status:
                 logging.debug("resp body in view: %s" % _snap_status)
         except:
@@ -48,12 +47,13 @@ class IndexView(tables.DataTableView):
 
         snap_status = []
         for _snap in _snap_status:
+            print 'dir-----snap--2222---%s'%(dir(_snap))
             snap = {
                       "id": _snap.id,
                       "snapshot_name":_snap.name,
                       "pool": _snap.pool,
-                      "image_name": _snap.image_name,
-                      "created_at": get_time_delta(_snap.created_at),
+                      "image_name": _snap.image,
+                      "created_at": _snap.created_at,
                       }
 
             snap_status.append(snap)

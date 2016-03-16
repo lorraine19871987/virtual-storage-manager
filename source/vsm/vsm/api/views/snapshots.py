@@ -24,15 +24,16 @@ class ViewBuilder(common.ViewBuilder):
     _collection_name = "snapshots"
     def _detail(self, request, snapshot):
         LOG.info("snapshot api detail view %s " % snapshot)
-        rbd = {
+        #LOG.info("snapshot api detail view 2222 %s " % type(snapshot['updated_at']))
+        snapshot = {
                 "id": snapshot.id,
-                "snapshot_name":snapshot.name,
+                "name":snapshot.name,
                 "pool": snapshot.pool,
-                "image_name": snapshot.image_name,
-                "created_at": time.strftime("%Y-%m-%d %H:%M:%S", time.strptime(snapshot['created_at'], "%Y-%m-%dT%H:%M:%S.000000"))
+                "image": snapshot.image,
+                "created_at": snapshot['created_at'].strftime("%Y-%m-%d %H:%M:%S")#, time.strptime(snapshot['updated_at'], "%Y-%m-%dT%H:%M:%S.000000"))
         }
 
-        return rbd
+        return snapshot
 
     def detail(self, request, snapshots):
         return self._list_view(self._detail, request, snapshots)
@@ -42,5 +43,5 @@ class ViewBuilder(common.ViewBuilder):
     def _list_view(self, func, request, snapshots):
         """Provide a view for a list of snapshots."""
         snapshot_list = [func(request, snapshot) for snapshot in snapshots]
-        snapshots_dict = dict(rbd_pools=snapshot_list)
+        snapshots_dict = dict(snapshots=snapshot_list)
         return snapshots_dict
