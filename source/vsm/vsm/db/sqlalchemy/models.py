@@ -27,7 +27,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref, object_mapper
 
-from vsm.db.sqlalchemy.session import get_session
+from vsm.db.sqlalchemy.session import get_session,get_engine
 
 from vsm import exception
 from vsm import flags
@@ -750,6 +750,14 @@ class LicenseStatus(BASE, VsmBase):
     #FIXME(fengqian): Does it need to add user info here?
     #user_name = Column(String(length=50), nullable=False)
 
+class RBDGroups(BASE, VsmBase):
+    """ RBD Groups"""
+    __tablename__ = 'rbd_groups'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    name = Column(String(length=255), nullable=False ,unique=True)
+    comments = Column(Text, nullable=True)
+
 class RBD(BASE, VsmBase):
     """ ceph rbd report """
     __tablename__ = 'rbds'
@@ -764,7 +772,16 @@ class RBD(BASE, VsmBase):
     parent_snapshot = Column(Integer,nullable=True)
     auto_snapshot_start = Column('auto_snapshot_start', DateTime(timezone=False), nullable=True)
     auto_snapshot_interval = Column('auto_snapshot_interval', Integer,  nullable=True)
-
+    group_id = Column(Integer,
+                              ForeignKey('rbd_groups.id'),
+                              nullable=False,default=1)
+    group = relationship(RBDGroups,
+                                 backref=backref('rbds'),
+                                 lazy='subquery',
+                                 foreign_keys=group_id,
+                                 primaryjoin='and_('
+                                 'RBD.group_id == RBDGroups.id,'
+                                 'RBD.deleted == False)')
 
 class MDS(BASE, VsmBase):
     """ ceph MDS report """
@@ -836,3 +853,10 @@ class SnapShot(BASE, VsmBase):
     name = Column(String(length=255), nullable=False)
     status = Column(String(length=255), nullable=False, default='nomal')
     created_at = Column(DateTime(timezone=False), nullable=False)
+    comments = Column(Text, nullable=True)
+
+
+
+
+
+

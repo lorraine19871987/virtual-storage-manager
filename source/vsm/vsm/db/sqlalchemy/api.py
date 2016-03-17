@@ -4433,3 +4433,17 @@ def config_delete(context, config_id):
             update({'deleted': True,
                     'deleted_at': now,
                     'updated_at': literal_column('updated_at')})
+
+def init_default_row_data(context):
+    session = get_session()
+    default_rbd_group = {
+        'id':1,
+        'name':'default_group',
+        'comments':'default_group',
+    }
+    with session.begin():
+        rbd_group_default = model_query(context,models.RBDGroups).filter_by(id=1).first()
+        if not rbd_group_default:
+            rbd_group_obj = models.RBDGroups()
+            rbd_group_obj.update(default_rbd_group)
+            rbd_group_obj.save()

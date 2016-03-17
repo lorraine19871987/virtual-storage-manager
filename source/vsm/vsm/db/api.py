@@ -1350,3 +1350,6 @@ def config_update(context, config_id, fields):
 
 def config_delete(context, config_id):
     return IMPL.config_delete(context, config_id)
+
+def init_default_row_data(context):
+    return IMPL.init_default_row_data(context)
