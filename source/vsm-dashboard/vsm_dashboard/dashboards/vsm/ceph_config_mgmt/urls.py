@@ -15,14 +15,19 @@
 # under the License.
 
 from django.conf.urls import patterns, url
-from .views import IndexView,CreateView,UpdateView
-from .views import create,update,delete_action
+from .views import IndexView
+from .views import CreateView
+from .views import create_ceph_config
+from .views import update_ceph_config
+from .views import delete_ceph_config
+from .views import detect_ceph_config
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
+    url(r'/', IndexView.as_view(), name='index'),
     url(r'^create/$', CreateView.as_view(), name='create'),
-    url(r'^update/(?P<config_id>[^/]+)/$', UpdateView.as_view(), name='update'),
-    url(r'^create_action/$', create, name='create_action'),
-    url(r'^update_action/$', update, name='update_action'),
-    url(r'^delete_action/$', delete_action, name='delete_action'),
+    url(r'^create_ceph_config/$', create_ceph_config, name='create_ceph_config'),
+    url(r'^(?P<action>\w+)$', update_ceph_config, name='update_ceph_config'),
+    url(r'^delete_ceph_config/$', delete_ceph_config, name='delete_ceph_config'),
+    url(r'^detect_ceph_config/$', detect_ceph_config, name='detect_ceph_config'),
 )

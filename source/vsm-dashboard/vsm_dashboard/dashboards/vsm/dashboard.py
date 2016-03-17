@@ -46,12 +46,18 @@ class OpenstackMgmt(horizon.PanelGroup):
 class UserMgmt(horizon.PanelGroup):
     slug = "usermgmt"
     name = _("VSM Management")
-    panels = ("usermgmt", 'settings')
+    panels = ("usermgmt",)
+
+class ConfigMgmt(horizon.PanelGroup):
+    slug = "configmgmt"
+    name = _("Config Management")
+    panels = ("vsm_config_mgmt", "ceph_config_mgmt", "system_config_mgmt", "configuration")
 
 class VizDash(horizon.Dashboard):
     name = _("VSM")
     slug = "vsm"
-    panels = (Dashboard, ServerMgmt, ClusterMgmt, ClusterMonitor, OpenstackMgmt, UserMgmt)
+    panels = (Dashboard, ServerMgmt, ClusterMgmt, ClusterMonitor,
+              OpenstackMgmt, UserMgmt, ConfigMgmt)
     default_panel = 'overview'
     roles = ('admin',)
 

@@ -14,11 +14,11 @@
 #    under the License.
 
 """Client side of the scheduler RPC API."""
+
 import logging
 from oslo.config import cfg
 
 from vsm.openstack.common import jsonutils
-from vsm.openstack.common import rpc
 import vsm.openstack.common.rpc.proxy
 
 CONF = cfg.CONF
@@ -262,3 +262,15 @@ class SchedulerAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
 
     def rbd_snapshot_rollback(self,ctxt,body):
         return self.call(ctxt, self.make_msg('rbd_snapshot_rollback', body=body))
+
+    def get_ceph_config(self, context):
+        return self.call(context, self.make_msg('get_ceph_config'))
+
+    def config_into_ceph_conf(self, context, config):
+        return self.call(context, self.make_msg('config_into_ceph_conf', config=config))
+
+    def config_out_ceph_conf(self, context, config):
+        return self.call(context, self.make_msg('config_out_ceph_conf', config=config))
+
+    def config_into_effect(self, context, config):
+        return self.call(context, self.make_msg('config_into_effect', config=config))

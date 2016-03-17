@@ -14,11 +14,13 @@
 # specific language governing permissions and limitations
 # under the License.
 
-from django.conf.urls import patterns, url
-from .views import IndexView
-from .views import SettingsAction
+from django.utils.translation import ugettext_lazy as _
 
-urlpatterns = patterns('',
-    url(r'^$', IndexView.as_view(), name='index'),
-    url(r'^(?P<action>\w+)$', SettingsAction, name='setting'),
-)
+import horizon
+from vsm_dashboard.dashboards.vsm import dashboard
+
+class CephConfigMgmt(horizon.Panel):
+    name = _("Manage Ceph Config")
+    slug = 'ceph_config_mgmt'
+
+dashboard.VizDash.register(CephConfigMgmt)

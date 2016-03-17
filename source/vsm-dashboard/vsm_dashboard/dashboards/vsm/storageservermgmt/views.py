@@ -193,10 +193,13 @@ class StorageGroupsText(TextRenderer):
 class StorageGroupThresholdText(TextRenderer):
     name = "storage_group_threshold"
     def get_text(self):
-        _cfg = vsmapi.get_setting_dict(self.request)
+        configs = vsmapi.config_get_all(self.request, search_opts={'category': 'VSM'})
+        config_dict = {}
+        for config in configs:
+            config_dict.setdefault(config.name, config.value)
         threshold = {}
-        threshold['full_threshold'] = _cfg["storage_group_full_threshold"]
-        threshold['near_full_threshold'] = _cfg["storage_group_near_full_threshold"]
+        threshold['full_threshold'] = config_dict["storage_group_full_threshold"]
+        threshold['near_full_threshold'] = config_dict["storage_group_near_full_threshold"]
         return json.dumps(threshold)
 
 class TextMixin(object):
