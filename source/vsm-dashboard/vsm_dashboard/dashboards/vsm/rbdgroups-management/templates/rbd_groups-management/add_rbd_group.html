@@ -17,7 +17,7 @@
 
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}Create Snapshot{% endblock %}
+{% block title %}Create RBD Group{% endblock %}
 
 {% block page_header %}
   {% include "horizon/common/_page_header.html" with title=_("Create Snapshot") %}
@@ -32,41 +32,31 @@
 	    <form>
 		    <div class="left">
 			    <fieldset>
-                    <div class="control-group form-field clearfix required">
-                        <label>Pool:</label>
-                        <!-- <span class="required-star">*</span> -->
-                        <span class="help-block"></span>
-                        <div class="input">
-                          	<select id="selPool" class="form-control" onchange="ChangePool(this)">
-                          	</select>
-                        </div>
-                    </div>
-                    <div class="control-group form-field clearfix required">
-                        <label>Image:</label>
-                        <!-- <span class="required-star">*</span> -->
-                        <span class="help-block"></span>
-                        <div class="input">
-                          	<select id="selImage" class="form-control">
-                          	</select>
-                        </div>
-                    </div>
+
 			    	<div class="control-group form-field clearfix required">
-                        <label>Snapshot Name:</label>
+                        <label>Group Name:</label>
                         <span class="help-block"></span>
                         <div class="input">
-                            <input id="txtSnapshotName" maxlength="255"  type="text"  class="form-control">
+                            <input id="txtGroupName" maxlength="255"  type="text"  class="form-control">
+                        </div>
+                    </div>
+                    <div class="control-group form-field clearfix required">
+                        <label>Comments:</label>
+                        <span class="help-block"></span>
+                        <div class="input">
+                            <input id="txtComments" maxlength="255"  type="text"  class="form-control">
                         </div>
                     </div>
 			    </fieldset>
 			</div>
 			<div class="right">
 			    <h3>{% trans "Description" %}:</h3>
-			    <p>{% trans "From here you can create a snapshot of the RBD." %}</p>
+			    <p>{% trans "From here you can create a rbd group." %}</p>
 			</div>
 		</form>
 		 <div id="divFormOptions" class="vsm-options-bar">
-	    	<button id="btnGreateSnapshot" class="btn btn-primary" onclick="CreateSnapshot()">Submit</button>
-	    	<a id="btnCancel" class="btn btn-default" href="/dashboard/vsm/snapshots-management/">Cancel</a>
+	    	<button id="btnGreateSnapshot" class="btn btn-primary" onclick="CreateRBDGroup()">Submit</button>
+	    	<a id="btnCancel" class="btn btn-default" href="/dashboard/vsm/rbd_groups-management/">Cancel</a>
 	    </div>
 	</div>
 {% endblock %}
@@ -75,6 +65,6 @@
 {% block js %}
     {{ block.super }}
     <script src='{{ STATIC_URL }}dashboard/js/vsm.spin.js' type='text/javascript' charset='utf-8'></script>
-    <script src='{{ STATIC_URL }}dashboard/js/addsnapshot.js' type='text/javascript' charset='utf-8'></script>
+    <script src='{{ STATIC_URL }}dashboard/js/addrbdgroup.js' type='text/javascript' charset='utf-8'></script>
 {% endblock %}
 

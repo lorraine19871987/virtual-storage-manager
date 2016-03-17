@@ -237,6 +237,18 @@ def storage_update(context, storage_id, values):
     return IMPL.storage_update(context, storage_id, values)
 
 ####################
+def rbd_groups_get_all(context):
+    """Get all snapshots."""
+    return IMPL.rbd_groups_get_all(context)
+
+def rbd_group_create(context, values):
+    return IMPL.rbd_group_create(context, values)
+
+def rbd_group_update(context, rbd_group_id,values):
+    return IMPL.rbd_group_update(context, rbd_group_id, values)
+
+def rbd_group_remove(context,rbd_group_id):
+    return IMPL.rbd_group_remove(context, rbd_group_id)
 
 def snapshot_create(context, values):
     """Create a snapshot from the values dictionary."""

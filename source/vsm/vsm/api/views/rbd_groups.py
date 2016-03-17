@@ -21,29 +21,25 @@ import time
 LOG = logging.getLogger(__name__)
 
 class ViewBuilder(common.ViewBuilder):
-    _collection_name = "snapshots"
-    def _detail(self, request, snapshot):
-        LOG.info("snapshot api detail view %s " % snapshot)
+    _collection_name = "rbd_groups"
+    def _detail(self, request, rbd_group):
+        LOG.info("rbd_groups api detail view %s " % rbd_group)
         #LOG.info("snapshot api detail view 2222 %s " % type(snapshot['updated_at']))
-        snapshot = {
-                "id": snapshot.id,
-                "name":snapshot.name,
-                "pool": snapshot.pool,
-                "image": snapshot.image,
-                "snap_id":snapshot.snap_id,
-                "created_at": snapshot.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                "status":snapshot.status,
-                "size":snapshot.size,
-                "comments":snapshot.comments,
+        rbd_group = {
+                "id": rbd_group.id,
+                "name":rbd_group.name,
+                "comments": rbd_group.comments,
         }
 
-        return snapshot
+        return rbd_group
 
-    def detail(self, request, snapshots):
-        return self._list_view(self._detail, request, snapshots)
+    def detail(self, request, rbd_groups):
+        return self._list_view(self._detail, request, rbd_groups)
 
-    def _list_view(self, func, request, snapshots):
+
+
+    def _list_view(self, func, request, rbd_groups):
         """Provide a view for a list of snapshots."""
-        snapshot_list = [func(request, snapshot) for snapshot in snapshots]
-        snapshots_dict = dict(snapshots=snapshot_list)
-        return snapshots_dict
+        rbd_group_list = [func(request, group) for group in rbd_groups]
+        rbd_group_dict = dict(rbd_groups=rbd_group_list)
+        return rbd_group_dict

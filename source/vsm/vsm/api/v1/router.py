@@ -260,3 +260,14 @@ class APIRouter(vsm.api.openstack.APIRouter):
                             'snapshot_remove': "post",
                             },
                         member={'action': 'post'})
+
+        self.resources['rbd_groups'] = snapshots.create_resource(ext_mgr)
+        mapper.resource("rbd_groups", "rbd_groups",
+                        controller=self.resources['rbd_groups'],
+                        collection={
+                            'detail':"get",
+                            'rbd_group_create': "post",
+                            'rbd_group_update': "post",
+                            'rbd_group_remove': "post",
+                            },
+                        member={'action': 'post'})

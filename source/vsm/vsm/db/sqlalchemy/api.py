@@ -1185,6 +1185,45 @@ def snapshot_get_all(context,session=None):
     return model_query(context, models.SnapShot, read_deleted="no",
                        session=session).all()
 
+@require_context
+def rbd_groups_get_all(context,session=None):
+    if not session:
+        session = get_session()
+    return model_query(context, models.RBDGroups, read_deleted="no",
+                       session=session).all()
+@require_context
+def rbd_group_get(context, rbd_group_id, session=None):
+    result = model_query(context, models.RBDGroups, read_deleted="no",\
+                         session=session,).\
+        filter_by(id=rbd_group_id).\
+        first()
+    return result
+@require_context
+def rbd_group_create(context, values):
+    rbd_group_ref = models.RBDGroups()
+    rbd_group_ref.update(values)
+    try:
+        rbd_group_ref.save()
+    except db_exc.DBDuplicateEntry:
+        raise exception.RBDExists
+    return rbd_group_ref
+
+@require_context
+def rbd_group_update(context, rbd_group_id, values):
+    session = get_session()
+    with session.begin():
+        rbd_group_ref = rbd_group_get(context, rbd_group_id, session=session)
+        rbd_group_ref.update(values)
+        rbd_group_ref.save(session=session)
+
+@require_context
+def rbd_group_remove(context, rbd_group_id):
+    session = get_session()
+    with session.begin():
+        rbd_group_ref = rbd_group_get(context, rbd_group_id, session=session)
+        values = {'deleted':1}
+        rbd_group_ref.update(values)
+        rbd_group_ref.save(session=session)
 
 @require_context
 def snapshot_get_all_for_storage(context, storage_id):

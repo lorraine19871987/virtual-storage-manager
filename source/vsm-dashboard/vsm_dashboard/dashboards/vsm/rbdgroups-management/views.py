@@ -56,7 +56,6 @@ class IndexView(tables.DataTableView):
                       "snap_id": _snap.snap_id,
                       "status": _snap.status,
                       "size": _snap.size,
-                      "comments":_snap.comments,
                       }
 
             snap_status.append(snap)
@@ -64,34 +63,34 @@ class IndexView(tables.DataTableView):
 
 
 
-def add_snapshot_view(request):
-    print '11111111'
-    template = "vsm/snapshots-management/add_snapshot.html"
+def add_rbd_group_view(request):
+    print '222222222'
+    template = "vsm/rbd_groups-management/add_rbd_group.html"
     context = {}
     return render(request,template,context)
 
-def add_snapshot(request):
+def add_rbd_group(request):
     status = ""
     msg = ""
     body = json.loads(request.body)
     print body
     try:
-        rsp, ret = vsmapi.rbd_snapshot_create(request,body=body)
+        rsp, ret = vsmapi.rbd_group_create(request,body=body)
         ret = ret['message']
     except:
         ret = {'error_code':'-2','error_msg':'Unkown Error!'}
     resp = json.dumps(ret)
     return HttpResponse(resp)
 
-def remove_snapshots(request):
+def remove_rbd_groups(request):
     data = json.loads(request.body)
-    snapshot_id_list = data["snapshot_id_list"]
+    rbd_group_id_list = data["rbd_group_id_list"]
 
-    snapshots = {'snapshots':snapshot_id_list}
-    print '---snapshots remove-%s'%snapshots
+    rbd_groups = {'rbd_groups':rbd_group_id_list}
+    print '---rbd_groups remove-%s'%rbd_groups
     #ret,message = vsmapi.rbd_remove(request, rbds)
     try:
-        rsp, ret = vsmapi.rbd_snapshot_remove(request, snapshots)
+        rsp, ret = vsmapi.rbd_group_remove(request, rbd_groups)
         ret = ret['message']
     except:
         ret = {'error_code':'-2','error_msg':'Unkown Error!'}

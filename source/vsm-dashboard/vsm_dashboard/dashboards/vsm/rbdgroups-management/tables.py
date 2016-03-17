@@ -25,35 +25,28 @@ from vsm_dashboard.api import vsm as vsmapi
 
 LOG = logging.getLogger(__name__)
 
-class AddSnapshotAction(tables.LinkAction):
-    name = "add_snapshot"
+class AddRBDGroupAction(tables.LinkAction):
+    name = "add_rbd_group"
     verbose_name = _("New")
-    url = "/dashboard/vsm/snapshots-management/add_snapshot_view/"
+    url = "/dashboard/vsm/rbd_groups-management/add_rbd_group_view/"
     classes = ('btn-primary',)
 
-class RemoveSnapshotsAction(tables.LinkAction):
-    name = "remove_snapshots"
+class RemoveRBDGroupsAction(tables.LinkAction):
+    name = "remove_rbd_groups"
     verbose_name = _("Remove")
     classes = ('btn-primary',)
     url = "horizon:vsm:snapshots-management:index"
 
 
 
-class SnapshotsTable(tables.DataTable):
+class RBDGroupsTable(tables.DataTable):
     id = tables.Column("id", verbose_name=_("ID"), hidden=True)
-    snap_id = tables.Column("snap_id", verbose_name=_("Snap ID"))
-    snapshot_name = tables.Column("snapshot_name", verbose_name=_("Snapshot Name"))
-    pool = tables.Column("pool", verbose_name=_("Pool"))
-    image_name = tables.Column("image_name", verbose_name=_("Image Name"))
-    status = tables.Column("status", verbose_name=_("Image Status"))
-    size = tables.Column("size", verbose_name=_("Size"))
-    created_at = tables.Column("created_at", verbose_name=_("Created at"))
-    comments = tables.Column("comments", verbose_name=_("Comments"))
-
+    name = tables.Column("name", verbose_name=_("Group Name"))
+    comments = tables.Column("comments", verbose_name=_("Group Comments"))
     class Meta:
-        name = "snapshots"
-        verbose_name = _("Snapshot List")
-        table_actions = (AddSnapshotAction,RemoveSnapshotsAction,)
+        name = "rbd_groups"
+        verbose_name = _("RBD Group List")
+        table_actions = (AddRBDGroupAction,RemoveRBDGroupsAction)
 
     def get_object_id(self, datum):
         if hasattr(datum, "id"):

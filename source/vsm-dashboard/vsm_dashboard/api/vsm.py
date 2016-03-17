@@ -455,3 +455,40 @@ def config_update(request, config_id, section=None, value=None, description=None
 
 def config_detect(request):
     return vsmclient(request).configs.detect()
+
+
+def rbd_group_create(request, body):
+    '''
+    :param request:
+    :param body:{'rbd_groups':[
+                        {'name':,#
+                        'comments':,#
+                        ]
+                }
+    :return:
+    '''
+    return vsmclient(request).rbd_groups.rbd_group_create(body=body)
+
+def rbd_group_update(request, body):
+    '''
+    :param request:
+    :param body:{'rbd_groups':[
+                        {'name':,#
+                        'comments':,#
+                        'id':,
+                        ]
+                }
+    :return:
+    '''
+    return vsmclient(request).rbd_groups.rbd_group_update(body=body)
+
+def rbd_group_remove(request, body):
+    '''
+    :param request:
+    :param body:{'rbd_groups':[2,]}
+    :return:
+    '''
+    return vsmclient(request).rbd_groups.rbd_group_remove(body=body)
+
+def rbd_groups_get_all(request):
+    return vsmclient(request).rbd_groups.list()
