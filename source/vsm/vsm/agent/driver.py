@@ -605,8 +605,7 @@ class CephDriver(object):
                             (json.dumps(strg, sort_keys=True, indent=4)))
 
                     config.add_osd(strg['host'],
-                                   (strg['secondary_public_ip'],
-                                    strg['primary_public_ip']),
+                                   strg['secondary_public_ip'],
                                    strg['cluster_ip'],
                                    strg['dev_name'],
                                    strg['dev_journal'],
@@ -823,6 +822,103 @@ class CephDriver(object):
                 return False
         return True
 
+    def is_new_zone(self, zone):
+        nodes = self.get_crushmap_nodes()
+        for node in nodes:
+            if zone == node['name']:
+                return False
+        return True
+
+    def get_ceph_osd_info(self):
+        '''
+        Locally execute 'ceph osd dump -f json' and return the json block as a python data structure.
+        :return: a python data structure containing the json content returned by 'ceph osd dump -f json'
+        '''
+        output = utils.execute("ceph", "osd", "dump", "-f", "json", run_as_root=True)[0]
+        return json.loads(output)
+
+    def get_ceph_disk_list(self):
+        '''
+        Execute 'sudo ceph-disk list' and gather ceph partition info.
+        :return: a python data structure containing the content of 'sudo ceph-disk list'
+        '''
+        output = utils.execute('ceph-disk', 'list', run_as_root=True)[0]
+        return self.v09_ceph_disk_list_parser(output) if 'ceph data' in output\
+          else self.v08_ceph_disk_list_parser(output)
+
+    def v09_ceph_disk_list_parser(self, output):
+        '''
+        Parse the output of 'ceph-disk list' as if we're running against a v0.9 ceph (infernalis) or higher.
+        :param output: the output to be parsed.
+        :return: a list of disk-info dictionaries.
+        '''
+        disk_list = []
+        for line in output.split('\n'):
+            if 'ceph data' in line:
+                # /dev/sdb1 ceph data, active, cluster ceph, osd.0, journal /dev/sdb2
+                disk_dict = {}
+                parts = line.strip().split(', ')
+                disk_dict[u'dev'] = parts[0].split()[0]
+                disk_dict[u'state'] = parts[1]
+                disk_dict[u'cluster'] = parts[2].split()[-1]
+                disk_dict[u'id'] = int(parts[3].split('.')[-1])
+                disk_dict[u'journal'] = parts[4].split()[-1]
+                disk_list.append(disk_dict)
+        return disk_list
+
+    def v08_ceph_disk_list_parser(self, output):
+        '''
+        Parse the output of 'ceph-disk list' as if we're running against a v0.8 ceph (firefly) or lower.
+        :param output: the output to be parsed.
+        :return: a list of disk-info dictionaries.
+        '''
+        disk_list = []
+        for line in output.split('\n'):
+            if '/osd/' in line:
+                # /dev/sdb4 other, xfs, mounted on /var/lib/ceph/osd/osd0
+                disk_dict = {}
+                parts = line.strip().split(', ')
+                osd_path = parts[-1].split()[-1]
+                osd_id = self.get_osd_whoami(osd_path)
+                osd_daemon_cfg = self.get_osd_daemon_map(osd_id, 'config')
+                osd_daemon_status = self.get_osd_daemon_map(osd_id, 'status')
+                disk_dict[u'dev'] = parts[0].split()[0]
+                disk_dict[u'state'] = osd_daemon_status['state']
+                disk_dict[u'cluster'] = osd_daemon_cfg['cluster']
+                disk_dict[u'id'] = osd_id
+                disk_dict[u'journal'] = osd_daemon_cfg['osd_journal']
+                disk_list.append(disk_dict)
+        return disk_list
+
+    def get_osd_whoami(self, osd_path):
+        '''
+        Return the osd id number for the osd on the specified path.
+        :param osd_path: the device path of the osd - e.g., /var/lib/ceph/osd...
+        :return: an integer value representing the osd id number for the target osd.
+        '''
+        output = utils.execute('cat', osd_path+'/whoami', run_as_root=True)[0]
+        return int(output)
+
+    def get_osd_daemon_map(self, oid, reqtype):
+        '''
+        command: ceph daemon osd.{oid} config show
+        output: { "cluster": "ceph",
+                  ...
+                  "osd_journal": "\/dev\/sdc1"}
+        :param oid: the id number of the osd for which to obtain a journal device path.
+        :param reqtype: the type of request - 'config' or 'status' (could be expanded to other types later).
+        :return: a dictionary containing configuration parameters and values for the specified osd.
+        '''
+        values = {}
+        arglist = ['ceph', 'daemon', 'osd.'+str(oid)]
+        arglist.extend(['config', 'show'] if reqtype == 'config' else ['status'])
+        output = utils.execute(*arglist, run_as_root=True)[0]
+        for line in output.split('\n'):
+            if len(line.strip()) > 0:
+                attr, val = tuple(line.translate(None, ' {"\},').split(':', 1))
+                values[attr] = val
+        return values
+
     def add_osd(self, context, host_id, osd_id_in=None):
 
         if osd_id_in is not None:
@@ -912,12 +1008,12 @@ class CephDriver(object):
             if self.is_new_storage_group(crush_dict['storage_group']):
                 self._crushmap_mgmt.add_storage_group(crush_dict['storage_group'],\
                                                   crush_dict['root'],types=types)
-                zones = db.zone_get_all_not_in_crush(context)
-                for item in zones: 
-                    zone_item = item['name'] + '_' + crush_dict['storage_group'] 
-                    self._crushmap_mgmt.add_zone(zone_item, \
-                                                crush_dict['storage_group'],types=types)
-                
+                # zones = db.zone_get_all_not_in_crush(context)
+                # for item in zones:
+                #     zone_item = item['name'] + '_' + crush_dict['storage_group']
+                #     self._crushmap_mgmt.add_zone(zone_item, \
+                #                                 crush_dict['storage_group'],types=types)
+                #
                 if zone == FLAGS.default_zone:
                     self._crushmap_mgmt.add_rule(crush_dict['storage_group'], 'host')
                 else:
@@ -928,8 +1024,11 @@ class CephDriver(object):
                 LOG.info("rule_dict:%s" % rule_dict)
                 values['rule_id'] = rule_dict['rule_id']
 
+            if self.is_new_zone(crush_dict['zone']):
+                self._crushmap_mgmt.add_zone(crush_dict['zone'], \
+                                             crush_dict['storage_group'], types=types)
             self._crushmap_mgmt.add_host(crush_dict['host'],
-                                         crush_dict['zone'],types=types)
+                                         crush_dict['zone'], types=types)
             #    added_to_crushmap = True
 
             #There must be at least 3 hosts in every storage group when the status is "IN"
@@ -1088,7 +1187,7 @@ class CephDriver(object):
     def _add_ceph_osd_to_config(self, context, strg, osd_id):
         LOG.info('>>>> _add_ceph_osd_to_config start')
         config = cephconfigparser.CephConfigParser(FLAGS.ceph_conf)
-        ip = (strg['secondary_public_ip'], strg['primary_public_ip'])
+        ip = strg['secondary_public_ip']
 
         config.add_osd(strg['host'], ip, strg['cluster_ip'],
                 strg['dev_name'], strg['dev_journal'], osd_id)
@@ -1920,7 +2019,77 @@ class CephDriver(object):
 
         return max_line + 1
 
+    def parse_nvme_output(self, attributes, start_offset=0, end_offset=-1):
+        import string
+
+        att_list = attributes.split('\n')
+        att_list = att_list[start_offset:end_offset]
+        dev_info={}
+        for att in att_list:
+            att_kv = att.split(':')
+            if not att_kv[0]: continue
+            if len(att_kv) > 1:
+                dev_info[string.strip(att_kv[0])] = string.strip(att_kv[1])
+            else:
+                dev_info[string.strip(att_kv[0])] = ''
+
+        return dev_info
+
+    def get_nvme_smart_info(self, device):
+        smart_info_dict = {'basic':{},'smart':{}}
+
+        if "/dev/nvme" in device:
+            LOG.info("This is a nvme device : " + device)
+            dev_info = {}
+            dev_smart_log = {}
+            dev_smart_add_log = {}
+
+            import commands
+
+            # get nvme device meta data
+            attributes, err =  utils.execute('nvme', 'id-ctrl', device, run_as_root=True)
+            if not err:
+                basic_info_dict = self.parse_nvme_output(attributes)
+                LOG.info("basic_info_dict=" + str(basic_info_dict))
+                smart_info_dict['basic']['Drive Family'] = basic_info_dict.get('mn') or ''
+                smart_info_dict['basic']['Serial Number'] = basic_info_dict.get('sn') or ''
+                smart_info_dict['basic']['Firmware Version'] = basic_info_dict.get('fr') or ''
+                smart_info_dict['basic']['Drive Status'] = 'PASSED'
+            else:
+                smart_info_dict['basic']['Drive Status'] = 'WARN'
+                LOG.warn("Fail to get device identification with error: " + str(err))
+
+            # get nvme devic smart data
+            attributes, err = utils.execute('nvme', 'smart-log', device, run_as_root=True)
+            if not err:
+                dev_smart_log_dict = self.parse_nvme_output(attributes, 1)
+                LOG.info("device smart log=" + str(dev_smart_log_dict))
+                for key in dev_smart_log_dict:
+                    smart_info_dict['smart'][key] = dev_smart_log_dict[key]
+            else:
+                smart_info_dict['basic']['Drive Status'] = 'WARN'
+                LOG.warn("Fail to get device smart log with error: " + str(err))
+
+            # get nvme device smart additional data
+            attributes, err = utils.execute('nvme', 'smart-log-add', device, run_as_root=True)
+            if not err:
+                dev_smart_log_add_dict = self.parse_nvme_output(attributes, 2)
+                LOG.info("device additional smart log=" + str(dev_smart_log_add_dict))
+                smart_info_dict['smart']['<<< additional smart log'] = ' >>>'
+                for key in dev_smart_log_add_dict:
+                    smart_info_dict['smart'][key] = dev_smart_log_add_dict[key]
+            else:
+                smart_info_dict['basic']['Drive Status'] = 'WARN'
+                LOG.warn("Fail to get device additional (vendor specific) smart log with error: "  + str(err))
+
+        LOG.info(smart_info_dict)
+        return smart_info_dict
+
     def get_smart_info(self, context, device):
+        LOG.info('retrieve device info for ' + str(device))
+        if "/dev/nvme" in device:
+            return self.get_nvme_smart_info(device)
+
         attributes, err = utils.execute('smartctl', '-A', device, run_as_root=True)
         attributes = attributes.split('\n')
         start_line = self.find_attr_start_line(attributes)
@@ -2155,15 +2324,17 @@ class CephDriver(object):
                       run_as_root=True)
         return True
 
-    def ceph_osd_stop(self, context, osd_name, osd_host):
+    def ceph_osd_stop(self, context, osd_name):
         # utils.execute('service',
         #               'ceph',
         #               '-a',
         #               'stop',
         #               osd_name,
         #               run_as_root=True)
-        self._operate_ceph_daemon("stop", "osd", id=osd_name.split(".")[1],
-                                  ssh=True, host=osd_host)
+        osd_id = osd_name.split('.')[-1]
+        self.stop_osd_daemon(context, osd_id)
+        #self._operate_ceph_daemon("stop", "osd", id=osd_name.split(".")[1],
+        #                          ssh=True, host=osd_host)
         #osd_id = osd_name.split('.')[-1]
         #values = {'state': 'Out-Down', 'osd_name': osd_name}
         #ret = self._conductor_rpcapi.\
@@ -2182,7 +2353,7 @@ class CephDriver(object):
         osd=osd[0]
         #stop
         utils.execute('ceph', 'osd', 'set', 'noout', run_as_root=True)
-        self.ceph_osd_stop(context, osd['osd_name'], osd['service']['host'])
+        self.ceph_osd_stop(context, osd['osd_name'])
         #start
         utils.execute('ceph', 'osd', 'unset', 'noout', run_as_root=True)
         self.ceph_osd_start(context, osd['osd_name'])
@@ -3263,7 +3434,8 @@ class CreateCrushMapDriver(object):
                         weight = weight + 1
                 dic["weight"] = (weight != 0 and weight or FLAGS.default_weight)
                 dic["item"] = items
-                host.append(dic)
+                if len(items) > 0:
+                    host.append(dic)
         return host, num
 
     def _get_zone_dic(self, node_info, hosts, zones, storage_groups, num):
@@ -3286,7 +3458,9 @@ class CreateCrushMapDriver(object):
                 dic["item"] = items
                 num = num - 1
                 dic["id"] = num
-                zone_bucket.append(dic)
+                if len(items) > 0:
+                    zone_bucket.append(dic)
+        #LOG.info('zone_bucket----%s'%zone_bucket)
         return zone_bucket, num
 
     def _get_storage_group_bucket(self, storage_groups, zones, num):
@@ -3307,7 +3481,8 @@ class CreateCrushMapDriver(object):
             dic["item"] = items
             num = num - 1
             dic["id"] = num
-            storage_group_bucket.append(dic)
+            if len(items) > 0:
+                storage_group_bucket.append(dic)
         return storage_group_bucket, num
 
     def _get_root_bucket(self, storage_groups, num):
@@ -3370,8 +3545,10 @@ class CreateCrushMapDriver(object):
         return dic['rule_id']
 
     def _generate_rule(self, context, zone_tag):
-        storage_groups = self.conductor_api.storage_group_get_all(context)
-        if storage_groups is None:
+        osds = self.conductor_api.osd_state_get_all(context)
+        storage_groups = [ osd['storage_group']['id'] for osd in osds if osd['storage_group']]
+        storage_groups = list(set(storage_groups))
+        if not storage_groups :#is None:
             LOG.info("Error in getting storage_groups")
             try:
                 raise exception.GetNoneError
@@ -3380,8 +3557,8 @@ class CreateCrushMapDriver(object):
             return False
         LOG.info("DEBUG in generate rule begin")
         LOG.info("DEBUG storage_groups from conductor %s " % storage_groups)
-        sorted_storage_groups = sorted(storage_groups, key=self._key_for_sort)
-        LOG.info("DEBUG storage_groups after sorted %s" % sorted_storage_groups)
+        #sorted_storage_groups = sorted(storage_groups, key=self._key_for_sort)
+        #LOG.info("DEBUG storage_groups after sorted %s" % sorted_storage_groups)
         sting_common = """    type replicated
     min_size 0
     max_size 10
@@ -3396,7 +3573,8 @@ class CreateCrushMapDriver(object):
     step emit
 }
 """
-        for storage_group in sorted_storage_groups:
+        for storage_group_id in storage_groups:
+            storage_group = db.storage_group_get(context,storage_group_id)
             storage_group_name = storage_group["name"]
             rule_id = storage_group["rule_id"]
             string = ""
