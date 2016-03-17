@@ -15,13 +15,14 @@
 # under the License.
 
 from django.conf.urls import patterns, url
-from .views import IndexView,add_snapshot_view,add_snapshot
-
+from .views import IndexView,add_snapshot_view,add_snapshot,\
+    remove_snapshots
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
     url(r'^add_snapshot_view/$', add_snapshot_view, name='add_snapshot_view'),
     url(r'^add_snapshot/$', add_snapshot, name='add_snapshot'),
+    url(r'^remove_snapshots/$', remove_snapshots, name='remove_snapshots'),
 
 )
 

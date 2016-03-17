@@ -2257,18 +2257,22 @@ class SchedulerManager(manager.Manager):
         info = []
         for snapshot_id in body.get('snapshots'):
             snapshot_ref = db.snapshot_get(context,int(snapshot_id))
-            if snapshot_ref:
+            if snapshot_ref and snapshot_ref['status'] != 'protected':
                 values = {'pool':snapshot_ref['pool'],
                         'image':snapshot_ref['image'],
                         'name':snapshot_ref['name'],
                         'deleted':1,
                            }
-                ret = self._agent_rpcapi.remove_snapshot(context,values,active_monitor['host'])
+                ret = self._agent_rpcapi.rbd_snapshot_remove(context,values,active_monitor['host'])
                 error_message = error_message + ret['error_message']
                 error_code = error_code + ret['error_code']
                 if len(ret['error_code']) == 0:
                     db.snapshot_update(context,snapshot_ref['id'],values)
                     info.append('Remove snapshot %s success!'%snapshot_ref['name'])
+            elif snapshot_ref['status'] == 'protected':
+                error_code.append('-4')
+                error_message.append('Snapshot %s is procted'%(snapshot_ref['name']))
+
         return {'message':{
                             'error_msg':','.join(error_message),
                             'info':','.join(info),

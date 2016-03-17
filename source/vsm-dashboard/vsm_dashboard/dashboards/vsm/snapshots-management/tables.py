@@ -41,10 +41,12 @@ class RemoveSnapshotsAction(tables.LinkAction):
 
 class SnapshotsTable(tables.DataTable):
     id = tables.Column("id", verbose_name=_("ID"), hidden=True)
+    snap_id = tables.Column("snap_id", verbose_name=_("Snap ID"))
     snapshot_name = tables.Column("snapshot_name", verbose_name=_("Snapshot Name"))
-    pool = tables.Column("snap_id", verbose_name=_("Snap ID"))
-    snap_id = tables.Column("pool", verbose_name=_("Pool"))
+    pool = tables.Column("pool", verbose_name=_("Pool"))
     image_name = tables.Column("image_name", verbose_name=_("Image Name"))
+    status = tables.Column("status", verbose_name=_("Image Status"))
+    size = tables.Column("size", verbose_name=_("Size"))
     created_at = tables.Column("created_at", verbose_name=_("Created at"))
     class Meta:
         name = "snapshots"

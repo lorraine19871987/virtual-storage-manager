@@ -54,6 +54,8 @@ class IndexView(tables.DataTableView):
                       "image_name": _snap.image,
                       "created_at": _snap.created_at,
                       "snap_id": _snap.snap_id,
+                      "status": _snap.status,
+                      "size": _snap.size,
                       }
 
             snap_status.append(snap)
@@ -80,3 +82,17 @@ def add_snapshot(request):
     resp = json.dumps(ret)
     return HttpResponse(resp)
 
+def remove_snapshots(request):
+    data = json.loads(request.body)
+    snapshot_id_list = data["snapshot_id_list"]
+
+    snapshots = {'snapshots':snapshot_id_list}
+    print '---snapshots remove-%s'%snapshots
+    #ret,message = vsmapi.rbd_remove(request, rbds)
+    try:
+        rsp, ret = vsmapi.rbd_snapshot_remove(request, snapshots)
+        ret = ret['message']
+    except:
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
+    return HttpResponse(resp)

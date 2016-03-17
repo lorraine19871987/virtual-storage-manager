@@ -1431,6 +1431,7 @@ class AgentManager(manager.Manager):
         rbd_image_list = []
         snapshots_all = []#[{"name":"snap5","size":1072693248,"pool":'poola','image':'image1'},{"name":"pool-image5-snap","size":1072693248}]
         snap_id_list = []
+        protect_snap_id = []
         for rbd in rbd_list:
             rbd_image = rbd['image']
             snapshots_all = snapshots_all + self.ceph_driver.get_snaps_info(rbd['pool'],rbd['image'])
@@ -1441,6 +1442,7 @@ class AgentManager(manager.Manager):
                     parent_snapshot['pool'], parent_snapshot['image'], parent_snapshot['snapshot'],)
                 if parent_snapshot_ref:
                     rbd['parent_snapshot'] = parent_snapshot_ref.id
+                    protect_snap_id.append(parent_snapshot_ref.snap_id)
                 else:
                     rbd['parent_snapshot'] = None
             rbd_image_list.append(rbd_image)
@@ -1460,11 +1462,15 @@ class AgentManager(manager.Manager):
                 db.rbd_update_or_create(context, old_rbd)
         for rbd in rbd_list:
             db.rbd_update_or_create(context, rbd)
-        LOG.info('update snps begin==%s'%snapshots_all)
+        #LOG.info('update snps begin==%s'%snapshots_all)
         snap_id_list = [snap['snap_id'] for snap in snapshots_all]
         snap_id_list = list(set(snap_id_list))
+        protect_snap_id = list(set(protect_snap_id))
         for snap in snapshots_all:
             if snap['snap_id'] in snap_id_list:
+                if snap['snap_id'] in protect_snap_id:
+                    snap['status'] = 'protected'
+                snap['deleted'] = 0
                 db.snap_update_or_create_by_pool_image_snapname(context,snap)
                 snap_id_list.remove(snap['snap_id'])
     #@require_active_host
@@ -1730,11 +1736,11 @@ class AgentManager(manager.Manager):
                                                           None,
                                                           None,
                                                           None)
-        LOG.info('periodic_task=----rbds===%s'%rbds)
+        #LOG.info('periodic_task=----rbds===%s'%rbds)
         for rbd in rbds:
             auto_snapshot_start = rbd[0]['auto_snapshot_start']
             auto_snapshot_interval = rbd[0]['auto_snapshot_interval']
-            LOG.info('periodic_task=----rbds==type of auto_snapshot_start=%s'%type(auto_snapshot_start))
+            #LOG.info('periodic_task=----rbds==type of auto_snapshot_start=%s'%type(auto_snapshot_start))
             if auto_snapshot_start and auto_snapshot_interval:
                 now_time = time.time()
                 auto_snapshot_start_time = time.mktime(time.strptime(auto_snapshot_start.split('.')[0], "%Y-%m-%dT%H:%M:%S"))

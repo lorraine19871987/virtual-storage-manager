@@ -16,20 +16,32 @@
 
 
 //remove the snapshot
-$("#snapshot_list__action_remove_snapshots").click(function(){
+$("#snapshots__action_remove_snapshots").click(function(){
 	var snapshot_id_list = {"snapshot_id_list":[]}
 	
-	  var is_selected = false;
-	$("#snapshot_list>tbody>tr").each(function(){
+	var is_selected = false;
+	var is_status_nomal = true;
+	$("#snapshots>tbody>tr").each(function(){
         if(this.children[0].children[0].checked) {
             is_selected = true;
             var snapshot_id = this.children[0].children[0].value;
-            snapshot_id_list["snapshot_id_list"].push(snapshot_id);
+            var snapshot_status = this.children[6].innerHTML;
+            if ( snapshot_status != 'protected'){
+                snapshot_id_list["snapshot_id_list"].push(snapshot_id);
+            }
+            else{
+                is_status_nomal = false
+            }
+
         }
 	})
 
     if(is_selected == false){
         showTip("warning","please select the SnapShot");
+        return false;
+    }
+    if(is_status_nomal == false){
+        showTip("warning","please only select the SnapShots which are not protected");
         return false;
     }
 

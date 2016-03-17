@@ -31,7 +31,9 @@ class ViewBuilder(common.ViewBuilder):
                 "pool": snapshot.pool,
                 "image": snapshot.image,
                 "snap_id":snapshot.snap_id,
-                "created_at": snapshot.created_at.strftime("%Y-%m-%d %H:%M:%S")
+                "created_at": snapshot.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "status":snapshot.status,
+                "size":snapshot.size,
         }
 
         return snapshot
