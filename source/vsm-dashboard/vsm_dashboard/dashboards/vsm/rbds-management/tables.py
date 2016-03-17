@@ -46,7 +46,7 @@ class CreateRBDAction(tables.LinkAction):
 
 class CreateSnapshotAction(tables.LinkAction):
     name = "create_snapshot"
-    verbose_name = _("Create Snapshot")
+    verbose_name = _("Snapshot")
     url = "/dashboard/vsm/rbds-management/create_snapshot_view/"
     classes = ('btn-primary',)
 
@@ -59,7 +59,7 @@ class CloneRBDAction(tables.LinkAction):
 
 class RollbackSnapshotAction(tables.LinkAction):
     name = "rollback_snapshot"
-    verbose_name = _("Rollback Snapshot")
+    verbose_name = _("Rollback")
     url = "/dashboard/vsm/rbds-management/rollback_snapshot_view/"
     classes = ('btn-primary',)
 
@@ -80,7 +80,7 @@ class RBDsTable(tables.DataTable):
         name = "rbd_list"
         verbose_name = _("RBD List")
         multi_select = True
-        table_actions = (CreateRBDAction, CloneRBDAction, FlattenRBDsAction, RemoveRBDsAction, \
+        table_actions = (CreateRBDAction,RemoveRBDsAction,CloneRBDAction, FlattenRBDsAction, \
                          CreateSnapshotAction, RollbackSnapshotAction)
 
 

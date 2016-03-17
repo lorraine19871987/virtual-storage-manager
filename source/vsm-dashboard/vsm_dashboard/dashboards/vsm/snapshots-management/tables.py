@@ -25,6 +25,20 @@ from vsm_dashboard.api import vsm as vsmapi
 
 LOG = logging.getLogger(__name__)
 
+class AddSnapshotAction(tables.LinkAction):
+    name = "add_snapshot"
+    verbose_name = _("New")
+    url = "/dashboard/vsm/snapshots-management/add_snapshot_view/"
+    classes = ('btn-primary',)
+
+class RemoveSnapshotsAction(tables.LinkAction):
+    name = "remove_snapshots"
+    verbose_name = _("Remove")
+    classes = ('btn-primary',)
+    url = "horizon:vsm:snapshots-management:index"
+
+
+
 class SnapshotsTable(tables.DataTable):
     id = tables.Column("id", verbose_name=_("ID"), hidden=True)
     snapshot_name = tables.Column("snapshot_name", verbose_name=_("Snapshot Name"))
@@ -35,7 +49,7 @@ class SnapshotsTable(tables.DataTable):
     class Meta:
         name = "snapshots"
         verbose_name = _("Snapshot List")
-        table_actions = ()
+        table_actions = (AddSnapshotAction,RemoveSnapshotsAction,)
 
     def get_object_id(self, datum):
         if hasattr(datum, "id"):

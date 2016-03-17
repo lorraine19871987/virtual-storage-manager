@@ -47,7 +47,6 @@ class IndexView(tables.DataTableView):
 
         snap_status = []
         for _snap in _snap_status:
-            print 'dir-----snap--2222---%s'%(dir(_snap))
             snap = {
                       "id": _snap.id,
                       "snapshot_name":_snap.name,
@@ -61,4 +60,23 @@ class IndexView(tables.DataTableView):
         return snap_status
 
 
+
+def add_snapshot_view(request):
+    print '11111111'
+    template = "vsm/snapshots-management/add_snapshot.html"
+    context = {}
+    return render(request,template,context)
+
+def add_snapshot(request):
+    status = ""
+    msg = ""
+    body = json.loads(request.body)
+    print body
+    try:
+        rsp, ret = vsmapi.rbd_snapshot_create(request,body=body)
+        ret = ret['message']
+    except:
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
+    return HttpResponse(resp)
 
