@@ -2467,3 +2467,82 @@ class AgentManager(manager.Manager):
                 LOG.warn("No %s.%s, pass" % (st, str(id_or_name)))
             # utils.execute('service', 'ceph', 'restart',
             #               str(service_type)+'.'+str(id_or_name), run_as_root=True)
+
+    def rgw_create(self, context, server_name, rgw_instance_name, is_ssl,
+                   uid, display_name, email, sub_user, access, key_type):
+        LOG.info("++++++++++++++++++++++++++rgw_create")
+        self.ceph_driver.create_keyring_and_key_for_rgw(context, rgw_instance_name)
+        self.ceph_driver.add_rgw_conf_into_ceph_conf(context, server_name,
+                                                     rgw_instance_name)
+        try:
+            utils.execute("ls", "/var/lib/ceph/radosgw/ceph-" + rgw_instance_name,
+                          run_as_root=True)
+        except:
+            utils.execute("mkdir", "-p", "/var/lib/ceph/radosgw/ceph-" + rgw_instance_name,
+                          run_as_root=True)
+        self.ceph_driver.create_default_pools_for_rgw(context)
+        # utils.execute("sed", "-i", "s/gateway/%s/g" % rgw_instance_name, "/var/www/s3gw.fcgi",
+        #               run_as_root=True)
+        # utils.execute("service", "ceph", "restart", run_as_root=True)
+        # try:
+        #     utils.execute("service", "apache2", "restart", run_as_root=True)
+        #     LOG.info("==========sudo service apache2 restart")
+        # except:
+        #     utils.execute("service", "httpd", "restart", run_as_root=True)
+
+        def _get_os():
+            (distro, release, codename) = platform.dist()
+            return distro
+
+        ceph_version = self.ceph_driver.get_ceph_version()
+        ceph_v = "firefly"
+        if "0.80." in ceph_version:
+            ceph_v = "firefly"
+        elif "0.94." in ceph_version:
+            ceph_v = "hammer"
+        elif "9.2." in ceph_version:
+            ceph_v = "infernalis"
+        distro = _get_os()
+        if distro.lower() == "centos":
+            if ceph_v != "hammer":
+                try:
+                    utils.execute("killall", "radosgw", run_as_root=True)
+                    utils.execute("radosgw", "--id=%s" % rgw_instance_name, run_as_root=True)
+                except:
+                    utils.execute("radosgw", "--id=%s" % rgw_instance_name, run_as_root=True)
+                LOG.info("=======sudo radosgw --id=%s" % rgw_instance_name)
+            else:
+                utils.execute("ceph-radosgw", "restart", run_as_root=True)
+                LOG.info("=======sudo /etc/init.d/ceph-radosgw restart")
+        elif distro.lower() == "ubuntu":
+            utils.execute("radosgw", "restart", run_as_root=True)
+            LOG.info("=======sudo /etc/init.d/radosgw restart")
+
+        utils.execute("radosgw-admin", "user", "create", "--uid=%s" % str(uid),
+                      "--display-name=%s" % str(display_name), "--email=%s" % str(email),
+                      run_as_root=True)
+        out, err = utils.execute("radosgw-admin", "user", "info", "--uid=%s" % str(uid),
+                                 "-f", "json")
+        out = json.loads(out)
+        keys = out['keys']
+        for key in keys:
+            if key['user'] == uid:
+                user_secret_key = key['secret_key']
+                user_access_key = key['access_key']
+                LOG.info("=======================user_secret_key: %s" % str(user_secret_key))
+                LOG.info("=======================user_access_key: %s" % str(user_access_key))
+
+        utils.execute("radosgw-admin", "subuser", "create", "--uid=%s" % str(uid),
+                      "--subuser=%s" % str(sub_user), "--access=%s" % access,
+                      run_as_root=True)
+        utils.execute("radosgw-admin", "key", "create", "--subuser=%s" % str(sub_user),
+                      "--key-type=%s" % str(key_type), "--gen-secret", run_as_root=True)
+        out, err = utils.execute("radosgw-admin", "user", "info", "--uid=%s" % str(uid),
+                                 "-f", "json")
+        out = json.loads(out)
+        swift_keys = out['swift_keys']
+        for swift_key in swift_keys:
+            if swift_key['user'] == sub_user:
+                swift_secret_key = swift_key['secret_key']
+                LOG.info("=======================swift_secret_key: %s" % str(swift_secret_key))
+        LOG.info("Succeed to create a rgw named %s" % rgw_instance_name)

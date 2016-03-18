@@ -204,3 +204,9 @@ class API(object):
 
     def config_into_effect(self, context, config):
         return self.scheduler_rpcapi.config_into_effect(context, config)
+
+    def rgw_create(self, context, server_name, rgw_instance_name, is_ssl,
+                   uid, display_name, email, sub_user, access, key_type):
+        return self.scheduler_rpcapi.rgw_create(context, server_name, rgw_instance_name,
+                                                is_ssl, uid, display_name, email, sub_user,
+                                                access, key_type)

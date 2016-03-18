@@ -37,6 +37,7 @@ from vsmclient.v1 import pool_usages
 from vsmclient.v1 import configs
 from vsmclient.v1 import rbd_snapshots
 from vsmclient.v1 import rbd_groups
+from vsmclient.v1 import rgws
 
 class Client(object):
     """
@@ -91,6 +92,7 @@ class Client(object):
         self.configs = configs.ConfigsManager(self)
         self.rbd_snapshots = rbd_snapshots.RBDSnapShotsManager(self)
         self.rbd_groups = rbd_groups.RBDGroupsManager(self)
+        self.rgws = rgws.RgwManager(self)
 
         # Add in any extensions...
         if extensions:

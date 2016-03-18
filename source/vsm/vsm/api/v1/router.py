@@ -43,6 +43,7 @@ from vsm.api.v1 import vsms
 from vsm.api.v1 import zones
 from vsm.api.v1 import snapshots
 from vsm.api import versions
+from vsm.api.v1 import rgw
 from vsm.openstack.common import log as logging
 
 
@@ -271,3 +272,9 @@ class APIRouter(vsm.api.openstack.APIRouter):
                             'rbd_group_remove': "post",
                             },
                         member={'action': 'post'})
+
+        self.resources['rgws'] = rgw.create_resource(ext_mgr)
+        mapper.resource("rgws", "rgws",
+                        controller=self.resources['rgws'],
+                        collection={},
+                        member={'action':'post'})

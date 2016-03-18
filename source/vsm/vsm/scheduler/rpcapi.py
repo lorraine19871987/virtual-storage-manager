@@ -274,3 +274,12 @@ class SchedulerAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
 
     def config_into_effect(self, context, config):
         return self.call(context, self.make_msg('config_into_effect', config=config))
+
+    def rgw_create(self, ctxt, server_name, rgw_instance_name, is_ssl, uid,
+                   display_name, email, sub_user, access, key_type):
+        return self.call(ctxt, self.make_msg('rgw_create', server_name=server_name,
+                                             rgw_instance_name=rgw_instance_name,
+                                             is_ssl=is_ssl, uid=uid,
+                                             display_name=display_name,
+                                             email=email, sub_user=sub_user,
+                                             access=access, key_type=key_type))
