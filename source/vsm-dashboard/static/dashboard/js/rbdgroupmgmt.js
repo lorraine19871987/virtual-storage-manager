@@ -23,27 +23,30 @@ $("#rbd_groups__action_remove_rbd_groups").click(function(){
 
 	$("#rbd_groups>tbody>tr").each(function(){
         if(this.children[0].children[0].checked) {
-            is_selected = true;
+
             var rbd_group_id = this.children[0].children[0].value;
+            if (rbd_group_id != '1'){
+            is_selected = true;
             rbd_group_id_list["rbd_group_id_list"].push(rbd_group_id);
+            }
         }
 	})
 
     if(is_selected == false){
-        showTip("warning","please select the RBD Group");
+        showTip("warning","please select the RBD Group except default group!");
         return false;
     }
 
 	token = $("input[name=csrfmiddlewaretoken]").val();
 	$.ajax({
 		type: "post",
-		url: "/dashboard/vsm/rbd_groups-management/remove_rbd_groups/",
-		data: JSON.stringify(snapshot_id_list),
+		url: "/dashboard/vsm/rbdgroups-management/remove_rbd_groups/",
+		data: JSON.stringify(rbd_group_id_list),
 		dataType:"json",
 		success: function(data){
 				console.log(data);
                 if(data.error_code.length == 0){
-                    window.location.href="/dashboard/vsm/rbd_groups-management/";
+                    window.location.href="/dashboard/vsm/rbdgroups-management/";
                     showTip("info",data.info);
                 }
                 else{

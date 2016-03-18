@@ -28,14 +28,14 @@ LOG = logging.getLogger(__name__)
 class AddRBDGroupAction(tables.LinkAction):
     name = "add_rbd_group"
     verbose_name = _("New")
-    url = "/dashboard/vsm/rbd_groups-management/add_rbd_group_view/"
+    url = "/dashboard/vsm/rbdgroups-management/add_rbd_group_view/"
     classes = ('btn-primary',)
 
 class RemoveRBDGroupsAction(tables.LinkAction):
     name = "remove_rbd_groups"
     verbose_name = _("Remove")
     classes = ('btn-primary',)
-    url = "horizon:vsm:snapshots-management:index"
+    url = "horizon:vsm:rbd_groups-management:index"
 
 
 

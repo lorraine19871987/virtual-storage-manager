@@ -23,13 +23,13 @@ function CreateRBDGroup(){
 	token = $("input[name=csrfmiddlewaretoken]").val();
 	$.ajax({
 		type: "post",
-		url: "/dashboard/vsm/rbd_groups-management/add_rbd_group/",
+		url: "/dashboard/vsm/rbdgroups-management/add_rbd_group/",
 		data: postData,
 		dataType:"json",
 		success: function(data){
 				//console.log(data);
                 if(data.error_code.length == 0){
-                    window.location.href="/dashboard/vsm/rbd_groups-management/";
+                    window.location.href="/dashboard/vsm/rbdgroups-management/";
                     showTip("info",data.info);
                 }
                 else{

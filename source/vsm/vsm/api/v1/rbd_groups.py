@@ -23,7 +23,7 @@ from vsm import flags
 
 from vsm import scheduler
 from vsm import db
-from vsm.api.views import snapshots as snapshot_views
+from vsm.api.views import rbd_groups as rbd_group_views
 from vsm.api import xmlutil
 from vsm.openstack.common import log as logging
 LOG = logging.getLogger(__name__)
@@ -49,8 +49,8 @@ class RBDGroupsTemplate(xmlutil.TemplateBuilder):
 
 
 class RBDGroupController(wsgi.Controller):
-    """The Snapshot API controller for the Snapshot API."""
-    _view_builder_class = snapshot_views.ViewBuilder
+    """The RBDGroup API controller for the Snapshot API."""
+    _view_builder_class = rbd_group_views.ViewBuilder
 
     def __init__(self, ext_mgr):
         self.scheduler_api = scheduler.API()
@@ -58,32 +58,40 @@ class RBDGroupController(wsgi.Controller):
         super(RBDGroupController, self).__init__()
 
     def detail(self, req):
-        """Returns the list of snapshots."""
+        """Returns the list of rbdgroups."""
         LOG.info("Get a list of rbdgroups")
         context = req.environ['vsm.context']
-        snapshots = db.rbd_groups_get_all(context)
-        return self._view_builder.detail(req, snapshots)
+        rbd_groups = db.rbd_groups_get_all(context)
+        return self._view_builder.detail(req, rbd_groups)
 
     def rbd_group_create(self, req, body=None):
         LOG.info('CEPH_LOG rbd_group_create body %s ' % body)
         context = req.environ['vsm.context']
         for group in body.get('rbd_groups'):
             db.rbd_group_create(context,group)
-        return {}
+        return {'message':{'error_code':'','error_msg':'','info':'Add rbd group success!'}}
 
     def rbd_group_update(self, req, body=None):
         LOG.info('CEPH_LOG rbd_group_update body %s ' % body)
         context = req.environ['vsm.context']
         for group in body.get('rbd_groups'):
             db.rbd_group_update(context,group['id'],group)
-        return {}
+        return {'message':{'error_code':'','error_msg':'','info':'Update rbd group success!'}}
+
 
     def rbd_group_remove(self, req, body=None):
         LOG.info('CEPH_LOG rbd_group_remove body %s ' % body)
         context = req.environ['vsm.context']
+        message = {'message':{'error_code':'','error_msg':'','info':''}}
+        success_ids = []
         for group_id in body.get('rbd_groups'):
+            if group_id == 1:
+                message['message']['info'] += '<RBD Group 1> can not be removed!'
             db.rbd_group_remove(context,group_id)
-        return {}
+            success_ids.append(group_id)
+        message['message']['info'] += 'RBD Group %s removed success!'%(','.join(success_ids))
+        return message
+
 
 def create_resource(ext_mgr):
     return wsgi.Resource(RBDGroupController(ext_mgr))

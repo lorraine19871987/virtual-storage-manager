@@ -17,7 +17,7 @@
 
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans "Manage RBD Groups" %}{% endblock %}
+{% block title %}{% trans "Manage SnapShots" %}{% endblock %}
 
 {% block page_header %}
     {% include "horizon/common/_page_header.html" with title=_("Manage SnapShots") %}
@@ -33,5 +33,5 @@
     {{ block.super }}
     <script src='{{ STATIC_URL }}dashboard/js/vsm.spin.js' type='text/javascript' charset='utf-8'></script>
     <script src="{{ STATIC_URL }}dashboard/js/dialog.js" type="text/javascript" charset="utf-8"></script>
-    <script src='{{ STATIC_URL }}dashboard/js/rbdgroupmgmt.js' type='text/javascript' charset='utf-8'></script>
+    <script src='{{ STATIC_URL }}dashboard/js/snapshotmgmt.js' type='text/javascript' charset='utf-8'></script>
 {% endblock %}
