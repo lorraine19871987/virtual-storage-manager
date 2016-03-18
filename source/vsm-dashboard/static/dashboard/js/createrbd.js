@@ -4,6 +4,7 @@
 $(function(){
     GetPool();
     GetImageFormat();
+    GetRBDGroup();
     $("#txtAutoSnapStartTime").calendar();
 })
 
@@ -23,6 +24,7 @@ function CreateRBD(){
                 'format':$("#selFormat").val(),
                 'objects':'',
                 'order':22,
+                'group_id':$("#selRBDGroup").val(),
                 'autosnapstart':$("#txtAutoSnapStartTime").val(),
                 'autosnapinterval' :$("#txtAutoSnapInterval").val(),
 			}
@@ -127,6 +129,40 @@ function GetPool(){
     });
 }
 
+function GetRBDGroup(){
+    $.ajax({
+		type: "get",
+		url: "/dashboard/vsm/rbdgroups-management/list_rbd_groups_for_sel_input/",
+		data: "",
+		dataType:"json",
+		success: function(data){
+				console.log(data);
+                var rbd_group_list = data.rbd_group_list;
+                if(rbd_group_list.length == 0){
+                    //TODO Nothing
+                }
+                else{
+                    $("#selRBDGroup")[0].options.length = 0;
+                    for(var i=0;i<rbd_group_list.length;i++){
+                        var item = new Option()
+                        item.value = rbd_group_list[i][0];
+                        item.text = rbd_group_list[i][1];
+                        $("#selRBDGroup")[0].options.add(item);
+                    }
+
+                }
+		   	},
+		error: function (XMLHttpRequest, textStatus, errorThrown) {
+				if(XMLHttpRequest.status == 500)
+                	showTip("error","INTERNAL SERVER ERROR")
+			},
+		headers: {
+			},
+		complete: function(){
+
+		}
+    });
+}
 
 $(document).ajaxStart(function(){
     //load the spin

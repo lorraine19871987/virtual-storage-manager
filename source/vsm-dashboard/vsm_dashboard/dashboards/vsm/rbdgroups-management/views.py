@@ -91,3 +91,14 @@ def remove_rbd_groups(request):
         ret = {'error_code':'-2','error_msg':'Unkown Error!'}
     resp = json.dumps(ret)
     return HttpResponse(resp)
+
+def list_rbd_groups_for_sel_input(request):
+    rbd_group_list = []
+    groups_list= vsmapi.rbd_groups_get_all(request)
+    print 'groups_list----%s'%groups_list
+    for group in groups_list:
+        print 'group----%s'%(dir(group))
+        rbd_group_list.append((group.id,group.name))
+    resp = json.dumps({"rbd_group_list":rbd_group_list})
+    print 'resp=====%s'%resp
+    return HttpResponse(resp)
