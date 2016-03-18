@@ -23,7 +23,7 @@ from horizon import exceptions
 from horizon import tables
 from horizon import forms
 from vsm_dashboard.api import vsm as vsmapi
-from .tables import SnapshotsTable
+from .tables import RBDGroupsTable
 from django.http import HttpResponse,HttpResponseRedirect
 from vsm_dashboard.utils import get_time_delta
 import json
@@ -31,35 +31,30 @@ LOG = logging.getLogger(__name__)
 
 
 class IndexView(tables.DataTableView):
-    table_class = SnapshotsTable
-    template_name = 'vsm/snapshots-management/index.html'
+    table_class = RBDGroupsTable
+    template_name = 'vsm/rbd_groups-management/index.html'
 
     def get_data(self):
-        _snap_status = []
+        _rbdgroup_status = []
         try:
-            _snap_status = vsmapi.snapshot_get_all(self.request)
-            print '_snap_status===%s'%_snap_status
-            if _snap_status:
-                logging.debug("resp body in view: %s" % _snap_status)
+            _rbdgroup_status = vsmapi.rbd_groups_get_all(self.request)
+            print '_rbdgroup_status===%s'%_rbdgroup_status
+            if _rbdgroup_status:
+                logging.debug("resp body in view: %s" % _rbdgroup_status)
         except:
             exceptions.handle(self.request,
                               _('Unable to retrieve sever list. '))
 
-        snap_status = []
-        for _snap in _snap_status:
-            snap = {
-                      "id": _snap.id,
-                      "snapshot_name":_snap.name,
-                      "pool": _snap.pool,
-                      "image_name": _snap.image,
-                      "created_at": _snap.created_at,
-                      "snap_id": _snap.snap_id,
-                      "status": _snap.status,
-                      "size": _snap.size,
-                      }
+        rbdgroup_status = []
+        for _rbdgroup in _rbdgroup_status:
+            rbdgroup = {
+                      "id": _rbdgroup.id,
+                      "name":_rbdgroup.name,
+                      "comments": _rbdgroup.comments,
+                    }
 
-            snap_status.append(snap)
-        return snap_status
+            rbdgroup_status.append(rbdgroup)
+        return rbdgroup_status
 
 
 
