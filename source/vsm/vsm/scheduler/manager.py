@@ -2309,6 +2309,24 @@ class SchedulerManager(manager.Manager):
                             'error_code':','.join(error_code),}
         }
 
+    def create_snap_for_a_group(self,context,group_id,monitor_host):
+        rbds = db.get_rbds_by_group(context,group_id)
+        now_date_time = datetime.datetime.now()
+        now_time_string = now_date_time.strftime("%Y/%m/%d_%H")
+        for rbd in rbds:
+            pool = rbd['pool']
+            image = rbd['image']
+            values = {
+                        'pool': pool,#
+                        'image': image,#
+                        'name': "group_snap_%s_%s_%s"%(pool,image,now_time_string),
+                        'comments':"Batchly snap shot for the rbd group %s "%group_id,
+            }
+            ret = self._agent_rpcapi.rbd_snapshot_create(context,values,monitor_host)
+            if len(ret['error_code']) == 0:
+                db.snapshot_create(context,values)
+        return ret
+
     def rbd_snapshot_create(self, context, body):
         cluster_id = body.get('cluster_id',None)
         active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
@@ -2316,7 +2334,13 @@ class SchedulerManager(manager.Manager):
         error_message = []
         error_code = []
         info = []
+
         for snapshot in body.get('snapshots'):
+            if snapshot.get('group_id',None):
+                group_id = snapshot.get('group_id')
+                self.create_snap_for_a_group(context,int(group_id),active_monitor['host'])
+                info.append('snapshot for group %s success'%group_id)
+                continue
             pool_id = snapshot.get('pool')
             pool_ref = db.pool_get(context,pool_id)
             image_id = snapshot.get('image')
@@ -2328,8 +2352,8 @@ class SchedulerManager(manager.Manager):
                 error_message.append('snapshot %s of %s/%s already exist!'%(snapshot_ref['name'],pool_ref['name'],image_ref['image']))
                 continue
             values = {
-                        'pool': pool_ref['name'],#pool_id
-                        'image': image_ref['image'],#image_id
+                        'pool': pool_ref['name'],
+                        'image': image_ref['image'],
                         'name': snapshot['name'],
                         'comments':snapshot['comments'],
             }

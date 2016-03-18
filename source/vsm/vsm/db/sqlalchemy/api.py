@@ -3988,6 +3988,14 @@ def rbd_update_or_create(context, values, session=None):
         rbd = rbd_create(context, values)
     return rbd
 
+def get_rbds_by_group(context,rbd_group_id,session=None):
+    if not session:
+        session = get_session()
+    with session.begin():
+        rbds = model_query(context,models.RBD,read_deleted="no", session=session).\
+            filter_by(group_id=rbd_group_id).all()
+    return rbds
+
 #region license status query
 def license_status_create(context, values, session=None):
 

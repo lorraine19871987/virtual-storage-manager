@@ -1750,7 +1750,7 @@ class AgentManager(manager.Manager):
                 now_time = time.time()
                 auto_snapshot_start_time = time.mktime(time.strptime(auto_snapshot_start.split('.')[0], "%Y-%m-%dT%H:%M:%S"))
                 if now_time >= auto_snapshot_start_time and int(now_time-auto_snapshot_start_time)/3600%auto_snapshot_interval == 0:
-                    now_time_string = time.strftime("%Y/%m/%d/%H", time.localtime(now_time))
+                    now_time_string = time.strftime("%Y/%m/%d_%H", time.localtime(now_time))
                     values = {
                         'pool': rbd[0]['pool'],
                         'image': rbd[0]['image'],

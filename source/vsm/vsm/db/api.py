@@ -250,6 +250,9 @@ def rbd_group_update(context, rbd_group_id,values):
 def rbd_group_remove(context,rbd_group_id):
     return IMPL.rbd_group_remove(context, rbd_group_id)
 
+def get_rbds_by_group(context,rbd_group_id):
+    return IMPL.get_rbds_by_group(context, rbd_group_id)
+
 def snapshot_create(context, values):
     """Create a snapshot from the values dictionary."""
     return IMPL.snapshot_create(context, values)
