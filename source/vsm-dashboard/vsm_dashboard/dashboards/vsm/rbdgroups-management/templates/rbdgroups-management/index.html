@@ -1,4 +1,3 @@
-
 <!-- Copyright 2014 Intel Corporation, All Rights Reserved.
 
  Licensed under the Apache License, Version 2.0 (the"License");
@@ -17,10 +16,10 @@
 
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}{% trans "Manage SnapShots" %}{% endblock %}
+{% block title %}{% trans "Manage RBD Groups" %}{% endblock %}
 
 {% block page_header %}
-    {% include "horizon/common/_page_header.html" with title=_("Manage SnapShots") %}
+    {% include "horizon/common/_page_header.html" with title=_("Manage RBD Groups") %}
     <link href="{{ STATIC_URL }}dashboard/css/devicemgmt.css" rel="stylesheet">
 {% endblock page_header %}
 
@@ -33,5 +32,5 @@
     {{ block.super }}
     <script src='{{ STATIC_URL }}dashboard/js/vsm.spin.js' type='text/javascript' charset='utf-8'></script>
     <script src="{{ STATIC_URL }}dashboard/js/dialog.js" type="text/javascript" charset="utf-8"></script>
-    <script src='{{ STATIC_URL }}dashboard/js/snapshotmgmt.js' type='text/javascript' charset='utf-8'></script>
+    <script src='{{ STATIC_URL }}dashboard/js/rbdgroupmgmt.js' type='text/javascript' charset='utf-8'></script>
 {% endblock %}

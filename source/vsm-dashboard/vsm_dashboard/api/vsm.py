@@ -491,4 +491,4 @@ def rbd_group_remove(request, body):
     return vsmclient(request).rbd_groups.rbd_group_remove(body=body)
 
 def rbd_groups_get_all(request):
-    return vsmclient(request).rbd_groups.list()
+    return vsmclient(request).rbd_groups.list(detailed=True)

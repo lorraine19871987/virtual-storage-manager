@@ -42,6 +42,7 @@ from vsm.api.v1 import types
 from vsm.api.v1 import vsms
 from vsm.api.v1 import zones
 from vsm.api.v1 import snapshots
+from vsm.api.v1 import rbd_groups
 from vsm.api import versions
 from vsm.api.v1 import rgw
 from vsm.openstack.common import log as logging
@@ -262,7 +263,7 @@ class APIRouter(vsm.api.openstack.APIRouter):
                             },
                         member={'action': 'post'})
 
-        self.resources['rbd_groups'] = snapshots.create_resource(ext_mgr)
+        self.resources['rbd_groups'] = rbd_groups.create_resource(ext_mgr)
         mapper.resource("rbd_groups", "rbd_groups",
                         controller=self.resources['rbd_groups'],
                         collection={

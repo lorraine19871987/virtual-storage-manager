@@ -34,6 +34,7 @@ class ViewBuilder(common.ViewBuilder):
         return rbd_group
 
     def detail(self, request, rbd_groups):
+        LOG.info('rbd detail view-----%s'%rbd_groups)
         return self._list_view(self._detail, request, rbd_groups)
 
 

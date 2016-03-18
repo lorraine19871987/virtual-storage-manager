@@ -47,6 +47,7 @@ from vsm.openstack.common import timeutils
 from vsm.openstack.common.rpc import common as rpc_exc
 from vsm import utils
 import os
+import operator
 
 CTXT = context.get_admin_context()
 

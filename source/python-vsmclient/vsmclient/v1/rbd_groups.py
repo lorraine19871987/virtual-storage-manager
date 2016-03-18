@@ -33,7 +33,7 @@ class RBDGroupsManager(base.ManagerWithFind):
 
 
 
-    def list(self, detailed=False, search_opts=None, paginate_opts=None):
+    def list(self, detailed=True, search_opts=None, paginate_opts=None):
         """
         Get a list of all RBDGroup.
 
@@ -76,7 +76,7 @@ class RBDGroupsManager(base.ManagerWithFind):
                     }
         :return:
         '''
-        url = '/snapshots/rbd_group_create'
+        url = '/rbd_groups/rbd_group_create'
         return self.api.client.post(url, body=body)
 
     def rbd_group_update(self, body):
@@ -90,7 +90,7 @@ class RBDGroupsManager(base.ManagerWithFind):
                     }
         :return:
         '''
-        url = '/snapshots/rbd_group_update'
+        url = '/rbd_groups/rbd_group_update'
         return self.api.client.post(url, body=body)
 
     def rbd_group_remove(self, body):
@@ -99,6 +99,6 @@ class RBDGroupsManager(base.ManagerWithFind):
         :param body:{'rbd_groups':[2,]}
         :return:
         '''
-        url = '/snapshots/rbd_group_remove'
+        url = '/rbd_groups/rbd_group_remove'
         return self.api.client.post(url, body=body)
 
