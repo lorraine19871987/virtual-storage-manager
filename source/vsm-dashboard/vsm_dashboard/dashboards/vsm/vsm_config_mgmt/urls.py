@@ -20,6 +20,5 @@ from .views import SettingsAction
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
-    url(r'/', IndexView.as_view(), name='index'),
     url(r'^(?P<action>\w+)$', SettingsAction, name='setting'),
 )

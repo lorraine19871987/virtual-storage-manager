@@ -134,6 +134,13 @@ class AgentAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
                          topic,
                          version='1.0', timeout=6000)
 
+    def get_ceph_disk_list(self, context, host):
+        topic = rpc.queue_get_for(context, self.topic, host)
+        self.test_service(context, topic)
+        return self.call(context,
+                        self.make_msg('get_ceph_disk_list',),
+                        topic, version='1.0', timeout=6000)
+
     def get_ceph_config(self, context, host):
         topic = rpc.queue_get_for(context, self.topic, host)
         self.test_service(context, topic)
@@ -614,7 +621,59 @@ class AgentAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
                         version='1.0', timeout=6000)
         return res
 
-    def get_default_pg_num_by_storage_group(self, context, body, host):
+    def rbd_snapshot_rollback(self, context, body, host):
+        topic = rpc.queue_get_for(context, self.topic, host)
+        res = self.call(context,
+                        self.make_msg('rbd_snapshot_rollback',
+                                      body=body),
+                        topic,
+                        version='1.0', timeout=6000)
+        return res
+
+    def rbd_snapshot_create(self, context, body, host):
+        topic = rpc.queue_get_for(context, self.topic, host)
+        res = self.call(context,
+                        self.make_msg('rbd_snapshot_create',
+                                      body=body),
+                        topic,
+                        version='1.0', timeout=6000)
+        return res
+
+    def rbd_snapshot_remove(self, context, body, host):
+        topic = rpc.queue_get_for(context, self.topic, host)
+        res = self.call(context,
+                        self.make_msg('rbd_snapshot_remove',
+                                      body=body),
+                        topic,
+                        version='1.0', timeout=6000)
+        return res
+
+    def add_rbd(self, context, body, host):
+        topic = rpc.queue_get_for(context, self.topic, host)
+        res = self.call(context,
+                        self.make_msg('add_rbd',
+                                      body=body),
+                        topic,
+                        version='1.0', timeout=6000)
+        return res
+
+    def remove_rbd(self, context, body, host):
+        topic = rpc.queue_get_for(context, self.topic, host)
+        res = self.call(context,
+                        self.make_msg('remove_rbd',
+                                      body=body),
+                        topic,
+                        version='1.0', timeout=6000)
+        return res
+
+    def flatten_rbd(self, context, body, host):
+        topic = rpc.queue_get_for(context, self.topic, host)
+        res = self.call(context,
+                        self.make_msg('flatten_rbd',
+                                      body=body),
+                        topic,
+                        version='1.0', timeout=6000)
+        return res    def get_default_pg_num_by_storage_group(self, context, body, host):
         topic = rpc.queue_get_for(context, self.topic, host)
         res = self.call(context,
                         self.make_msg('get_default_pg_num_by_storage_group',

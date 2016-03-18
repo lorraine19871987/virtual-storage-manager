@@ -24,7 +24,6 @@ from .views import detect_ceph_config
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
-    url(r'/', IndexView.as_view(), name='index'),
     url(r'^create/$', CreateView.as_view(), name='create'),
     url(r'^create_ceph_config/$', create_ceph_config, name='create_ceph_config'),
     url(r'^(?P<action>\w+)$', update_ceph_config, name='update_ceph_config'),
