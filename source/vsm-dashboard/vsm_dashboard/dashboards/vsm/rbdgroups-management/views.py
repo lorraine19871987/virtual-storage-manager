@@ -32,7 +32,7 @@ LOG = logging.getLogger(__name__)
 
 class IndexView(tables.DataTableView):
     table_class = RBDGroupsTable
-    template_name = 'vsm/rbd_groups-management/index.html'
+    template_name = 'vsm/rbdgroups-management/index.html'
 
     def get_data(self):
         _rbdgroup_status = []
@@ -60,7 +60,7 @@ class IndexView(tables.DataTableView):
 
 def add_rbd_group_view(request):
     print '222222222'
-    template = "vsm/rbd_groups-management/add_rbd_group.html"
+    template = "vsm/rbdgroups-management/add_rbd_group.html"
     context = {}
     return render(request,template,context)
 
