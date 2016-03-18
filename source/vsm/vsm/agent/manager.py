@@ -46,6 +46,7 @@ from vsm.openstack.common.periodic_task import periodic_task
 from vsm.openstack.common import timeutils
 from vsm.openstack.common.rpc import common as rpc_exc
 from vsm import utils
+import os
 
 CTXT = context.get_admin_context()
 
