@@ -3927,7 +3927,9 @@ def _rbd_get(context, rbd_id, session=None):
     return result
 
 def rbd_get_query(context, model, session):
-    return model_query(context, model,models.SnapShot, read_deleted="no", session=session).outerjoin(models.SnapShot,models.RBD.parent_snapshot == models.SnapShot.id)
+    return model_query(context, model,models.SnapShot, read_deleted="no", session=session).\
+        outerjoin(models.SnapShot,models.RBD.parent_snapshot == models.SnapShot.id). \
+        options(joinedload('rbd_groups'))
 
 def rbd_get_all(context, limit=None, marker=None, sort_keys=None, sort_dir=None, session=None):
     if not session:

@@ -72,6 +72,7 @@ class IndexView(tables.DataTableView):
                       "pre_snap_time":_rbd.pre_snap_time,
                       "next_snap_time":_rbd.next_snap_time,
                       "updated_at": get_time_delta(_rbd.updated_at),
+                      "group_name":_rbd.group_name,
                       }
 
             rbd_status.append(rbd)

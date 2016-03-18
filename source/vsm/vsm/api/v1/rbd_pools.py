@@ -136,13 +136,14 @@ class Controller(wsgi.Controller):
 
         rbd_pools = self.conductor_api.rbd_get_all(context, limit, marker,
 						   sort_keys, sort_dir)
-        #LOG.info('vsm/api/v1/rbd_pools.py detailed rbd_pools:%s' % rbd_pools)
-        #LOG.info('dir=====%s'%rbd_pools[1])
+        LOG.info('vsm/api/v1/rbd_pools.py detailed rbd_pools:%s' % rbd_pools)
+        LOG.info('dir=====%s'%rbd_pools[1])
         rbd_images = []
         for rbd_image in rbd_pools:
             if rbd_image[0]['parent_snapshot']:
                 rbd_image[0]['parent_snapshot_detail'] = '%s/%s@%s'%(rbd_image[1]['pool'],\
-                                                                     rbd_image[1]['image'],rbd_image[1]['name'])
+                                                                rbd_image[1]['image'],rbd_image[1]['name'])
+            rbd_image[0]['group_name'] = rbd_image[0]['group']['name']
             auto_snapshot_interval = rbd_image[0]['auto_snapshot_interval']
             auto_snapshot_start = rbd_image[0]['auto_snapshot_start']
             if auto_snapshot_start and auto_snapshot_interval:
