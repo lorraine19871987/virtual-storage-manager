@@ -24,7 +24,7 @@ Scheduler Service
 """
 
 import random
-import time
+import time,datetime
 
 from vsm.agent import cephconfigparser
 from vsm.agent.crushmap_parser import CrushMap
@@ -2135,6 +2135,7 @@ class SchedulerManager(manager.Manager):
                       'format': rbd['format'],#int
                       'objects': rbd.get('objects',''),#int
                       'order': rbd.get('order',22), #int bit}
+                      'group_id':int(rbd.get('group_id',1)),
                       'auto_snapshot_start':rbd.get('autosnapstart',None) and datetime.datetime.strptime(rbd['autosnapstart'], '%Y-%m-%d %H:%M') or None,
                       'auto_snapshot_interval':rbd.get('autosnapinterval',None) and int(rbd['autosnapinterval']) or None,
             }
@@ -2233,6 +2234,7 @@ class SchedulerManager(manager.Manager):
                           'image': rbd['dest_image'],
                           'parent_snapshot':rbd['src_snap_id'],
                           'size' : 0,
+                          'group_id':int(rbd.get('group_id',1)),
                           'auto_snapshot_start':rbd.get('autosnapstart',None) and datetime.datetime.strptime(rbd['autosnapstart'], '%Y-%m-%d %H:%M') or None,
                           'auto_snapshot_interval':rbd.get('autosnapinterval',None) and int(rbd['autosnapinterval']) or None,
 
@@ -2255,6 +2257,7 @@ class SchedulerManager(manager.Manager):
                           'format':2,
                           'objects':0,
                           'order':22,
+                          'group_id':values['group_id'],
                           'parent_snapshot':values['parent_snapshot'],
                           'auto_snapshot_start':values['auto_snapshot_start'],
                           'auto_snapshot_interval':values['auto_snapshot_interval'],
@@ -2328,6 +2331,7 @@ class SchedulerManager(manager.Manager):
                         'pool': pool_ref['name'],#pool_id
                         'image': image_ref['image'],#image_id
                         'name': snapshot['name'],
+                        'comments':snapshot['comments'],
             }
             ret = self._agent_rpcapi.rbd_snapshot_create(context,values,active_monitor['host'])
             error_message = error_message + ret['error_message']

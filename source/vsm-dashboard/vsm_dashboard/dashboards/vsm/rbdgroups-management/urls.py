@@ -16,13 +16,15 @@
 
 from django.conf.urls import patterns, url
 from .views import IndexView,add_rbd_group_view,add_rbd_group,\
-    remove_rbd_groups
+    remove_rbd_groups,list_rbd_groups_for_sel_input
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
     url(r'^add_rbd_group_view/$', add_rbd_group_view, name='add_rbd_group_view'),
     url(r'^add_rbd_group/$', add_rbd_group, name='add_rbd_group'),
     url(r'^remove_rbd_groups/$', remove_rbd_groups, name='remove_rbd_groups'),
+    url(r'^list_rbd_groups_for_sel_input/$', list_rbd_groups_for_sel_input, name='list_rbd_groups_for_sel_input'),
+
 
 )
 
