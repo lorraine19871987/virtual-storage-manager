@@ -2490,7 +2490,7 @@ def cluster_remove(context,session=None):
                  delete from storage_groups; \
                  alter table storage_groups auto_increment=1; \
                  delete from summary; \
-                 delete from zones  where type is null;
+                 delete from zones  where type is not null;
     '''
     session.execute(sql_str)
 def cluster_increase_deleted_times(context, cluster_id, session=None):
