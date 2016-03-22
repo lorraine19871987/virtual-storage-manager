@@ -2490,7 +2490,7 @@ def cluster_remove(context,session=None):
                  delete from storage_groups; \
                  alter table storage_groups auto_increment=1; \
                  delete from summary; \
-                 delete from zones  where type is null;
+                 delete from zones  where type is not null;
     '''
     session.execute(sql_str)
 def cluster_increase_deleted_times(context, cluster_id, session=None):
@@ -3927,7 +3927,9 @@ def _rbd_get(context, rbd_id, session=None):
     return result
 
 def rbd_get_query(context, model, session):
-    return model_query(context, model,models.SnapShot, read_deleted="no", session=session).outerjoin(models.SnapShot,models.RBD.parent_snapshot == models.SnapShot.id)
+    return model_query(context, model,models.SnapShot, read_deleted="no", session=session).\
+        outerjoin(models.SnapShot,models.RBD.parent_snapshot == models.SnapShot.id). \
+        options(joinedload('rbd_groups'))
 
 def rbd_get_all(context, limit=None, marker=None, sort_keys=None, sort_dir=None, session=None):
     if not session:
@@ -3985,6 +3987,14 @@ def rbd_update_or_create(context, values, session=None):
     else:
         rbd = rbd_create(context, values)
     return rbd
+
+def get_rbds_by_group(context,rbd_group_id,session=None):
+    if not session:
+        session = get_session()
+    with session.begin():
+        rbds = model_query(context,models.RBD,read_deleted="no", session=session).\
+            filter_by(group_id=rbd_group_id).all()
+    return rbds
 
 #region license status query
 def license_status_create(context, values, session=None):

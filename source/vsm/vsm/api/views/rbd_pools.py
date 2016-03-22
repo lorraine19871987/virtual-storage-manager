@@ -39,6 +39,7 @@ class ViewBuilder(common.ViewBuilder):
                 "parent_snapshot_detail": rbd_pool.get('parent_snapshot_detail','-'),
                 "pre_snap_time": rbd_pool.get('pre_snap_time','-'),
                 "next_snap_time": rbd_pool.get('next_snap_time','-'),
+                "group_name": rbd_pool.get('group_name'),
             }
         }
         rbd['rbd_pool']['updated_at'] = time.strftime("%Y-%m-%d %H:%M:%S", time.strptime(rbd_pool['updated_at'], "%Y-%m-%dT%H:%M:%S.000000"))
@@ -59,6 +60,7 @@ class ViewBuilder(common.ViewBuilder):
                 "parent_snapshot_detail": rbd_pool.get('parent_snapshot_detail','-'),
                 "pre_snap_time": rbd_pool.get('pre_snap_time','-'),
                 "next_snap_time": rbd_pool.get('next_snap_time','-'),
+                "group_name": rbd_pool.get('group_name'),
             }
         }
         try:

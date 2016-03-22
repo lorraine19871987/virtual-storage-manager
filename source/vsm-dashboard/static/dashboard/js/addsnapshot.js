@@ -58,7 +58,6 @@ function CreateSnapshot(){
                 'pool':$("#selPool").val(),
                 'image':$("#selImage").val(),
                 'name':$("#txtSnapshotName").val(),
-                'comments':$("#txtComments").val(),
 
 			}
 	data["snapshots"].push(snapshot)

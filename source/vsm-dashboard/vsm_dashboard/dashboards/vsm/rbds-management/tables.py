@@ -74,6 +74,7 @@ class RBDsTable(tables.DataTable):
     updated_at = tables.Column("updated_at", verbose_name=_("Updated at"), classes=("span2",))
     parent_snapshot = tables.Column("parent_snapshot", verbose_name=_("Parent Snapshot"),hidden=True)
     parent_snapshot_detail = tables.Column("parent_snapshot_detail", verbose_name=_("Parent Snapshot"))
+    group_name = tables.Column("group_name", verbose_name=_("Group Name"))
     pre_snap_time = tables.Column("pre_snap_time", verbose_name=_("Pre Auto Snap"))
     next_snap_time = tables.Column("next_snap_time", verbose_name=_("Next Auto Snap"))
     class Meta:
