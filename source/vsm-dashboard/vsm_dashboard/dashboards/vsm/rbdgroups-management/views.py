@@ -38,7 +38,7 @@ class IndexView(tables.DataTableView):
         _rbdgroup_status = []
         try:
             _rbdgroup_status = vsmapi.rbd_groups_get_all(self.request)
-            print '_rbdgroup_status===%s'%_rbdgroup_status
+            #print '_rbdgroup_status===%s'%_rbdgroup_status
             if _rbdgroup_status:
                 logging.debug("resp body in view: %s" % _rbdgroup_status)
         except:
@@ -59,7 +59,7 @@ class IndexView(tables.DataTableView):
 
 
 def add_rbd_group_view(request):
-    print '222222222'
+    #print '222222222'
     template = "vsm/rbdgroups-management/add_rbd_group.html"
     context = {}
     return render(request,template,context)
@@ -82,7 +82,7 @@ def remove_rbd_groups(request):
     rbd_group_id_list = data["rbd_group_id_list"]
 
     rbd_groups = {'rbd_groups':rbd_group_id_list}
-    print '---rbd_groups remove-%s'%rbd_groups
+    #print '---rbd_groups remove-%s'%rbd_groups
     #ret,message = vsmapi.rbd_remove(request, rbds)
     try:
         rsp, ret = vsmapi.rbd_group_remove(request, rbd_groups)
@@ -95,10 +95,10 @@ def remove_rbd_groups(request):
 def list_rbd_groups_for_sel_input(request):
     rbd_group_list = []
     groups_list= vsmapi.rbd_groups_get_all(request)
-    print 'groups_list----%s'%groups_list
+    #print 'groups_list----%s'%groups_list
     for group in groups_list:
-        print 'group----%s'%(dir(group))
+        #print 'group----%s'%(dir(group))
         rbd_group_list.append((group.id,group.name))
     resp = json.dumps({"rbd_group_list":rbd_group_list})
-    print 'resp=====%s'%resp
+    #print 'resp=====%s'%resp
     return HttpResponse(resp)
