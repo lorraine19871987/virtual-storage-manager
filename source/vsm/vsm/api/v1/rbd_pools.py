@@ -137,7 +137,6 @@ class Controller(wsgi.Controller):
         rbd_pools = self.conductor_api.rbd_get_all(context, limit, marker,
 						   sort_keys, sort_dir)
         LOG.info('vsm/api/v1/rbd_pools.py detailed rbd_pools:%s' % rbd_pools)
-        LOG.info('dir=====%s'%rbd_pools[1])
         rbd_images = []
         for rbd_image in rbd_pools:
             if rbd_image[0]['parent_snapshot']:
