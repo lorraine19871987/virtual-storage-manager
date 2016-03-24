@@ -348,7 +348,11 @@ class AgentsController(wsgi.Controller):
         self._have_write_cluter_into_db = False
         LOG.info(' running before writing DB.')
         self._store_cluster_info_to_db()
+        self._store_rbd_group_info_to_db()
         super(AgentsController, self).__init__()
+
+    def _store_rbd_group_info_to_db(self):
+        db.init_default_rbd_group_row_data(self._context)
 
     def _get_agent_search_options(self):
         """Return agent search options allowed by non-admin."""
