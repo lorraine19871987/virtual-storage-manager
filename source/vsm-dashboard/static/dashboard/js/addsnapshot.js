@@ -40,10 +40,14 @@ function GetRBDGroup(){
 }
 
 function SwithBatchSnap(checked){
-	if(checked)
+	if(checked){
 		$("#divRBDGroup")[0].style.display = "";
-	else
+		$("#divSnapShotAttrs")[0].style.display = "none";
+	}
+	else{
 		$("#divRBDGroup")[0].style.display = "none";
+		$("#divSnapShotAttrs")[0].style.display = "";
+	}
 }
 function ChangePool(obj){
     var pool_selected = obj.options[obj.selectedIndex].text;
