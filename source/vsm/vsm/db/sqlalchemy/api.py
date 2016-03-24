@@ -4488,7 +4488,7 @@ def config_delete(context, config_id):
                     'deleted_at': now,
                     'updated_at': literal_column('updated_at')})
 
-def init_default_row_data(context):
+def init_default_rbd_group_row_data(context):
     session = get_session()
     default_rbd_group = {
         'id':1,
