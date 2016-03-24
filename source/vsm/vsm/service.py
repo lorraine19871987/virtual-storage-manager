@@ -346,10 +346,7 @@ class Service(object):
             self.service_id = service_ref['id']
         except exception.NotFound:
             self._create_service_ref(ctxt)
-        try:
-            db.init_default_row_data(ctxt)
-        except:
-            pass
+
 
 
         self.conn = rpc.create_connection(new=True)
