@@ -2350,14 +2350,14 @@ class SchedulerManager(manager.Manager):
             snapshot_ref = db.snapshot_get_by_pool_image_snapname(context,pool_ref['name'],image_ref['image'],snapshot['name'])
             if snapshot_ref:
                 error_code.append('-1')
-                snapshot_ref = snapshot_ref[0]
+                #snapshot_ref = snapshot_ref
                 error_message.append('snapshot %s of %s/%s already exist!'%(snapshot_ref['name'],pool_ref['name'],image_ref['image']))
                 continue
             values = {
                         'pool': pool_ref['name'],
                         'image': image_ref['image'],
                         'name': snapshot['name'],
-                        'comments':snapshot['comments'],
+                        'comments':snapshot.get('comments',''),
             }
             ret = self._agent_rpcapi.rbd_snapshot_create(context,values,active_monitor['host'])
             error_message = error_message + ret['error_message']
