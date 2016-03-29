@@ -856,7 +856,29 @@ class SnapShot(BASE, VsmBase):
     comments = Column(Text, nullable=True)
 
 
+class Benchmark_Case(BASE, VsmBase):
+    """ Benchmark Case """
+    __tablename__ = 'benchmark_cases'
 
-
-
-
+    id = Column(Integer, primary_key=True)
+    name = Column(String(length=255), nullable=False)
+    direct = Column(Boolean, default=True, nullable=False)
+    time_based = Column(Boolean, default=True, nullable=False)
+    readwrite = Column(String(length=255), nullable=False)
+    blocksize = Column(String(length=255), nullable=False)
+    iodepth = Column(Integer, nullable=False)
+    ramp_time = Column(Integer, nullable=False)
+    runtime = Column(Integer, nullable=False)
+    ioengine = Column(String(length=255), nullable=False)
+    clientadmin = Column(String(length=255), nullable=False)
+    # pool = Column(String(length=255))
+    # rbdname = Column(String(length=255))
+    iodepth_batch_submit = Column(Integer, nullable=False)
+    iodepth_batch_complete = Column(Integer, nullable=False)
+    norandommap = Column(Boolean)
+    randrepeat = Column(Boolean)
+    rate_iops = Column(Integer)
+    random_distribution = Column(String(length=255))
+    rate = Column(String(length=255))
+    rwmixread = Column(Integer)
+    additional_options = Column(String(length=255))

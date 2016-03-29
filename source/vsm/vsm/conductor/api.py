@@ -350,3 +350,7 @@ class API(object):
 
     def config_delete(self, context, config):
         return self.conductor_rpcapi.config_delete(context, config['id'])
+
+    def benchmark_case_create(self, context, case_name, **kwargs):
+        return self.conductor_rpcapi.\
+            benchmark_case_create(context, case_name, **kwargs)

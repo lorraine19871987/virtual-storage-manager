@@ -1368,3 +1368,7 @@ def config_delete(context, config_id):
 
 def init_default_rbd_group_row_data(context):
     return IMPL.init_default_rbd_group_row_data(context)
+
+# Benchmark Case
+def benchmark_case_create(context, case_name, **kwargs):
+    return IMPL.benchmark_case_create(context, case_name, **kwargs)

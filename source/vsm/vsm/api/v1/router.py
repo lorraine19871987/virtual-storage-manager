@@ -45,6 +45,7 @@ from vsm.api.v1 import snapshots
 from vsm.api.v1 import rbd_groups
 from vsm.api import versions
 from vsm.api.v1 import rgw
+from vsm.api.v1 import benchmark_cases
 from vsm.openstack.common import log as logging
 
 
@@ -277,5 +278,11 @@ class APIRouter(vsm.api.openstack.APIRouter):
         self.resources['rgws'] = rgw.create_resource(ext_mgr)
         mapper.resource("rgws", "rgws",
                         controller=self.resources['rgws'],
+                        collection={},
+                        member={'action':'post'})
+
+        self.resources['benchmark_cases'] = benchmark_cases.create_resource(ext_mgr)
+        mapper.resource("benchmark_cases", "benchmark_cases",
+                        controller=self.resources['benchmark_cases'],
                         collection={},
                         member={'action':'post'})
