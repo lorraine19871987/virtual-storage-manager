@@ -1465,8 +1465,9 @@ class AgentManager(manager.Manager):
                 deleted_at = timeutils.utcnow()
                 old_rbd["deleted_at"] = deleted_at
                 old_rbd["deleted"] = 1
-                if old_rbd.has_key('group'):
-                    old_rbd.pop('group')
+                #
+                # if old_rbd.has_key('group'):
+                #     old_rbd.pop('group')
                 db.rbd_update_or_create(context, old_rbd)
         for rbd in rbd_list:
             db.rbd_update_or_create(context, rbd)
