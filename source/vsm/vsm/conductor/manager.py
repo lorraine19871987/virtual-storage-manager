@@ -675,3 +675,6 @@ class ConductorManager(manager.Manager):
 
     def config_delete(self, context, config_id):
         return db.config_delete(context, config_id)
+
+    def benchmark_case_create(self, context, case_name, **kwargs):
+        return db.benchmark_case_create(context, case_name, **kwargs)

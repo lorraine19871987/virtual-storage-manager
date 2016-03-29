@@ -4501,3 +4501,16 @@ def init_default_rbd_group_row_data(context):
             rbd_group_obj = models.RBDGroups()
             rbd_group_obj.update(default_rbd_group)
             rbd_group_obj.save()
+
+# Benchmark Case
+def benchmark_case_create(context, case_name, **kwargs):
+    session = get_session()
+
+    kwargs['name'] = case_name
+    benchmark_case_ref = models.Benchmark_Case()
+    with session.begin(subtransactions=True):
+
+        session.add(benchmark_case_ref)
+        benchmark_case_ref.update(kwargs)
+
+    return benchmark_case_ref

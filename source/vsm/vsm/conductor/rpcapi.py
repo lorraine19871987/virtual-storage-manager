@@ -479,3 +479,9 @@ class ConductorAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
         return self.call(context,
                          self.make_msg('config_delete',
                                        config_id=config_id))
+
+    def benchmark_case_create(self, context, case_name, **kwargs):
+        return self.call(context,
+                         self.make_msg('benchmark_case_create',
+                                       case_name=case_name,
+                                       **kwargs))
