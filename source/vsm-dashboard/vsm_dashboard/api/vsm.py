@@ -65,8 +65,7 @@ def remove_cache_tier(request, body):
 def cp_pool(request, body):
     '''
     :param body:{'storage_pools':[
-                        {'src_pool_name':,#
-                        'dest_pool_name':,#
+                        {
                         'src_pool_id':,
                         'dest_pool_id':,
                         ]

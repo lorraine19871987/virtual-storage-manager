@@ -1903,8 +1903,8 @@ class SchedulerManager(manager.Manager):
                 pool_src_id = pool.get('src_pool_id',None)
                 pool_dest_id = pool.get('dest_pool_id',None)
                 if pool_src_id and pool_dest_id:
-                    pool_src = db.pool_get_by_db_id(context, pool_src_id)
-                    pool_dest = db.pool_get_by_db_id(context, pool_dest_id)
+                    pool_src = db.pool_get(context, pool_src_id)
+                    pool_dest = db.pool_get(context, pool_dest_id)
                     if pool_src and pool_dest:
                         pool_names.append({'src_pool_name':pool_src['name'],
                                            'dest_pool_name':pool_dest['name'],
@@ -1931,8 +1931,10 @@ class SchedulerManager(manager.Manager):
         pool_ids = body.get('storage_pools',None)
         if pool_ids:
             for id in pool_ids:
+                id = int(id)
                 pool_ref = db.pool_get_by_db_id(context, id)
-                pools.append(pool_ref['name'])
+                if pool_ref:
+                    pools.append(pool_ref['name'])
         if pools:
             self._agent_rpcapi.remove_pools(context, pools, active_server['host'])
             for pool in pools:
