@@ -26,6 +26,7 @@ from webob import exc
 from vsm.api.openstack import wsgi
 from vsm.api.views import benchmark_cases as bc_views
 from vsm import conductor
+from vsm import db
 from vsm import exception
 from vsm import flags
 from vsm.openstack.common import log as logging
@@ -162,43 +163,45 @@ class BenchmarkCaseController(wsgi.Controller):
         try:
             case = self.conductor_api.benchmark_case_get(context, id)
             LOG.info("===============get benchmark case %s"
-                     % self._view_builder.show(case, brief=True))
+                     % str(self._view_builder.show(req, case, brief=True)))
         except:
             LOG.error("Not found the benchmark case")
             raise exc.HTTPNotFound()
 
         benchmark_info_list = body['benchmark_info']
-        LOG.info("")
+        LOG.info("===============benchmark_info_list: %s" % str(benchmark_info_list))
         if len(benchmark_info_list) < 1:
             LOG.error("Need one benchmark info at least")
             raise exception.NotFound(message="Need one benchmark info at least")
 
-        new_volumes_list = []
-        create_rbds = {}
-        create_rbds['rbds'] = []
         for benchmark_info in benchmark_info_list:
             pool_rbd_list = benchmark_info['pool_rbd']
             for pool_rbd in pool_rbd_list:
+                new_volumes_list = []
                 rbds = pool_rbd['rbds']
                 # create new rbds if not rbds
                 if not rbds:
-                    pool = pool_rbd['pool']
+                    poolname = pool_rbd['pool']
+                    pool = db.pool_get_by_name(context, poolname, "1")
                     rbd_num = int(pool_rbd['rbd_num'] or 1)
                     # rbd default size 1024MB
                     rbd_size = pool_rbd['rbd_size'] or 1024
-                    while rbd_num > 1:
+                    while rbd_num > 0:
+                        create_rbds = {}
+                        create_rbds['rbds'] = []
                         volume_name = "volume-" + str(uuid.uuid4())
                         create_rbds['rbds'].append({
-                            "pool": pool,
+                            "pool": pool.get("pool_id"),
                             "image": volume_name,
                             "size": rbd_size,
                             "format": 2
                         })
+                        LOG.info("==================create_rbds: %s" % str(create_rbds))
+                        self.scheduler_api.add_rbd(context, create_rbds)
                         new_volumes_list.append(volume_name)
                         rbd_num = rbd_num - 1
-                    self.scheduler_api.add_rbd(context, create_rbds)
-                pool_rbd['rbds'] = ",".join(new_volumes_list)
-
+                    pool_rbd['rbds'] = ",".join(new_volumes_list)
+        LOG.info("===============new benchmark_info_list: %s" % str(benchmark_info_list))
         try:
             self.scheduler_api.benchmark_case_run(context, benchmark_info_list, case)
         except:
