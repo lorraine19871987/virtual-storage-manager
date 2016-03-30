@@ -210,3 +210,7 @@ class API(object):
         return self.scheduler_rpcapi.rgw_create(context, server_name, rgw_instance_name,
                                                 is_ssl, uid, display_name, email, sub_user,
                                                 access, key_type)
+
+    def benchmark_case_run(self, context, benchmark_case_info, benchmark_case):
+        return self.scheduler_rpcapi.benchmark_case_run(context, benchmark_case_info,
+                                                        benchmark_case)

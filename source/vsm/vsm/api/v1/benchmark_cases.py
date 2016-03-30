@@ -19,6 +19,7 @@
 """The benchmark_cases api."""
 
 
+import uuid
 import webob
 from webob import exc
 
@@ -86,7 +87,7 @@ class BenchmarkCaseController(wsgi.Controller):
         ioengine = benchmark_case.get('ioengine')
         if ioengine != 'rbd':
             LOG.error("Only support rbd ioengine now!")
-            raise exc.HTTPBadRequest(detail="Only support rbd ioengine now!")
+            raise exception.InvalidParameterValue(message="Only support rbd ioengine now!")
         kwargs['ioengine'] = ioengine
         kwargs['clientadmin'] = benchmark_case.get('clientadmin')
 
@@ -112,7 +113,9 @@ class BenchmarkCaseController(wsgi.Controller):
         # additional options format: k:v;;k:v
         kwargs['additional_options'] = benchmark_case.get('additional_options', None)
 
+        LOG.info("===============create benchmark case, parameters are %s" % str(kwargs))
         self.conductor_api.benchmark_case_create(context, case_name, **kwargs)
+        LOG.info("===============create benchmark case successfully")
 
 
     def delete(self, req, id):
@@ -127,13 +130,88 @@ class BenchmarkCaseController(wsgi.Controller):
         pass
 
 
+    def run_case(self, req, id, body):
+        """
+
+        :param req:
+        :param id:
+        :param body:
+            As example:
+            {
+              "benchmark_info": [
+                {
+                  "host": "vsm-node1",
+                  "pool_rbd": [
+                    {"pool": "tp001", "rbds": "volume01,volume02,volume03", "rbd_num": 3, "rbd_size": ""},
+                    {"pool": "tp002", "rbds": "volume04", "rbd_num": 1, "rbd_size": ""}
+                  ]
+                },
+                {
+                  "host": "vsm-node2",
+                  "pool_rbd": [
+                    {"pool": "tp003", "rbds": "", "rbd_num": 1, "rbd_size": "1024"}
+                  ]
+                }
+              ]
+            }
+        :return:
+        """
+
+        context = req.environ['vsm.context']
+
+        try:
+            case = self.conductor_api.benchmark_case_get(context, id)
+            LOG.info("===============get benchmark case %s"
+                     % self._view_builder.show(case, brief=True))
+        except:
+            LOG.error("Not found the benchmark case")
+            raise exc.HTTPNotFound()
+
+        benchmark_info_list = body['benchmark_info']
+        LOG.info("")
+        if len(benchmark_info_list) < 1:
+            LOG.error("Need one benchmark info at least")
+            raise exception.NotFound(message="Need one benchmark info at least")
+
+        new_volumes_list = []
+        create_rbds = {}
+        create_rbds['rbds'] = []
+        for benchmark_info in benchmark_info_list:
+            pool_rbd_list = benchmark_info['pool_rbd']
+            for pool_rbd in pool_rbd_list:
+                rbds = pool_rbd['rbds']
+                # create new rbds if not rbds
+                if not rbds:
+                    pool = pool_rbd['pool']
+                    rbd_num = int(pool_rbd['rbd_num'] or 1)
+                    # rbd default size 1024MB
+                    rbd_size = pool_rbd['rbd_size'] or 1024
+                    while rbd_num > 1:
+                        volume_name = "volume-" + str(uuid.uuid4())
+                        create_rbds['rbds'].append({
+                            "pool": pool,
+                            "image": volume_name,
+                            "size": rbd_size,
+                            "format": 2
+                        })
+                        new_volumes_list.append(volume_name)
+                        rbd_num = rbd_num - 1
+                    self.scheduler_api.add_rbd(context, create_rbds)
+                pool_rbd['rbds'] = ",".join(new_volumes_list)
+
+        try:
+            self.scheduler_api.benchmark_case_run(context, benchmark_info_list, case)
+        except:
+            pass
+
+
     def validate_required_parameters(self, case, required_parameters):
         for paramter in required_parameters:
             parameter_value = case.get(paramter, '')
             if not parameter_value:
                 LOG.error("Required parameter %s is missing" % paramter)
-                raise exc.HTTPBadRequest(detail="Required parameter %s is missing"
-                                                % paramter)
+                raise exception.InvalidParameterValue(message="Required parameter %s is "
+                                                              "missing" % paramter)
 
 def create_resource(ext_mgr):
     return wsgi.Resource(BenchmarkCaseController(ext_mgr))

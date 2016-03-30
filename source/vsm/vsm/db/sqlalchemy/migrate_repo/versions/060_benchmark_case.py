@@ -47,6 +47,7 @@ def upgrade(migrate_engine):
         Column('rate', String(length=255)),
         Column('rwmixread', Integer),
         Column('additional_options', String(length=255)),
+        Column('status', String(length=255), default='ready', nullable=False),
         Column('created_at', DateTime),
         Column('updated_at', DateTime),
         Column('deleted_at', DateTime),

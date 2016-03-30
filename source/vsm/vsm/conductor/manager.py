@@ -678,3 +678,6 @@ class ConductorManager(manager.Manager):
 
     def benchmark_case_create(self, context, case_name, **kwargs):
         return db.benchmark_case_create(context, case_name, **kwargs)
+
+    def benchmark_case_get(self, context, case_id):
+        return db.benchmark_case_get(context, case_id)

@@ -354,3 +354,6 @@ class API(object):
     def benchmark_case_create(self, context, case_name, **kwargs):
         return self.conductor_rpcapi.\
             benchmark_case_create(context, case_name, **kwargs)
+
+    def benchmark_case_get(self, context, case_id):
+        return self.conductor_rpcapi.benchmark_case_get(context, case_id)

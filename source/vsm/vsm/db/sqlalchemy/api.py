@@ -4514,3 +4514,20 @@ def benchmark_case_create(context, case_name, **kwargs):
         benchmark_case_ref.update(kwargs)
 
     return benchmark_case_ref
+
+def _benchmark_case_query(context, session=None, project_only=False):
+    return model_query(context, models.Benchmark_Case, session=session,
+                       project_only=project_only, read_deleted="no")
+
+def benchmark_case_get(context, case_id):
+    return _benchmark_case_get(context, case_id)
+
+def _benchmark_case_get(context, case_id):
+    result = _benchmark_case_query(context, session=None, project_only=True).\
+        filter_by(id=case_id).\
+        first()
+
+    if not result:
+        raise exception.NotFound()
+
+    return result
