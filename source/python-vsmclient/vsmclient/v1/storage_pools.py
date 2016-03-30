@@ -77,6 +77,17 @@ class StoragePoolManager(base.ManagerWithFind):
         url = '/storage_pools/remove_cache_tier'
         resp, body = self.api.client.post(url, body=cache_tier_body)
 
+    def cp_pool(self, body):
+        url = '/storage_pools/cp_pool'
+        ret = self.api.client.post(url, body=body)
+        print 'vsmclient----ret-cp-pool==%s'%ret
+        return ret
+
+    def remove_pools(self, body):
+        url = '/storage_pools/remove_pools'
+        ret = self.api.client.post(url, body=body)
+        return ret
+
     def restart(self, osd):
         self._action('restart', osd)
 

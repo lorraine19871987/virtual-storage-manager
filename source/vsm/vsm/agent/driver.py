@@ -2918,6 +2918,17 @@ class CephDriver(object):
             'is_ceph_active': is_active
         })
 
+    def cp_pool(self, context, body):
+        for pool in body:
+            utils.execute("rados", "cppool", pool['src_pool_name'], pool['dest_pool_name'], \
+                           run_as_root=True)
+        return True
+
+    def remove_pools(self, context, body):
+        for pool in body:
+            utils.execute("rados", "rmpool", pool, pool, "--yes-i-really-really-mean-it",\
+                           run_as_root=True)
+        return True
     def add_cache_tier(self, context, body):
         storage_pool_name = db.pool_get(context, body.get("storage_pool_id")).get('name')
         cache_pool_name = db.pool_get(context, body.get("cache_pool_id")).get('name')

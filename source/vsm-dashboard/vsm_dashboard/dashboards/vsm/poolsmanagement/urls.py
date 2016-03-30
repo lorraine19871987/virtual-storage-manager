@@ -15,11 +15,12 @@
 # under the License.
 
 from django.conf.urls import patterns, url
-from .views import IndexView,CreateView
+from .views import IndexView,CreateView,CPPoolView
 from .views import CreateErasureCodedPoolView
 from .views import AddCacheTierView
 from .views import RemoveCacheTierView
-from .views import add_cache_tier,remove_cache_tier,create_replicated_pool,create_ec_pool
+from .views import add_cache_tier,remove_cache_tier,create_replicated_pool,\
+    create_ec_pool,cp_pool,remove_pools
 from .views import get_default_pg_number_storage_group,list_pools_for_sel_input
 
 urlpatterns = patterns('',
@@ -27,6 +28,9 @@ urlpatterns = patterns('',
     url(r'^create/$', CreateView.as_view(), name='create'),
     url(r'^create_ec_pool/$', CreateErasureCodedPoolView.as_view(), name='create_ec_pool'),
     url(r'^add_cache_tier/$', AddCacheTierView.as_view(), name='add_cache_tier'),
+    url(r'^cp_pool/$', CPPoolView.as_view(), name='cp_pool'),
+    url(r'^cp_pool_action/$', cp_pool, name='cp_pool_action'),
+    url(r'^remove_pools_action/$', remove_pools, name='remove_pools_action'),
     url(r'^remove_cache_tier/$', RemoveCacheTierView.as_view(), name='remove_cache_tier'),
     url(r'^add_cache_tier_action/$', add_cache_tier, name='add_cache_tier_action'),
     url(r'^remove_cache_tier_action/$', remove_cache_tier, name='remove_cache_tier_action'),

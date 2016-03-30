@@ -56,26 +56,38 @@ class RemoveCacheTier(tables.LinkAction):
     url = "horizon:vsm:poolsmanagement:remove_cache_tier"
     classes = ("ajax-modal", "btn-primary")
 
-class DeleteStoragePool(tables.DeleteAction):
-    data_type_singular = _("StoragePool")
-    data_type_plural = _("StoragePools")
-    action_past = _("Scheduled deletion of")
+class CPPoolAction(tables.LinkAction):
+    name = "cp_pool"
+    verbose_name = _("Copy")
+    url = "horizon:vsm:poolsmanagement:cp_pool"
+    classes = ("ajax-modal", "btn-primary")
 
-    def delete(self, request, obj_id):
-        obj = self.table.get_object_by_id(obj_id)
-        name = self.table.get_object_display(obj)
-        try:
-            vsm.volume_delete(request, obj_id)
-        except:
-            msg = _('Unable to delete volume "%s". One or more snapshots '
-                    'depend on it.')
-            exceptions.check_message(["snapshots", "dependent"], msg % name)
-            raise
+class RemovepoolsAction(tables.LinkAction):
+    name = "remove_pools"
+    verbose_name = _("Remove Pool")
+    classes = ('btn-primary',)
+    url = "horizon:vsm:poolsmanagement:index"
 
-    def allowed(self, request, volume=None):
-        if volume:
-            return volume.status in DELETABLE_STATES
-        return True
+# class DeleteStoragePool(tables.DeleteAction):
+#     data_type_singular = _("Remove")
+#     data_type_plural = _("R")
+#     action_past = _("Scheduled deletion of")
+#
+#     def delete(self, request, obj_id):
+#         obj = self.table.get_object_by_id(obj_id)
+#         name = self.table.get_object_display(obj)
+#         try:
+#             vsm.volume_delete(request, obj_id)
+#         except:
+#             msg = _('Unable to delete volume "%s". One or more snapshots '
+#                     'depend on it.')
+#             exceptions.check_message(["snapshots", "dependent"], msg % name)
+#             raise
+#
+#     def allowed(self, request, volume=None):
+#         if volume:
+#             return volume.status in DELETABLE_STATES
+#         return True
 
 class ListPoolTable(tables.DataTable):
 
@@ -96,8 +108,8 @@ class ListPoolTable(tables.DataTable):
     class Meta:
         name = "pools"
         verbose_name = _("Storage Pools")
-        table_actions = (AddCacheTier, RemoveCacheTier, CreateStoragePool, CreateErasureCodedPool)
-        multi_select = False
+        table_actions = (AddCacheTier, RemoveCacheTier, CreateStoragePool, CreateErasureCodedPool,CPPoolAction, RemovepoolsAction)
+        multi_select = True
 
     def get_object_id(self, datum):
         if hasattr(datum, "id"):

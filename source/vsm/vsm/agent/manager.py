@@ -1839,6 +1839,12 @@ class AgentManager(manager.Manager):
     def add_cache_tier(self, context, body):
         return self.ceph_driver.add_cache_tier(context, body)
 
+    def cp_pool(self, context, body):
+        return self.ceph_driver.cp_pool(context, body)
+
+    def remove_pools(self, context, body):
+        return self.ceph_driver.remove_pools(context, body)
+
     def remove_cache_tier(self, context, body):
         return self.ceph_driver.remove_cache_tier(context, body)
 
