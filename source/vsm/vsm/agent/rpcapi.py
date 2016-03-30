@@ -799,3 +799,11 @@ class AgentAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
                                       access=access, key_type=key_type),
                         topic, version='1.0', timeout=6000)
         return res
+
+    def benchmark_case_run(self, context, host, benchmark_extra, benchmark_case):
+        topic = rpc.queue_get_for(context, self.topic, host)
+        res = self.call(context, self.make_msg('benchmark_case_run',
+                                               benchmark_extra=benchmark_extra,
+                                               benchmark_case=benchmark_case),
+                        topic, version='1.0', timeout=6000)
+        return res

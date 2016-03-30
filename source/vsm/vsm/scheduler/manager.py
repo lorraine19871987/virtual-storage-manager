@@ -2518,7 +2518,7 @@ class SchedulerManager(manager.Manager):
                                       is_ssl, uid, display_name, email, sub_user,
                                       access, key_type)
 
-    def benchmark_case_run(self, context, benchmark_case_info, benchmark_case):
+    def benchmark_case_run(self, context, benchmark_extra_info, benchmark_case):
         """
 
         :param context:
@@ -2527,4 +2527,21 @@ class SchedulerManager(manager.Manager):
         :return:
         """
 
-        pass
+        # status can be ready, running, error and success
+        def _update(status):
+            LOG.debug("Update the case status to %s" % str(status))
+            case_id = benchmark_case.get("id")
+            values = {"status": status}
+            self._conductor_api.\
+                benchmark_case_update(context, case_id, values)
+
+        def _check_process():
+            pass
+
+        _update("running")
+        for benchmark_extra in benchmark_extra_info:
+            host = benchmark_extra['host']
+            self._agent_rpcapi.\
+                benchmark_case_run(context, host, benchmark_extra, benchmark_case)
+
+        _update("success")

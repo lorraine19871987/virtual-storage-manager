@@ -174,6 +174,7 @@ class BenchmarkCaseController(wsgi.Controller):
             LOG.error("Need one benchmark info at least")
             raise exception.NotFound(message="Need one benchmark info at least")
 
+        new_volumes_list_total = []
         for benchmark_info in benchmark_info_list:
             pool_rbd_list = benchmark_info['pool_rbd']
             for pool_rbd in pool_rbd_list:
@@ -199,11 +200,18 @@ class BenchmarkCaseController(wsgi.Controller):
                         LOG.info("==================create_rbds: %s" % str(create_rbds))
                         self.scheduler_api.add_rbd(context, create_rbds)
                         new_volumes_list.append(volume_name)
+                        new_volumes_list_total.append(volume_name)
                         rbd_num = rbd_num - 1
                     pool_rbd['rbds'] = ",".join(new_volumes_list)
         LOG.info("===============new benchmark_info_list: %s" % str(benchmark_info_list))
         try:
             self.scheduler_api.benchmark_case_run(context, benchmark_info_list, case)
+        except:
+            LOG.error("Failed to run the benchmark case %s" % str(case.get('name')))
+
+        # TODO Delete the rbd created by the benchmark
+        try:
+            pass
         except:
             pass
 
