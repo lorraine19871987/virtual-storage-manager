@@ -47,7 +47,7 @@ mount: CommandFilter, /bin/mount, root
 umount: CommandFilter, /bin/umount, root
 radosgw: CommandFilter, /etc/init.d/radosgw, root
 radosgw-admin: CommandFilter, /usr/bin/radosgw-admin, root
-
+rados: CommandFilter, /usr/bin/rados, root
 #common
 ssh: CommandFilter, /usr/bin/ssh, root
 sed: CommandFilter, /bin/sed, root

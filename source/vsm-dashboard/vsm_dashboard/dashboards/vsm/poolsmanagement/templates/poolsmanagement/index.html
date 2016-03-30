@@ -26,3 +26,8 @@
 {% block main %}
     {{ table.render }}
 {% endblock %}
+
+{% block js %}
+    <script src='{{ STATIC_URL }}dashboard/js/poolmgmt.js' type='text/javascript' charset='utf-8'></script>
+    <script src='{{ STATIC_URL }}dashboard/js/message.js' type='text/javascript' charset='utf-8'></script>
+{% endblock %}

@@ -20,11 +20,11 @@ function InitCtrlCSS(){
 }
 
 //remove pools
-$("#btnRemovePools").click(function(){
+$("#pools__action_remove_pools").click(function(){
 	var storage_pool_id_list = {"storage_pool_id_list":[]}
 
 	var is_selected = false;
-	$("#storage_pool_list>tbody>tr").each(function(){
+	$("#pools>tbody>tr").each(function(){
         if(this.children[0].children[0].checked) {
             is_selected = true;
             var storage_pool_id = this.children[0].children[0].value;
@@ -41,7 +41,7 @@ $("#btnRemovePools").click(function(){
 	$.ajax({
 		type: "post",
 		url: "/dashboard/vsm/poolsmanagement/remove_pools_action/",
-		data: JSON.stringify(rbd_id_list),
+		data: JSON.stringify(storage_pool_id_list),
 		dataType:"json",
 		success: function(data){
 				//console.log(data);

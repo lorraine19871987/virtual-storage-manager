@@ -48,7 +48,7 @@ umount: CommandFilter, /bin/umount, root
 ceph-radosgw: CommandFilter, /etc/init.d/ceph-radosgw, root
 radosgw-admin: CommandFilter, /usr/bin/radosgw-admin, root
 radosgw: CommandFilter, /usr/bin/radosgw, root
-
+rados: CommandFilter, /usr/bin/rados, root
 #common
 su: CommandFilter, /usr/bin/su, root
 ssh: CommandFilter, /usr/bin/ssh, root

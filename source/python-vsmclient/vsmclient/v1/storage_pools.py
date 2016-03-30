@@ -80,7 +80,6 @@ class StoragePoolManager(base.ManagerWithFind):
     def cp_pool(self, body):
         url = '/storage_pools/cp_pool'
         ret = self.api.client.post(url, body=body)
-        print 'vsmclient----ret-cp-pool==%s'%ret
         return ret
 
     def remove_pools(self, body):

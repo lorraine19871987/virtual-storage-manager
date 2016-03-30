@@ -188,7 +188,7 @@ def remove_pools(request):
     storage_pool_id_list = data["storage_pool_id_list"]
     storage_pools = {'storage_pools':storage_pool_id_list}
     try:
-        rsp, ret = vsmapi.rbd_group_remove(request, storage_pools)
+        rsp, ret = vsmapi.remove_pools(request, storage_pools)
         ret = ret['message']
     except:
         ret = {'error_code':'-2','error_msg':'Unkown Error!'}
