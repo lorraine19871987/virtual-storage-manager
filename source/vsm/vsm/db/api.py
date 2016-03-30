@@ -1372,3 +1372,6 @@ def init_default_rbd_group_row_data(context):
 # Benchmark Case
 def benchmark_case_create(context, case_name, **kwargs):
     return IMPL.benchmark_case_create(context, case_name, **kwargs)
+
+def benchmark_case_get(context, case_id):
+    return IMPL.benchmark_case_get(context, case_id)

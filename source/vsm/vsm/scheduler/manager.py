@@ -2458,3 +2458,14 @@ class SchedulerManager(manager.Manager):
         self._agent_rpcapi.rgw_create(context, host, server_name, rgw_instance_name,
                                       is_ssl, uid, display_name, email, sub_user,
                                       access, key_type)
+
+    def benchmark_case_run(self, context, benchmark_case_info, benchmark_case):
+        """
+
+        :param context:
+        :param benchmark_case_info:
+        :param benchmark_case:
+        :return:
+        """
+
+        pass

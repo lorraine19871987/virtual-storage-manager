@@ -23,21 +23,34 @@ LOG = logging.getLogger(__name__)
 class ViewBuilder(common.ViewBuilder):
     _collection_name = "benchmark_cases"
 
-    # def show(self, request, config, brief=False):
-    #     config_dict = dict(
-    #         id=config.get('id'),
-    #         name=config.get('name'),
-    #         value=config.get('value'),
-    #         default_value=config.get('default_value'),
-    #         category=config.get('category'),
-    #         section=config.get('section'),
-    #         description=config.get('description'),
-    #         alterable=config.get('alterable')
-    #     )
-    #     if brief:
-    #         return config_dict
-    #     else:
-    #         return dict(config=config_dict)
+    def show(self, request, benchmark_case, brief=False):
+        benchmark_case_dict = dict(
+            id=benchmark_case.get('id'),
+            name=benchmark_case.get('name'),
+            direct=benchmark_case.get('direct'),
+            time_based=benchmark_case.get('time_based'),
+            readwrite=benchmark_case.get('readwrite'),
+            blocksize=benchmark_case.get('blocksize'),
+            iodepth=benchmark_case.get('iodepth'),
+            ramp_time=benchmark_case.get('ramp_time'),
+            runtime=benchmark_case.get('runtime'),
+            ioengine=benchmark_case.get('ioengine'),
+            clientadmin=benchmark_case.get('clientadmin'),
+            iodepth_batch_submit=benchmark_case.get('iodepth_batch_submit'),
+            iodepth_batch_complete=benchmark_case.get('iodepth_batch_complete'),
+            norandommap=benchmark_case.get('norandommap'),
+            randrepeat=benchmark_case.get('randrepeat'),
+            rate_iops=benchmark_case.get('rate_iops'),
+            random_distribution=benchmark_case.get('random_distribution'),
+            rate=benchmark_case.get('rate'),
+            rwmixread=benchmark_case.get('rwmixread'),
+            additional_options=benchmark_case.get('additional_options'),
+            status=benchmark_case.get('status'),
+        )
+        if brief:
+            return benchmark_case_dict
+        else:
+            return dict(benchmark_case=benchmark_case_dict)
     #
     # def index(self, request, configs):
     #     config_list = [self.show(request, config, True)
