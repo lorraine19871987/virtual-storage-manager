@@ -2529,9 +2529,10 @@ class SchedulerManager(manager.Manager):
 
         # status can be ready, running, error and success
         def _update(status):
-            LOG.debug("Update the case status to %s" % str(status))
+            LOG.info("Update the case status to %s" % str(status))
             case_id = benchmark_case.get("id")
-            values = {"status": status}
+            values = {}
+            values['status'] = status
             self._conductor_api.\
                 benchmark_case_update(context, case_id, values)
 

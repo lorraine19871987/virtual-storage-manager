@@ -35,7 +35,7 @@ def upgrade(migrate_engine):
         Column('ramp_time', Integer, nullable=False),
         Column('runtime', Integer, nullable=False),
         Column('ioengine', String(length=255), nullable=False),
-        Column('clientadmin', String(length=255), nullable=False),
+        Column('clientname', String(length=255), nullable=False),
         # Column('pool', String(length=255)),
         # Column('rbdname', String(length=255)),
         Column('iodepth_batch_submit', Integer, nullable=False),
