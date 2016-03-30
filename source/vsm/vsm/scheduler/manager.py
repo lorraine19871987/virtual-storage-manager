@@ -1878,9 +1878,9 @@ class SchedulerManager(manager.Manager):
         for server_id in server_id_list:
             db.init_node_update(context, server_id, values)
         active_server_list = server_list
-        LOG.info('active_server_list===%s'%active_server_list)
+        #LOG.info('active_server_list===%s'%active_server_list)
         idx = random.randint(0, len(active_server_list)-1)
-        LOG.info('idx===%s'%idx)
+        #LOG.info('idx===%s'%idx)
         return active_server_list[idx]
 
     def add_cache_tier(self, context, body):
@@ -1890,6 +1890,63 @@ class SchedulerManager(manager.Manager):
     def remove_cache_tier(self, context, body):
         active_server = self._get_active_server(context)
         self._agent_rpcapi.remove_cache_tier(context, body,active_server['host'])
+
+    def cp_pool(self, context, body):
+        active_server = self._get_active_server(context)
+        error_message = []
+        error_code = []
+        info = ''
+        pools = body.get('storage_pools',None)
+        pool_names = []
+        if pools:
+            for pool in pools:
+                pool_src_id = pool.get('src_pool_id',None)
+                pool_dest_id = pool.get('dest_pool_id',None)
+                if pool_src_id and pool_dest_id:
+                    pool_src = db.pool_get_by_db_id(context, pool_src_id)
+                    pool_dest = db.pool_get_by_db_id(context, pool_dest_id)
+                    if pool_src and pool_dest:
+                        pool_names.append({'src_pool_name':pool_src['name'],
+                                           'dest_pool_name':pool_dest['name'],
+                        })
+        if pool_names:
+            self._agent_rpcapi.cp_pool(context, pool_names, active_server['host'])
+            info = 'Successfully copied pool %s to pool %s'%(pool_names[0]['src_pool_name'],pool_names[0]['dest_pool_name'])
+        else:
+            error_message.append('paramaters data error!')
+            error_message.append('-1')
+        message = {'message':{'error_msg':','.join(error_message),
+                              'info':info,
+                              'error_code':','.join(error_code),
+                              }
+        }
+        return message
+
+    def remove_pools(self, context, body):
+        active_server = self._get_active_server(context)
+        error_message = []
+        error_code = []
+        info = ''
+        pools = []
+        pool_ids = body.get('storage_pools',None)
+        if pool_ids:
+            for id in pool_ids:
+                pool_ref = db.pool_get_by_db_id(context, id)
+                pools.append(pool_ref['name'])
+        if pools:
+            self._agent_rpcapi.remove_pools(context, pools, active_server['host'])
+            for pool in pools:
+                db.pool_destroy(context, pool)
+            info = 'Successfully removed pools %s'%(','.join(pools))
+        else:
+            error_message.append('No such pools!')
+            error_message.append('-1')
+        message = {'message':{'error_msg':','.join(error_message),
+                              'info':info,
+                              'error_code':','.join(error_code),
+                              }
+        }
+        return message
 
     def get_smart_info(self, context, body):
         ser = body['server']

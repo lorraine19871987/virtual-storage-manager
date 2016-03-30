@@ -107,6 +107,8 @@ class APIRouter(vsm.api.openstack.APIRouter):
                                     'get_ec_profile_list': 'get',
                                     'add_cache_tier': 'post',
                                     'remove_cache_tier': 'post',
+                                    'cp_pool':'post',
+                                    'remove_pools':'post',
                                     'list_storage_pool': 'get'},
                         member={'action': 'post'})
 

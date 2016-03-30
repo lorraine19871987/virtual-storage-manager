@@ -427,6 +427,18 @@ class StoragePoolController(wsgi.Controller):
         return self.scheduler_api.remove_cache_tier(context, cache_tier_body)
 
     @wsgi.serializers(xml=StoragePoolsTemplate)
+    def cp_pool(self, req, body):
+        """copy pool"""
+        LOG.info('cp-pool-v1-get===%s'%body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.cp_pool(context, body)
+
+    @wsgi.serializers(xml=StoragePoolsTemplate)
+    def remove_pools(self, req, body):
+        context = req.environ['vsm.context']
+        return self.scheduler_api.remove_pools(context, body)
+
+    @wsgi.serializers(xml=StoragePoolsTemplate)
     def get_storage_group_list(self, req):
         """storage_group_list."""
         context = req.environ['vsm.context']
