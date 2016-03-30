@@ -870,7 +870,7 @@ class Benchmark_Case(BASE, VsmBase):
     ramp_time = Column(Integer, nullable=False)
     runtime = Column(Integer, nullable=False)
     ioengine = Column(String(length=255), nullable=False)
-    clientadmin = Column(String(length=255), nullable=False)
+    clientname = Column(String(length=255), nullable=False)
     # pool = Column(String(length=255))
     # rbdname = Column(String(length=255))
     iodepth_batch_submit = Column(Integer, nullable=False)

@@ -2611,3 +2611,14 @@ class AgentManager(manager.Manager):
                 file_template.append("  %s=%s" % (key, value))
         with open("/var/lib/vsm/fio.conf", "w+") as f:
             f.write("\n".join(file_template) + "\n")
+
+        pool_rbds = benchmark_extra['pool_rbd']
+        for pool_rbd in pool_rbds:
+            poolname = pool_rbd['pool']
+            rbds = pool_rbd['rbds']
+            rbds_list = rbds.split(',')
+            for rbd in rbds_list:
+                LOG.info("========================rbd: %s" % rbd)
+                utils.execute("POOLNAME=%s" % poolname, "RBDNAME=%s" % rbd, "fio",
+                              "--section", "%s" % section, "/var/lib/vsm/fio.conf",
+                              "&", run_as_root=True)

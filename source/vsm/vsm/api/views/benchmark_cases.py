@@ -35,7 +35,7 @@ class ViewBuilder(common.ViewBuilder):
             ramp_time=benchmark_case.get('ramp_time'),
             runtime=benchmark_case.get('runtime'),
             ioengine=benchmark_case.get('ioengine'),
-            clientadmin=benchmark_case.get('clientadmin'),
+            clientname=benchmark_case.get('clientname'),
             iodepth_batch_submit=benchmark_case.get('iodepth_batch_submit'),
             iodepth_batch_complete=benchmark_case.get('iodepth_batch_complete'),
             norandommap=benchmark_case.get('norandommap'),

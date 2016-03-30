@@ -71,7 +71,7 @@ class BenchmarkCaseController(wsgi.Controller):
         self.validate_required_parameters(
             benchmark_case, ['name', 'direct', 'time_based', 'readwrite',
                              'blocksize', 'iodepth', 'ramp_time', 'runtime',
-                             'ioengine', 'clientadmin', 'iodepth_batch_submit',
+                             'ioengine', 'clientname', 'iodepth_batch_submit',
                              'iodepth_batch_complete'])
         case_name = benchmark_case.get('name')
         kwargs = {}
@@ -90,12 +90,12 @@ class BenchmarkCaseController(wsgi.Controller):
             LOG.error("Only support rbd ioengine now!")
             raise exception.InvalidParameterValue(message="Only support rbd ioengine now!")
         kwargs['ioengine'] = ioengine
-        kwargs['clientadmin'] = benchmark_case.get('clientadmin')
+        kwargs['clientname'] = benchmark_case.get('clientname')
 
         # readwrite is randread, randwrite or randrw
         if readwrite in ['randread', 'randwrite', 'randrw']:
-            kwargs['iodepth_batch_submit'] = benchmark_case.get('iodepth_batch_submit')
-            kwargs['iodepth_batch_complete'] = benchmark_case.get('iodepth_batch_complete')
+            kwargs['iodepth_batch_submit'] = benchmark_case.get('iodepth_batch_submit', 1)
+            kwargs['iodepth_batch_complete'] = benchmark_case.get('iodepth_batch_complete', 1)
             kwargs['norandommap'] = benchmark_case.get('norandommap', None)
             kwargs['randrepeat'] = benchmark_case.get('randrepeat', None)
             kwargs['rate_iops'] = benchmark_case.get('rate_iops', None)
@@ -103,8 +103,8 @@ class BenchmarkCaseController(wsgi.Controller):
 
         # readwrite is read, write or rw
         if readwrite in ['read', 'write', 'rw']:
-            kwargs['iodepth_batch_submit'] = benchmark_case.get('iodepth_batch_submit')
-            kwargs['iodepth_batch_complete'] = benchmark_case.get('iodepth_batch_complete')
+            kwargs['iodepth_batch_submit'] = benchmark_case.get('iodepth_batch_submit', 8)
+            kwargs['iodepth_batch_complete'] = benchmark_case.get('iodepth_batch_complete', 8)
             kwargs['rate'] = benchmark_case.get('rate', None)
 
         # readwrite is randrw or rw
