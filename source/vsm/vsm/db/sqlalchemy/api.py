@@ -4531,3 +4531,18 @@ def _benchmark_case_get(context, case_id):
         raise exception.NotFound()
 
     return result
+
+def benchmark_case_update(context, case_id, values, session=None):
+    if not session:
+        session = get_session()
+
+    with session.begin(subtransactions=True):
+        if case_id:
+            case = benchmark_case_get(context, case_id)
+            values['updated_at'] = timeutils.utcnow()
+            convert_datetimes(values, 'created_at', 'updated_at')
+            case.update(values)
+        else:
+            raise exception.NotFound()
+
+        return case

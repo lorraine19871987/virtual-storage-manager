@@ -1375,3 +1375,6 @@ def benchmark_case_create(context, case_name, **kwargs):
 
 def benchmark_case_get(context, case_id):
     return IMPL.benchmark_case_get(context, case_id)
+
+def benchmark_case_update(context, case_id, values):
+    return IMPL.benchmark_case_update(context, case_id, values)

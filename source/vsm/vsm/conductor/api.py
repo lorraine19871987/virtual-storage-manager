@@ -357,3 +357,7 @@ class API(object):
 
     def benchmark_case_get(self, context, case_id):
         return self.conductor_rpcapi.benchmark_case_get(context, case_id)
+
+    def benchmark_case_update(self, context, case_id, values):
+        return self.conductor_rpcapi.\
+            benchmark_case_update(context, case_id, values)

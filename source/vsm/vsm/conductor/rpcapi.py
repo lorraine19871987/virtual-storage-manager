@@ -490,3 +490,9 @@ class ConductorAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
         return self.call(context,
                          self.make_msg('benchmark_case_get',
                                        case_id=case_id))
+
+    def benchmark_case_update(self, context, case_id, values):
+        return self.call(context,
+                         self.make_msg('benchmark_case_update',
+                                       case_id=case_id,
+                                       values=values))

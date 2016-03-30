@@ -211,6 +211,6 @@ class API(object):
                                                 is_ssl, uid, display_name, email, sub_user,
                                                 access, key_type)
 
-    def benchmark_case_run(self, context, benchmark_case_info, benchmark_case):
-        return self.scheduler_rpcapi.benchmark_case_run(context, benchmark_case_info,
+    def benchmark_case_run(self, context, benchmark_extra_info, benchmark_case):
+        return self.scheduler_rpcapi.benchmark_case_run(context, benchmark_extra_info,
                                                         benchmark_case)

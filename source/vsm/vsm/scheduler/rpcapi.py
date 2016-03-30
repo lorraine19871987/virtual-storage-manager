@@ -284,8 +284,8 @@ class SchedulerAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
                                              email=email, sub_user=sub_user,
                                              access=access, key_type=key_type))
 
-    def benchmark_case_run(self, ctxt, benchmark_case_info, benchmark_case):
+    def benchmark_case_run(self, ctxt, benchmark_extra_info, benchmark_case):
         return self.cast(ctxt,
                          self.make_msg('benchmark_case_run',
-                                       benchmark_case_info=benchmark_case_info,
+                                       benchmark_extra_info=benchmark_extra_info,
                                        benchmark_case=benchmark_case))
