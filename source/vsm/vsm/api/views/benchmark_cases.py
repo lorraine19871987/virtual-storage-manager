@@ -46,6 +46,7 @@ class ViewBuilder(common.ViewBuilder):
             rwmixread=benchmark_case.get('rwmixread'),
             additional_options=benchmark_case.get('additional_options'),
             status=benchmark_case.get('status'),
+            running_hosts=benchmark_case.get('running_hosts')
         )
         if brief:
             return benchmark_case_dict
