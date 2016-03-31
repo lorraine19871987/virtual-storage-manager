@@ -4532,17 +4532,13 @@ def _benchmark_case_get(context, case_id):
 
     return result
 
-def benchmark_case_update(context, case_id, values, session=None):
-    if not session:
-        session = get_session()
+def benchmark_case_update(context, case_id, values):
+    session = get_session()
 
-    with session.begin(subtransactions=True):
-        if case_id:
-            case = benchmark_case_get(context, case_id)
-            values['updated_at'] = timeutils.utcnow()
-            convert_datetimes(values, 'created_at', 'updated_at')
-            case.update(values)
-        else:
-            raise exception.NotFound()
+    with session.begin():
+        model_query(context, models.Benchmark_Case, session=session). \
+            filter_by(id=case_id). \
+            update(values)
+    case_ref = _benchmark_case_get(context, case_id)
 
-        return case
+    return case_ref

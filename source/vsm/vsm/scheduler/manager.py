@@ -2482,6 +2482,7 @@ class SchedulerManager(manager.Manager):
             LOG.info("====================case: %s" % str(case))
 
         def _run(context, host, benchmark_extra, benchmark_case):
+            LOG.info("============================================")
             self._agent_rpcapi.\
                 benchmark_case_run(context, host, benchmark_extra, benchmark_case)
 
@@ -2489,9 +2490,12 @@ class SchedulerManager(manager.Manager):
         thd_run_list = []
         for benchmark_extra in benchmark_extra_info:
             host = benchmark_extra['host']
-            thd_run = utils.MultiThread(_run, host=host, benchmark_extra=benchmark_extra,
-                                    benchmark_case=benchmark_case)
+            thd_run = utils.MultiThread(_run, context=context,
+                                        host=host,
+                                        benchmark_extra=benchmark_extra,
+                                        benchmark_case=benchmark_case)
             thd_run_list.append(thd_run)
+        LOG.info("=================start_threads: %s" % str(thd_run_list))
         utils.start_threads(thd_run_list)
 
         _update("success", benchmark_case)
