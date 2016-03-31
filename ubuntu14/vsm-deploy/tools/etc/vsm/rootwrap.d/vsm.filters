@@ -126,3 +126,5 @@ umount: CommandFilter, /bin/umount, root
 dd: CommandFilter, /bin/dd, root
 rbd: CommandFilter, /usr/bin/rbd, root
 rbd_ls: CommandFilter, /usr/bin/rbd_ls, root
+
+fio: CommandFilter, /usr/local/bin/fio, root
