@@ -2469,21 +2469,29 @@ class SchedulerManager(manager.Manager):
         """
 
         # status can be ready, running, error and success
-        def _update(status):
+        def _update(status, benchmark_case):
             LOG.info("Update the case status to %s" % str(status))
+            LOG.info("benchmark_case: %s" % str(benchmark_case))
             case_id = benchmark_case.get("id")
+            LOG.info("======================case_id: %s" % str(case_id))
             values = {}
             values['status'] = status
-            self._conductor_api.\
+            LOG.info("===================values: %s" % str(values))
+            case = self._conductor_api.\
                 benchmark_case_update(context, case_id, values)
+            LOG.info("====================case: %s" % str(case))
 
-        def _check_process():
-            pass
-
-        _update("running")
-        for benchmark_extra in benchmark_extra_info:
-            host = benchmark_extra['host']
+        def _run(context, host, benchmark_extra, benchmark_case):
             self._agent_rpcapi.\
                 benchmark_case_run(context, host, benchmark_extra, benchmark_case)
 
-        _update("success")
+        _update("running", benchmark_case)
+        thd_run_list = []
+        for benchmark_extra in benchmark_extra_info:
+            host = benchmark_extra['host']
+            thd_run = utils.MultiThread(_run, host=host, benchmark_extra=benchmark_extra,
+                                    benchmark_case=benchmark_case)
+            thd_run_list.append(thd_run)
+        utils.start_threads(thd_run_list)
+
+        _update("success", benchmark_case)
