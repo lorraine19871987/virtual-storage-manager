@@ -2663,3 +2663,8 @@ class AgentManager(manager.Manager):
                                         conf_path=conf)
                 thd_list.append(thd)
         utils.start_threads(thd_list)
+
+    def benchmark_case_terminate(self, context):
+        LOG.info("Terminate all fio processes")
+        utils.execute("killall", "fio", run_as_root=True)
+        LOG.info("Terminate finished")

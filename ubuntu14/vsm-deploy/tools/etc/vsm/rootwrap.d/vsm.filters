@@ -49,6 +49,7 @@ radosgw: CommandFilter, /etc/init.d/radosgw, root
 radosgw-admin: CommandFilter, /usr/bin/radosgw-admin, root
 rados: CommandFilter, /usr/bin/rados, root
 #common
+su: CommandFilter, /bin/su, root
 ssh: CommandFilter, /usr/bin/ssh, root
 sed: CommandFilter, /bin/sed, root
 touch: CommandFilter, /bin/touch, root
@@ -61,6 +62,7 @@ hostname: CommandFilter, /bin/hostname, root
 ls: CommandFilter, /bin/ls, root
 pgrep: CommandFilter, /usr/bin/pgrep, root
 kill: CommandFilter, /bin/kill, root
+killall: CommandFilter, /usr/bin/killall, root
 ssh-keygen: CommandFilter, /usr/bin/ssh-keygen, root
 ##end changed by YOURONG
 
@@ -104,7 +106,7 @@ cat: CommandFilter, /bin/cat, root
 diamond: CommandFilter, /usr/bin/diamond, root
 smartctl: CommandFilter, /usr/sbin/smartctl, root
 nvme: CommandFilter, /usr/sbin/nvme, root
-kill_diamond: CommandFilter, /usr/bin/kill_diamond, root
+kill_diamond: CommandFilter, /usr/local/bin/kill_diamond, root
 vsm-ceph-upgrade: CommandFilter, /usr/bin/vsm-ceph-upgrade, root
 add_disk: CommandFilter, /usr/local/bin/tools/hooks/add_disk, root
 blockdev:CommandFilter, /sbin/blockdev, root

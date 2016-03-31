@@ -287,4 +287,5 @@ class APIRouter(vsm.api.openstack.APIRouter):
         mapper.resource("benchmark_cases", "benchmark_cases",
                         controller=self.resources['benchmark_cases'],
                         collection={},
-                        member={'run_case':'POST'})
+                        member={'run_case':'POST',
+                                'terminate': 'POST'})

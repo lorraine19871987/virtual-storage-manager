@@ -349,6 +349,10 @@ function setup_remote_controller() {
     fi
 }
 
+function get_fio_from_github() {
+    git clone https://github.com/axboe/fio.git
+}
+
 function install_controller() {
     make_me_super $USER $CONTROLLER_IP
     check_manifest $CONTROLLER_IP
@@ -391,6 +395,7 @@ function install_controller() {
         dpkg-scanpackages vsm-dep-repo | gzip > vsm-dep-repo/Packages.gz
         cd $TOPDIR
     fi
+    get_fio_from_github
 }
 
 #-------------------------------------------------------------------------------
@@ -507,6 +512,8 @@ function install_agent() { # install_agent <node>
     setup_remote_agent $1
     install_setup_diamond $1
     cleanup_remote_sources_list $1
+    $SCP -r fio $USER@$1:~
+    $SSH $USER@$1 "cd fio;$SUDO ./configure;$SUDO make;$SUDO make install"
     echo "=== Install agent [$1] complete."
 }
 
