@@ -51,8 +51,8 @@ class ViewBuilder(common.ViewBuilder):
             return benchmark_case_dict
         else:
             return dict(benchmark_case=benchmark_case_dict)
-    #
-    # def index(self, request, configs):
-    #     config_list = [self.show(request, config, True)
-    #                    for config in configs]
-    #     return dict(configs=config_list)
+
+    def index(self, request, benchmark_cases):
+        benchmark_case_list = [self.show(request, benchmark_case, True)
+                       for benchmark_case in benchmark_cases]
+        return dict(benchmark_cases=benchmark_case_list)

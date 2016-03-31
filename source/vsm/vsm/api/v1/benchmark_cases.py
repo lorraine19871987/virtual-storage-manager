@@ -20,9 +20,9 @@
 
 
 import uuid
-import webob
 from webob import exc
 
+from vsm.agent import rpcapi
 from vsm.api.openstack import wsgi
 from vsm.api.views import benchmark_cases as bc_views
 from vsm import conductor
@@ -30,7 +30,6 @@ from vsm import db
 from vsm import exception
 from vsm import flags
 from vsm.openstack.common import log as logging
-from vsm.openstack.common import timeutils
 from vsm import scheduler
 
 LOG = logging.getLogger(__name__)
@@ -46,18 +45,27 @@ class BenchmarkCaseController(wsgi.Controller):
     def __init__(self, ext_mgr):
         self.conductor_api = conductor.API()
         self.scheduler_api = scheduler.API()
+        self.agent_rpcapi = rpcapi.AgentAPI()
         self.ext_mgr = ext_mgr
         super(BenchmarkCaseController, self).__init__()
 
 
     def show(self, req, id):
-        """Return data about the given config."""
+        """Return data about the given benchmark case."""
 
-        pass
+        context = req.environ['vsm.context']
+
+        try:
+            benchmark_case = self.conductor_api.benchmark_case_get(context, id)
+            return self._view_builder.show(req, benchmark_case)
+        except exception.NotFound:
+            raise exc.HTTPNotFound()
 
 
     def index(self, req):
-        """Returns the list of configs."""
+        """Return the list of benchmark cases."""
+
+        context = req.environ['vsm.context']
 
         pass
 
@@ -167,6 +175,9 @@ class BenchmarkCaseController(wsgi.Controller):
         except:
             LOG.error("Not found the benchmark case")
             raise exc.HTTPNotFound()
+        if case.get('status') == "running":
+            LOG.error("The case is still running, please wait for a moment")
+            raise exc.HTTPBadRequest()
 
         benchmark_info_list = body['benchmark_info']
         LOG.info("===============benchmark_info_list: %s" % str(benchmark_info_list))
@@ -195,8 +206,7 @@ class BenchmarkCaseController(wsgi.Controller):
                             "pool": pool.get("pool_id"),
                             "image": volume_name,
                             "size": rbd_size,
-                            "format": 2
-                        })
+                            "format": 2})
                         LOG.info("==================create_rbds: %s" % str(create_rbds))
                         self.scheduler_api.add_rbd(context, create_rbds)
                         new_volumes_list.append(volume_name)
@@ -209,11 +219,12 @@ class BenchmarkCaseController(wsgi.Controller):
         except:
             LOG.error("Failed to run the benchmark case %s" % str(case.get('name')))
 
-        # TODO Delete the rbd created by the benchmark
-        try:
-            pass
-        except:
-            pass
+        # TODO Delete the rbd created by the benchmark or not
+        if new_volumes_list_total:
+            try:
+                pass
+            except:
+                pass
 
 
     def validate_required_parameters(self, case, required_parameters):
@@ -223,6 +234,33 @@ class BenchmarkCaseController(wsgi.Controller):
                 LOG.error("Required parameter %s is missing" % paramter)
                 raise exception.InvalidParameterValue(message="Required parameter %s is "
                                                               "missing" % paramter)
+
+    def terminate(self, req, id):
+        """Terminate a running benchmark case."""
+
+        context = req.environ['vsm.context']
+
+        try:
+            benchmark_case = self.conductor_api.benchmark_case_get(context, id)
+        except exception.NotFound:
+            raise exc.HTTPNotFound()
+
+        if benchmark_case.get('status') != "running":
+            LOG.error("Only running case can be terminated")
+            raise exc.HTTPBadRequest()
+        running_hosts = benchmark_case.get('running_hosts')
+        if not running_hosts:
+            LOG.error("Miss running hosts, please terminate fio manually this time")
+            raise exc.HTTPBadRequest()
+        hosts_list = running_hosts.split(",")
+        for host in hosts_list:
+            self.agent_rpcapi.benchmark_case_terminate(context, host)
+
+        # update the status from running to terminated, set running_host to blank
+        values = {}
+        values['status'] = 'terminated'
+        values['running_hosts'] = ''
+        self.conductor_api.benchmark_case_update(context, id, values)
 
 def create_resource(ext_mgr):
     return wsgi.Resource(BenchmarkCaseController(ext_mgr))

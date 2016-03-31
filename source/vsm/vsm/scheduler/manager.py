@@ -2469,13 +2469,14 @@ class SchedulerManager(manager.Manager):
         """
 
         # status can be ready, running, error and success
-        def _update(status, benchmark_case):
+        def _update(status, hosts_str, benchmark_case):
             LOG.info("Update the case status to %s" % str(status))
             LOG.info("benchmark_case: %s" % str(benchmark_case))
             case_id = benchmark_case.get("id")
             LOG.info("======================case_id: %s" % str(case_id))
             values = {}
             values['status'] = status
+            values['running_hosts'] = hosts_str
             LOG.info("===================values: %s" % str(values))
             case = self._conductor_api.\
                 benchmark_case_update(context, case_id, values)
@@ -2486,7 +2487,14 @@ class SchedulerManager(manager.Manager):
             self._agent_rpcapi.\
                 benchmark_case_run(context, host, benchmark_extra, benchmark_case)
 
-        _update("running", benchmark_case)
+        hosts_list = []
+        for benchmark_extra in benchmark_extra_info:
+            host = benchmark_extra['host']
+            if host not in hosts_list:
+                hosts_list.append(host)
+        hosts_str = ",".join(hosts_list)
+
+        _update("running", hosts_str, benchmark_case)
         thd_run_list = []
         for benchmark_extra in benchmark_extra_info:
             host = benchmark_extra['host']
@@ -2498,4 +2506,7 @@ class SchedulerManager(manager.Manager):
         LOG.info("=================start_threads: %s" % str(thd_run_list))
         utils.start_threads(thd_run_list)
 
-        _update("success", benchmark_case)
+        runtime = int(benchmark_case['runtime'])
+        time.sleep(runtime)
+
+        _update("success", hosts_str, benchmark_case)

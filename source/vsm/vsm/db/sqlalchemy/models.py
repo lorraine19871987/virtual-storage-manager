@@ -882,4 +882,6 @@ class Benchmark_Case(BASE, VsmBase):
     rate = Column(String(length=255))
     rwmixread = Column(Integer)
     additional_options = Column(String(length=255))
+    # status in ready, running, terminated, error and success
     status = Column(String(length=255), default='ready', nullable=False)
+    running_hosts = Column(String(length=255))
