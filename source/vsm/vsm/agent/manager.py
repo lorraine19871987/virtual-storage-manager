@@ -2588,48 +2588,60 @@ class AgentManager(manager.Manager):
         rwmixread = benchmark_case.get('rwmixread')
         additional_options = benchmark_case.get('additional_options')
         section = "fio%s-%s" % (ioengine, blocksize)
-        file_template = []
-        if direct or time_based:
-            file_template.append("[global]")
-            if direct:
-                file_template.append("  direct=1")
-            if time_based:
-                file_template.append("  time_based")
-        file_template.append("[%s]" % section)
-        file_template.append("  rw=%s" % readwrite)
-        file_template.append("  bs=%s" % blocksize)
-        file_template.append("  iodepth=%s" % iodepth)
-        file_template.append("  ramp_time=%s" % ramp_time)
-        file_template.append("  runtime=%s" % runtime)
-        file_template.append("  ioengine=%s" % ioengine)
-        file_template.append("  clientname=%s" % clientname)
-        file_template.append("  pool=${POOLNAME}")
-        file_template.append("  rbdname=${RBDNAME}")
-        file_template.append("  iodepth_batch_submit=%s" % iodepth_batch_submit)
-        file_template.append("  iodepth_batch_complete=%s" % iodepth_batch_complete)
-        if readwrite in ['randread', 'randwrite', 'randrw']:
-            file_template.append("  norandommap")
-            if not randrepeat:
-                file_template.append("  randrepeat=0")
-            if rate_iops:
-                file_template.append("  rate_iops=%s" % rate_iops)
-            if random_distribution:
-                file_template.append("  random_distribution=%s" % random_distribution)
-        if readwrite in ['read', 'write', 'rw']:
-            if rate:
-                file_template.append("  rate=%s" % rate)
-        if readwrite in ['randrw', 'rw']:
-            if rwmixread:
-                file_template.append("  rwmixread=%s" % rwmixread)
-        if additional_options:
-            options_list = additional_options.split(";;")
-            for option in options_list:
-                key = option.split(":")[0]
-                value = option.split(":")[1]
-                file_template.append("  %s=%s" % (key, value))
-        with open("/var/lib/vsm/fio.conf", "w+") as f:
-            f.write("\n".join(file_template) + "\n")
 
+        def _generate_fio(poolname, rbdname):
+            file_template = []
+            if direct or time_based:
+                file_template.append("[global]")
+                if direct:
+                    file_template.append("  direct=1")
+                if time_based:
+                    file_template.append("  time_based")
+            file_template.append("[%s]" % section)
+            file_template.append("  rw=%s" % readwrite)
+            file_template.append("  bs=%s" % blocksize)
+            file_template.append("  iodepth=%s" % iodepth)
+            file_template.append("  ramp_time=%s" % ramp_time)
+            file_template.append("  runtime=%s" % runtime)
+            file_template.append("  ioengine=%s" % ioengine)
+            file_template.append("  clientname=%s" % clientname)
+            file_template.append("  pool=%s" % poolname)
+            file_template.append("  rbdname=%s" % rbdname)
+            file_template.append("  iodepth_batch_submit=%s" % iodepth_batch_submit)
+            file_template.append("  iodepth_batch_complete=%s" % iodepth_batch_complete)
+            if readwrite in ['randread', 'randwrite', 'randrw']:
+                file_template.append("  norandommap")
+                if not randrepeat:
+                    file_template.append("  randrepeat=0")
+                if rate_iops:
+                    file_template.append("  rate_iops=%s" % rate_iops)
+                if random_distribution:
+                    file_template.append("  random_distribution=%s" % random_distribution)
+            if readwrite in ['read', 'write', 'rw']:
+                if rate:
+                    file_template.append("  rate=%s" % rate)
+            if readwrite in ['randrw', 'rw']:
+                if rwmixread:
+                    file_template.append("  rwmixread=%s" % rwmixread)
+            if additional_options:
+                options_list = additional_options.split(";;")
+                for option in options_list:
+                    key = option.split(":")[0]
+                    value = option.split(":")[1]
+                    file_template.append("  %s=%s" % (key, value))
+            return file_template
+
+        def _run_fio(fio_log, bw_log, lat_log, iops_log, section, conf_path):
+            command = "sudo fio --output %s --write_bw_log=%s --write_lat_log=%s " \
+                      "--write_iops_log=%s --section %s %s" % (fio_log, bw_log, lat_log,
+                                                               iops_log, section, conf_path)
+            LOG.info("run %s"  % command)
+            utils.execute("fio", "--output", fio_log, "--write_bw_log=%s" % bw_log,
+                          "--write_lat_log=%s" % lat_log, "--write_iops_log=%s" % iops_log,
+                          "--section", section, conf_path, run_as_root=True)
+            LOG.info("==================command %s run finished" % command)
+
+        thd_list = []
         pool_rbds = benchmark_extra['pool_rbd']
         for pool_rbd in pool_rbds:
             poolname = pool_rbd['pool']
@@ -2637,6 +2649,17 @@ class AgentManager(manager.Manager):
             rbds_list = rbds.split(',')
             for rbd in rbds_list:
                 LOG.info("========================rbd: %s" % rbd)
-                utils.execute("POOLNAME=%s" % poolname, "RBDNAME=%s" % rbd, "fio",
-                              "--section", "%s" % section, "/var/lib/vsm/fio.conf",
-                              "&", run_as_root=True)
+                fio_template = _generate_fio(poolname, rbd)
+                time_str = time.time()
+                conf = "/var/lib/vsm/fio_%s_%s.conf" % (rbd, int(time_str))
+                with open(conf, "w+") as f:
+                    f.write("\n".join(fio_template) + "\n")
+                fio_txt = "/var/lib/vsm/fio_%s_%s.txt" % (rbd, int(time_str))
+                bw_log = "/var/lib/vsm/fio_%s_%s" % (rbd, int(time_str))
+                lat_log = "/var/lib/vsm/fio_%s_%s" % (rbd, int(time_str))
+                iops_log = "/var/lib/vsm/fio_%s_%s" % (rbd, int(time_str))
+                thd = utils.MultiThread(_run_fio, fio_log=fio_txt, bw_log=bw_log,
+                                        lat_log=lat_log, iops_log=iops_log, section=section,
+                                        conf_path=conf)
+                thd_list.append(thd)
+        utils.start_threads(thd_list)
