@@ -126,6 +126,7 @@ class BenchmarkCaseController(wsgi.Controller):
         kwargs['readwrite'] = readwrite
         kwargs['blocksize'] = benchmark_case.get('blocksize')
         kwargs['iodepth'] = benchmark_case.get('iodepth')
+        kwargs['runtime'] = benchmark_case.get('runtime')
         # ioengine now only support rbd
         ioengine = benchmark_case.get('ioengine')
         if ioengine != 'rbd':

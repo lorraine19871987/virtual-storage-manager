@@ -78,54 +78,30 @@ class BenchmarkCaseManager(base.ManagerWithFind):
         return self._list("/benchmark_cases%s%s" % (detail, query_string),
                           "benchmark_cases")
 
-    def create(self, name, direct, time_based, readwrite, blocksize, iodepth,
-               ramp_time, runtime, ioengine, clientname, iodepth_batch_submit,
-               iodepth_batch_complete, **kwargs):
+    def create(self, name, readwrite, blocksize, iodepth, runtime, ioengine,
+               clientname, additional_options):
         """
         Create a new benchmark case.
 
         :param name:
-        :param direct:
-        :param time_based:
         :param readwrite:
         :param blocksize:
         :param iodepth:
-        :param ramp_time:
         :param runtime:
         :param ioengine:
         :param clientname:
-        :param iodepth_batch_submit:
-        :param iodepth_batch_complete:
-        :param kwargs:
+        :param additional_options:
         :return:
         """
 
-        norandommap = kwargs.pop("norandommap", None)
-        randrepeat = kwargs.pop("randrepeat", None)
-        rate_iops = kwargs.pop("rate_iops", None)
-        random_distribution = kwargs.pop("random_distribution", None)
-        rate = kwargs.pop("rate", None)
-        rwmixread = kwargs.pop("rwmixread", None)
-        additional_options = kwargs.pop("additional_options", None)
         body = {'benchmark_case':
                     {'name': name,
-                     'direct': direct,
-                     'time_based': time_based,
                      'readwrite': readwrite,
                      'blocksize': blocksize,
                      'iodepth': iodepth,
-                     'ramp_time': ramp_time,
                      'runtime': runtime,
                      'ioengine': ioengine,
                      'clientname': clientname,
-                     'iodepth_batch_submit': iodepth_batch_submit,
-                     'iodepth_batch_complete': iodepth_batch_complete,
-                     'norandommap': norandommap,
-                     'randrepeat': randrepeat,
-                     'rate_iops': rate_iops,
-                     'random_distribution': random_distribution,
-                     'rate': rate,
-                     'rwmixread': rwmixread,
                      'additional_options': additional_options,
                      }}
 
