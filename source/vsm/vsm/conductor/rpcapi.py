@@ -496,3 +496,16 @@ class ConductorAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
                          self.make_msg('benchmark_case_update',
                                        case_id=case_id,
                                        values=values))
+
+    def benchmark_case_delete(self, context, case_id):
+        return self.call(context,
+                         self.make_msg('benchmark_case_delete',
+                                       case_id=case_id))
+
+    def benchmark_case_get_all(self, context, marker=None, limit=None,
+                               sort_key=None, sort_dir=None, filters=None):
+        return self.call(context,
+                         self.make_msg('benchmark_case_get_all',
+                                       marker=marker, limit=limit,
+                                       sort_key=sort_key, sort_dir=sort_dir,
+                                       filters=filters))

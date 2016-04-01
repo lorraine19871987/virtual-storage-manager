@@ -65,9 +65,31 @@ class BenchmarkCaseController(wsgi.Controller):
     def index(self, req):
         """Return the list of benchmark cases."""
 
+        return self._items(req, entity_maker=self._view_builder.index)
+
+    def _items(self, req, entity_maker):
+        """Returns a list of benchmark cases."""
+
+        filters = req.GET.copy()
+        limit = filters.pop('limit', None)
+        marker = filters.pop('marker', None)
+        sort_key = filters.pop('sort_key', None)
+        sort_dir = filters.pop('sort_dir', None)
+
         context = req.environ['vsm.context']
 
-        pass
+        search_opts = {}
+        name = filters.pop('name', None)
+        if name:
+            search_opts["name"] = name
+
+        LOG.info("Search_opts is " + str(search_opts))
+        cases = self.conductor_api.benchmark_case_get_all(context, marker=marker,
+                                                          limit=limit,
+                                                          sort_key=sort_key,
+                                                          sort_dir=sort_dir,
+                                                          filters=search_opts)
+        return entity_maker(req, cases)
 
 
     def create(self, req, body):
@@ -130,6 +152,23 @@ class BenchmarkCaseController(wsgi.Controller):
     def delete(self, req, id):
         """Delete a config by a given id."""
 
+        context = req.environ['vsm.context']
+
+        try:
+            case = self.conductor_api.benchmark_case_get(context, id)
+        except exception.NotFound:
+            raise exc.HTTPNotFound()
+
+        status = case.get('status')
+        if status == "running":
+            LOG.error("The case is still running, please wait for a moment")
+            raise exc.HTTPBadRequest()
+
+        try:
+            self.conductor_api.benchmark_case_delete(context, id)
+        except:
+            raise exc.HTTPError()
+
         pass
 
 
@@ -172,7 +211,7 @@ class BenchmarkCaseController(wsgi.Controller):
             case = self.conductor_api.benchmark_case_get(context, id)
             LOG.info("===============get benchmark case %s"
                      % str(self._view_builder.show(req, case, brief=True)))
-        except:
+        except exception.NotFound:
             LOG.error("Not found the benchmark case")
             raise exc.HTTPNotFound()
         if case.get('status') == "running":
