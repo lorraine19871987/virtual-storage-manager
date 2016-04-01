@@ -23,6 +23,18 @@ STRING_SEPARATOR = "__"
 LOG = logging.getLogger(__name__)
 
 
+class AddBenchmarkCaseAction(tables.LinkAction):
+    name = "add_benchmark_case"
+    verbose_name = _("Create")
+    classes = ('btn-primary',)
+    url = "horizon:vsm:benchmark_case:index"
+
+class DeleteBenchmarkCaseAction(tables.LinkAction):
+    name = "delete_benchmark_case"
+    verbose_name = _("Delete")
+    classes = ('btn-primary',)
+    url = "horizon:vsm:benchmark_case:index"
+
 class BenchmarkCasesTable(tables.DataTable):
     id = tables.Column("id", verbose_name=_("ID"))
     name = tables.Column("name", verbose_name=_("Name"))
@@ -32,10 +44,10 @@ class BenchmarkCasesTable(tables.DataTable):
     status = tables.Column("status", verbose_name=_("Status"))
 
     class Meta:
-        name = "rbd_list"
+        name = "benchmark_case_list"
         verbose_name = _("Benchmark Case List")
         multi_select = True
-        table_actions = ()
+        table_actions = (AddBenchmarkCaseAction, DeleteBenchmarkCaseAction)
 
 
     def get_object_id(self, datum):

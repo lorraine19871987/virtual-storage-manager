@@ -495,3 +495,6 @@ def rbd_groups_get_all(request):
 
 def benchmark_case_get_all(request):
     return vsmclient(request).benchmark_cases.list(detailed=False, search_opts=None)
+
+def benchmark_case_delete(request, case):
+    return vsmclient(request).benchmark_cases.delete(case)
