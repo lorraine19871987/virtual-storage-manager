@@ -522,13 +522,12 @@ def benchmark_case_delete(request, case):
 def benchmark_case_terminate(request, case):
     return vsmclient(request).benchmark_cases.termintate(case)
 
-def benchmark_case_create(request, name, direct, time_based, readwrite, blocksize,
-                          iodepth, ramp_time, runtime, ioengine, clientname,
-                          iodepth_batch_submit, iodepth_batch_complete, **kwargs):
+def benchmark_case_create(request, name, readwrite, blocksize,
+                          iodepth, runtime, ioengine, clientname,
+                          additional_options):
     return vsmclient(request).\
-        benchmark_cases.create(name, direct, time_based, readwrite, blocksize,
-                               iodepth, ramp_time, runtime, ioengine, clientname,
-                               iodepth_batch_submit, iodepth_batch_complete, **kwargs)
+        benchmark_cases.create(name, readwrite, blocksize, iodepth, runtime, ioengine,
+                               clientname, additional_options)
 
 def benchmark_case_get(request, case):
     return vsmclient(request).benchmark_cases.get(case)
