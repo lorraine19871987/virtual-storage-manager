@@ -2544,7 +2544,7 @@ class SchedulerManager(manager.Manager):
             LOG.info("====================case: %s" % str(case))
 
         def _run(context, host, benchmark_extra, benchmark_case):
-            LOG.info("============================================")
+            LOG.info("=====================run=======================")
             self._agent_rpcapi.\
                 benchmark_case_run(context, host, benchmark_extra, benchmark_case)
 

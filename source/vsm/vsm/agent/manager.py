@@ -2570,59 +2570,24 @@ class AgentManager(manager.Manager):
 
     def benchmark_case_run(self, context, benchmark_extra, benchmark_case):
         # generate conf file
-        direct = benchmark_case.get('direct')
-        time_based = benchmark_case.get('time_based')
         ioengine = benchmark_case.get('ioengine')
         blocksize = benchmark_case.get('blocksize')
         readwrite = benchmark_case.get('readwrite')
         iodepth = benchmark_case.get('iodepth')
-        ramp_time = benchmark_case.get('ramp_time')
-        runtime = benchmark_case.get('runtime')
         clientname = benchmark_case.get('clientname')
-        iodepth_batch_submit = benchmark_case.get('iodepth_batch_submit')
-        iodepth_batch_complete = benchmark_case.get('iodepth_batch_complete')
-        randrepeat = benchmark_case.get('randrepeat')
-        rate_iops = benchmark_case.get('rate_iops')
-        random_distribution = benchmark_case.get('random_distribution')
-        rate = benchmark_case.get('rate')
-        rwmixread = benchmark_case.get('rwmixread')
         additional_options = benchmark_case.get('additional_options')
         section = "fio%s-%s" % (ioengine, blocksize)
 
         def _generate_fio(poolname, rbdname):
             file_template = []
-            if direct or time_based:
-                file_template.append("[global]")
-                if direct:
-                    file_template.append("  direct=1")
-                if time_based:
-                    file_template.append("  time_based")
             file_template.append("[%s]" % section)
             file_template.append("  rw=%s" % readwrite)
             file_template.append("  bs=%s" % blocksize)
             file_template.append("  iodepth=%s" % iodepth)
-            file_template.append("  ramp_time=%s" % ramp_time)
-            file_template.append("  runtime=%s" % runtime)
             file_template.append("  ioengine=%s" % ioengine)
             file_template.append("  clientname=%s" % clientname)
             file_template.append("  pool=%s" % poolname)
             file_template.append("  rbdname=%s" % rbdname)
-            file_template.append("  iodepth_batch_submit=%s" % iodepth_batch_submit)
-            file_template.append("  iodepth_batch_complete=%s" % iodepth_batch_complete)
-            if readwrite in ['randread', 'randwrite', 'randrw']:
-                file_template.append("  norandommap")
-                if not randrepeat:
-                    file_template.append("  randrepeat=0")
-                if rate_iops:
-                    file_template.append("  rate_iops=%s" % rate_iops)
-                if random_distribution:
-                    file_template.append("  random_distribution=%s" % random_distribution)
-            if readwrite in ['read', 'write', 'rw']:
-                if rate:
-                    file_template.append("  rate=%s" % rate)
-            if readwrite in ['randrw', 'rw']:
-                if rwmixread:
-                    file_template.append("  rwmixread=%s" % rwmixread)
             if additional_options:
                 options_list = additional_options.split(";;")
                 for option in options_list:
@@ -2651,13 +2616,15 @@ class AgentManager(manager.Manager):
                 LOG.info("========================rbd: %s" % rbd)
                 fio_template = _generate_fio(poolname, rbd)
                 time_str = time.time()
-                conf = "/var/lib/vsm/fio_%s_%s.conf" % (rbd, int(time_str))
+                dir_name = "/var/lib/vsm/fio_%s_%s" % (rbd, int(time_str))
+                utils.execute("mkdir", "-p", dir_name)
+                conf = "%s/fio_%s_%s.conf" % (dir_name, rbd, int(time_str))
                 with open(conf, "w+") as f:
                     f.write("\n".join(fio_template) + "\n")
-                fio_txt = "/var/lib/vsm/fio_%s_%s.txt" % (rbd, int(time_str))
-                bw_log = "/var/lib/vsm/fio_%s_%s" % (rbd, int(time_str))
-                lat_log = "/var/lib/vsm/fio_%s_%s" % (rbd, int(time_str))
-                iops_log = "/var/lib/vsm/fio_%s_%s" % (rbd, int(time_str))
+                fio_txt = "%s/fio_%s_%s.txt" % (dir_name, rbd, int(time_str))
+                bw_log = "%s/fio_%s_%s" % (dir_name, rbd, int(time_str))
+                lat_log = "%s/fio_%s_%s" % (dir_name, rbd, int(time_str))
+                iops_log = "%s/fio_%s_%s" % (dir_name, rbd, int(time_str))
                 thd = utils.MultiThread(_run_fio, fio_log=fio_txt, bw_log=bw_log,
                                         lat_log=lat_log, iops_log=iops_log, section=section,
                                         conf_path=conf)

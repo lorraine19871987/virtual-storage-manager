@@ -93,27 +93,39 @@ class BenchmarkCaseController(wsgi.Controller):
 
 
     def create(self, req, body):
-        """Create a benchmark case."""
+        """
+        Create a benchmark case.
+        :param req:
+        :param body:
+            As example:
+            {
+              "benchmark_case": {
+                "name": "case1",
+                "readwrite": "randrw",
+                "blocksize": "4k",
+                "iodepth": 64,
+                "runtime": 60,
+                "ioengine": "rbd",
+                "clientname": "admin",
+                "additional_options": ""
+              }
+            }
+        :return:
+        """
 
         context = req.environ['vsm.context']
 
         benchmark_case = body['benchmark_case']
         self.validate_required_parameters(
-            benchmark_case, ['name', 'direct', 'time_based', 'readwrite',
-                             'blocksize', 'iodepth', 'ramp_time', 'runtime',
-                             'ioengine', 'clientname', 'iodepth_batch_submit',
-                             'iodepth_batch_complete'])
+            benchmark_case, ['name', 'readwrite', 'blocksize', 'iodepth',
+                             'runtime', 'ioengine', 'clientname'])
         case_name = benchmark_case.get('name')
         kwargs = {}
-        kwargs['direct'] = benchmark_case.get('direct')
-        kwargs['time_based'] = benchmark_case.get('time_based')
         # readwrite can be read, write, rw, randread, randwrite or randrw
         readwrite = benchmark_case.get('readwrite')
         kwargs['readwrite'] = readwrite
         kwargs['blocksize'] = benchmark_case.get('blocksize')
         kwargs['iodepth'] = benchmark_case.get('iodepth')
-        kwargs['ramp_time'] = benchmark_case.get('ramp_time')
-        kwargs['runtime'] = benchmark_case.get('runtime')
         # ioengine now only support rbd
         ioengine = benchmark_case.get('ioengine')
         if ioengine != 'rbd':
@@ -121,25 +133,6 @@ class BenchmarkCaseController(wsgi.Controller):
             raise exception.InvalidParameterValue(message="Only support rbd ioengine now!")
         kwargs['ioengine'] = ioengine
         kwargs['clientname'] = benchmark_case.get('clientname')
-
-        # readwrite is randread, randwrite or randrw
-        if readwrite in ['randread', 'randwrite', 'randrw']:
-            kwargs['iodepth_batch_submit'] = benchmark_case.get('iodepth_batch_submit', 1)
-            kwargs['iodepth_batch_complete'] = benchmark_case.get('iodepth_batch_complete', 1)
-            kwargs['norandommap'] = benchmark_case.get('norandommap', None)
-            kwargs['randrepeat'] = benchmark_case.get('randrepeat', None)
-            kwargs['rate_iops'] = benchmark_case.get('rate_iops', None)
-            kwargs['random_distribution'] = benchmark_case.get('random_distribution', None)
-
-        # readwrite is read, write or rw
-        if readwrite in ['read', 'write', 'rw']:
-            kwargs['iodepth_batch_submit'] = benchmark_case.get('iodepth_batch_submit', 8)
-            kwargs['iodepth_batch_complete'] = benchmark_case.get('iodepth_batch_complete', 8)
-            kwargs['rate'] = benchmark_case.get('rate', None)
-
-        # readwrite is randrw or rw
-        if readwrite in ['randrw', 'rw']:
-            kwargs['rwmixread'] = benchmark_case.get('rwmixread', None)
 
         # additional options format: k:v;;k:v
         kwargs['additional_options'] = benchmark_case.get('additional_options', None)
