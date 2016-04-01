@@ -26,12 +26,24 @@ LOG = logging.getLogger(__name__)
 class AddBenchmarkCaseAction(tables.LinkAction):
     name = "add_benchmark_case"
     verbose_name = _("Create")
+    url = "/dashboard/vsm/benchmark_case/add_benchmark_case_view/"
     classes = ('btn-primary',)
-    url = "horizon:vsm:benchmark_case:index"
 
 class DeleteBenchmarkCaseAction(tables.LinkAction):
     name = "delete_benchmark_case"
     verbose_name = _("Delete")
+    classes = ('btn-primary',)
+    url = "horizon:vsm:benchmark_case:index"
+
+class RunBenchmarkCaseAction(tables.LinkAction):
+    name = "run_benchmark_case"
+    verbose_name = _("Run")
+    url = "/dashboard/vsm/benchmark_case/run_benchmark_case_view/"
+    classes = ('btn-primary',)
+
+class TerminateBenchmarkCaseAction(tables.LinkAction):
+    name = "terminate_benchmark_case"
+    verbose_name = _("Terminate")
     classes = ('btn-primary',)
     url = "horizon:vsm:benchmark_case:index"
 
@@ -47,7 +59,8 @@ class BenchmarkCasesTable(tables.DataTable):
         name = "benchmark_case_list"
         verbose_name = _("Benchmark Case List")
         multi_select = True
-        table_actions = (AddBenchmarkCaseAction, DeleteBenchmarkCaseAction)
+        table_actions = (AddBenchmarkCaseAction, DeleteBenchmarkCaseAction,
+                         RunBenchmarkCaseAction, TerminateBenchmarkCaseAction)
 
 
     def get_object_id(self, datum):

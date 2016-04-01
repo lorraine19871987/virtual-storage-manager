@@ -21,6 +21,7 @@ from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.shortcuts import render
 
 from horizon import forms
 from horizon import tables
@@ -54,7 +55,20 @@ class IndexView(tables.DataTableView):
         return case_list
 
 
+def add_benchmark_case_view(request):
+    template = "vsm/benchmark_case/add_benchmark_case.html"
+    context = {}
+    return render(request, template, context)
+
 def add_benchmark_case(request):
+    pass
+
+def run_benchmark_case_view(request):
+    template = "vsm/benchmark_case/run_benchmark_case.html"
+    context = {}
+    return render(request, template, context)
+
+def run_benchmark_case(request):
     pass
 
 def delete_benchmark_case(request):
@@ -63,6 +77,16 @@ def delete_benchmark_case(request):
 
     for case_id in case_id_list:
         vsmapi.benchmark_case_delete(request, case_id)
+
+    rs = json.dumps({"status":0})
+    return HttpResponse(rs)
+
+def terminate_benchmark_case(request):
+    data = json.loads(request.body)
+    case_id_list = data["case_id_list"]
+
+    for case_id in case_id_list:
+        vsmapi.benchmark_case_terminate(request, case_id)
 
     rs = json.dumps({"status":0})
     return HttpResponse(rs)
