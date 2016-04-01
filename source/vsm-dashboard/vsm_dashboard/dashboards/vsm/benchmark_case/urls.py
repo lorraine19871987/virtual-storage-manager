@@ -17,8 +17,18 @@
 from django.conf.urls import patterns, url
 from .views import IndexView
 from .views import delete_benchmark_case
+from .views import terminate_benchmark_case
+from .views import add_benchmark_case_view
+from .views import run_benchmark_case_view
+from .views import add_benchmark_case
+from .views import run_benchmark_case
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
     url(r'^delete_benchmark_case/$', delete_benchmark_case, name='delete_benchmark_case'),
+    url(r'^terminate_benchmark_case/$', terminate_benchmark_case, name='terminate_benchmark_case'),
+    url(r'^add_benchmark_case_view/$', add_benchmark_case_view, name='add_benchmark_case_view'),
+    url(r'^run_benchmark_case_view/$', run_benchmark_case_view, name='run_benchmark_case_view'),
+    url(r'^add_benchmark_case/$', add_benchmark_case, name='add_benchmark_case'),
+    url(r'^run_benchmark_case/$', run_benchmark_case, name='run_benchmark_case'),
 )
