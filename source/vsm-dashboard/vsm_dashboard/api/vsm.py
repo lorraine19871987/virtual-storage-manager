@@ -512,3 +512,6 @@ def rbd_group_remove(request, body):
 
 def rbd_groups_get_all(request):
     return vsmclient(request).rbd_groups.list(detailed=True)
+
+def benchmark_case_get_all(request):
+    return vsmclient(request).benchmark_cases.list(detailed=False, search_opts=None)
