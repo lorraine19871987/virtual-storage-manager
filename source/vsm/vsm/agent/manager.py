@@ -2609,7 +2609,7 @@ class AgentManager(manager.Manager):
                 options_list = additional_options.split(";;")
                 for option in options_list:
                     key = option.split(":")[0]
-                    value = option.split(":")[1]
+                    value = option.split(":")[1:]
                     file_template.append("  %s=%s" % (key, value))
             return file_template
 
