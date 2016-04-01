@@ -16,7 +16,9 @@
 
 from django.conf.urls import patterns, url
 from .views import IndexView
+from .views import delete_benchmark_case
 
 urlpatterns = patterns('',
-    url(r'^$', IndexView.as_view(), name='index')
+    url(r'^$', IndexView.as_view(), name='index'),
+    url(r'^delete_benchmark_case/$', delete_benchmark_case, name='delete_benchmark_case'),
 )

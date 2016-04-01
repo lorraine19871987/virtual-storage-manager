@@ -38,5 +38,31 @@ class IndexView(tables.DataTableView):
     template_name = 'vsm/benchmark_case/index.html'
 
     def get_data(self):
+        case_list = []
         bm_cases = vsmapi.benchmark_case_get_all(self.request)
-        return bm_cases['benchmark_cases']
+        for bm_case in bm_cases:
+            case = {
+                "id": bm_case.id,
+                "name": bm_case.name,
+                "ioengine": bm_case.ioengine,
+                "readwrite": bm_case.readwrite,
+                "running_hosts": bm_case.running_hosts,
+                "status": bm_case.status
+            }
+            case_list.append(case)
+
+        return case_list
+
+
+def add_benchmark_case(request):
+    pass
+
+def delete_benchmark_case(request):
+    data = json.loads(request.body)
+    case_id_list = data["case_id_list"]
+
+    for case_id in case_id_list:
+        vsmapi.benchmark_case_delete(request, case_id)
+
+    rs = json.dumps({"status":0})
+    return HttpResponse(rs)
