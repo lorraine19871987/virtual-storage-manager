@@ -1378,3 +1378,12 @@ def benchmark_case_get(context, case_id):
 
 def benchmark_case_update(context, case_id, values):
     return IMPL.benchmark_case_update(context, case_id, values)
+
+def benchmark_case_delete(context, case_id):
+    return IMPL.benchmark_case_delete(context, case_id)
+
+def benchmark_case_get_all(context, marker=None, limit=None,
+                           sort_key=None, sort_dir=None, filters=None):
+    return IMPL.benchmark_case_get_all(context, marker=marker, limit=limit,
+                                       sort_key=sort_key, sort_dir=sort_dir,
+                                       filters=filters)

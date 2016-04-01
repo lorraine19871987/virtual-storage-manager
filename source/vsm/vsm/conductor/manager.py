@@ -684,3 +684,12 @@ class ConductorManager(manager.Manager):
 
     def benchmark_case_update(self, context, case_id, values):
         return db.benchmark_case_update(context, case_id, values)
+
+    def benchmark_case_delete(self, context, case_id):
+        return db.benchmark_case_delete(context, case_id)
+
+    def benchmark_case_get_all(self, context, marker=None, limit=None,
+                               sort_key=None, sort_dir=None, filters=None):
+        return db.benchmark_case_get_all(context, marker=marker, limit=limit,
+                                         sort_key=sort_key, sort_dir=sort_dir,
+                                         filters=filters)
