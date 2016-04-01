@@ -38,6 +38,7 @@ from vsmclient.v1 import configs
 from vsmclient.v1 import rbd_snapshots
 from vsmclient.v1 import rbd_groups
 from vsmclient.v1 import rgws
+from vsmclient.v1 import benchmark_cases
 
 class Client(object):
     """
@@ -93,6 +94,7 @@ class Client(object):
         self.rbd_snapshots = rbd_snapshots.RBDSnapShotsManager(self)
         self.rbd_groups = rbd_groups.RBDGroupsManager(self)
         self.rgws = rgws.RgwManager(self)
+        self.benchmark_cases = benchmark_cases.BenchmarkCaseManager(self)
 
         # Add in any extensions...
         if extensions:
