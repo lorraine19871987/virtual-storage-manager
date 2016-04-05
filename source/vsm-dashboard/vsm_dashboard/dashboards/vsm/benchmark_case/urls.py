@@ -22,6 +22,7 @@ from .views import add_benchmark_case_view
 from .views import run_benchmark_case_view
 from .views import add_benchmark_case
 from .views import run_benchmark_case
+from .views import update_benchmark_list
 
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
@@ -31,4 +32,5 @@ urlpatterns = patterns('',
     url(r'^run_benchmark_case_view/$', run_benchmark_case_view, name='run_benchmark_case_view'),
     url(r'^add_benchmark_case/$', add_benchmark_case, name='add_benchmark_case'),
     url(r'^run_benchmark_case/$', run_benchmark_case, name='run_benchmark_case'),
+    url(r'^update_benchmark_list/$', update_benchmark_list, name='update_benchmark_list'),
 )
