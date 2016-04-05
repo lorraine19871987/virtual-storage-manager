@@ -1464,6 +1464,8 @@ class AgentManager(manager.Manager):
                 deleted_at = timeutils.utcnow()
                 old_rbd["deleted_at"] = deleted_at
                 old_rbd["deleted"] = 1
+                if old_rbd.has_key('group'):
+                    old_rbd.pop('group')
                 db.rbd_update_or_create(context, old_rbd)
         for rbd in rbd_list:
             db.rbd_update_or_create(context, rbd)
@@ -1826,6 +1828,12 @@ class AgentManager(manager.Manager):
 
     def add_cache_tier(self, context, body):
         return self.ceph_driver.add_cache_tier(context, body)
+
+    def cp_pool(self, context, body):
+        return self.ceph_driver.cp_pool(context, body)
+
+    def remove_pools(self, context, body):
+        return self.ceph_driver.remove_pools(context, body)
 
     def remove_cache_tier(self, context, body):
         return self.ceph_driver.remove_cache_tier(context, body)

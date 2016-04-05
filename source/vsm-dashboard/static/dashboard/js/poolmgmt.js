@@ -19,6 +19,56 @@ function InitCtrlCSS(){
     }
 }
 
+//remove pools
+$("#pools__action_remove_pools").click(function(){
+	var storage_pool_id_list = {"storage_pool_id_list":[]}
+
+	var is_selected = false;
+	$("#pools>tbody>tr").each(function(){
+        if(this.children[0].children[0].checked) {
+            is_selected = true;
+            var storage_pool_id = this.children[0].children[0].value;
+            storage_pool_id_list["storage_pool_id_list"].push(storage_pool_id);
+        }
+	})
+
+    if(is_selected == false){
+        showTip("warning","please select the Pool");
+        return false;
+    }
+
+	token = $("input[name=csrfmiddlewaretoken]").val();
+	$.ajax({
+		type: "post",
+		url: "/dashboard/vsm/poolsmanagement/remove_pools_action/",
+		data: JSON.stringify(storage_pool_id_list),
+		dataType:"json",
+		success: function(data){
+				//console.log(data);
+                if(data.error_code.length == 0){
+                    window.location.href="/dashboard/vsm/poolsmanagement/";
+                    showTip("info",data.info);
+                }
+                else{
+                    showTip("error",data.error_msg);
+                }
+		   	},
+		error: function (XMLHttpRequest, textStatus, errorThrown) {
+				if(XMLHttpRequest.status == 500){
+					$("#divOSDTip").show();
+					$("#divOSDTip")[0].innerHTML = XMLHttpRequest.statusText;
+				}
+			},
+		headers: {
+			"X-CSRFToken": token
+			},
+		complete: function(){
+
+		}
+    });
+	return false;
+});
+
 
 $("#btnRemoveCacheTier").click(function(){
 	var CachePoolID = $("#id_cache_tier_pool").val();

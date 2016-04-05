@@ -88,6 +88,16 @@ class RemoveCacheTierView(forms.ModalFormView):
     template_name = 'vsm/poolsmanagement/remove_cache_tier.html'
     success_url = reverse_lazy('horizon:vsm:poolsmanagement:index')
 
+class CPPoolView(TemplateView):
+    template_name = 'vsm/poolsmanagement/cp_pool.html'
+    success_url = reverse_lazy('horizon:vsm:poolsmanagement:index')
+
+    def get_context_data(self, **kwargs):
+        context = super(CPPoolView, self).get_context_data(**kwargs)
+        #get pool list
+        pools = vsmapi.pool_status(None)
+        context["pool_list"] = [(pool.pool_id, pool.name) for pool in pools if not pool.cache_tier_status]
+        return context
 
 def add_cache_tier(request):
     status = ""
@@ -161,6 +171,30 @@ def create_ec_pool(request):
     resp = dict(message=msg, status=status)
     resp = json.dumps(resp)
     return HttpResponse(resp)
+
+def cp_pool(request):
+    body = json.loads(request.body)
+    print body
+    try:
+        rsp, ret = vsmapi.cp_pool(request,body=body)
+        ret = ret['message']
+    except:
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
+    return HttpResponse(resp)
+
+def remove_pools(request):
+    data = json.loads(request.body)
+    storage_pool_id_list = data["storage_pool_id_list"]
+    storage_pools = {'storage_pools':storage_pool_id_list}
+    try:
+        rsp, ret = vsmapi.remove_pools(request, storage_pools)
+        ret = ret['message']
+    except:
+        ret = {'error_code':'-2','error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
+    return HttpResponse(resp)
+
 
 def get_default_pg_number_storage_group(request):
     storage_group_list = []
