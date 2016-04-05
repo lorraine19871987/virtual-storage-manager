@@ -136,3 +136,46 @@ function CreateBenchmarkCase(){
 		}
     });
 }
+
+function RunBenchmarkCase(){
+	//Check the field is should not null
+	var caseId = $("#selCase").val();
+	var host = $("#selHost").val();
+	var pool = $("#selPool").val();
+	var rbd_num = $("#txtRbdNumber").val();
+	var rbd_size = $("#txtRbdSize").val();
+	var data = {
+		"caseId": caseId,
+		"host": host,
+		"pool": pool,
+		"rbd_num": rbd_num,
+		"rbd_size": rbd_size
+	};
+	var postData = JSON.stringify(data);
+	token = $("input[name=csrfmiddlewaretoken]").val();
+	$.ajax({
+		type: "post",
+		url: "/dashboard/vsm/benchmark_case/run_benchmark_case/",
+		data: postData,
+		dataType:"json",
+		success: function(data){
+				//console.log(data);
+                if(data.error_code == 0){
+                    window.location.href="/dashboard/vsm/benchmark_case/";
+                }
+                else{
+                    showTip("error",data.error_msg);
+                }
+		   	},
+		error: function (XMLHttpRequest, textStatus, errorThrown) {
+				if(XMLHttpRequest.status == 500)
+                	showTip("error","INTERNAL SERVER ERROR")
+			},
+		headers: {
+			"X-CSRFToken": token
+			},
+		complete: function(){
+
+		}
+    });
+}

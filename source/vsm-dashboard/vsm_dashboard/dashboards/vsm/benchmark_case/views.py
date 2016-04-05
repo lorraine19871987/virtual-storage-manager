@@ -91,11 +91,42 @@ def add_benchmark_case(request):
 
 def run_benchmark_case_view(request):
     template = "vsm/benchmark_case/run_benchmark_case.html"
+    servers = vsmapi.get_server_list(None, )
     context = {}
+    context["cases"] = vsmapi.benchmark_case_get_all(request)
+    context["servers"] = servers
+    pools = vsmapi.pool_status(None)
+    context["pool_list"] = [(pool.name, pool.name) for pool in pools if not pool.cache_tier_status]
     return render(request, template, context)
 
 def run_benchmark_case(request):
-    pass
+    data = json.loads(request.body)
+    print "====================="
+    print data
+    case_id = data['caseId']
+    host = data['host']
+    pool = data['pool']
+    rbd_num = data['rbd_num']
+    rbd_size = data['rbd_size']
+
+    body = {
+        "benchmark_info": [
+            {
+                "host": host,
+                "pool_rbd": [
+                    {"pool": pool, "rbds": "", "rbd_num": int(rbd_num), "rbd_size": rbd_size}
+                ]
+            }
+        ]
+    }
+
+    ret = {'error_code': 0, 'error_msg':''}
+    try:
+        vsmapi.benchmark_case_run(request, case_id, body)
+    except:
+        ret = {'error_code': -1,'error_msg':'Unkown Error!'}
+    resp = json.dumps(ret)
+    return HttpResponse(resp)
 
 def delete_benchmark_case(request):
     data = json.loads(request.body)

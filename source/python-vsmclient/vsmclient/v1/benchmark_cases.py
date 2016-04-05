@@ -111,7 +111,7 @@ class BenchmarkCaseManager(base.ManagerWithFind):
         self._delete("/benchmark_cases/%s" % base.getid(benchmark_case))
 
     def run_case(self, case_id, body):
-        self.api.client.post("/benchmark_cases/%s/runcase" % case_id, body=body)
+        self.api.client.post("/benchmark_cases/%s/run_case" % case_id, body=body)
 
     def termintate(self, case_id):
         self.api.client.post("/benchmark_cases/%s/terminate" % case_id)
