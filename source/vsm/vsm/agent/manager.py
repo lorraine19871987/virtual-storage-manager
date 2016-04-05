@@ -2632,7 +2632,10 @@ class AgentManager(manager.Manager):
         LOG.info("Get the count of fio processes")
         try:
             fios, err = utils.execute("pgrep", "fio", run_as_root=True)
-            fios_list = fios.strip("\n").split("\n")
+            if fios.strip("\n"):
+                fios_list = fios.strip("\n").split("\n")
+            else:
+                fios_list = []
             LOG.info("===============fios_list: %s" % str(fios_list))
             fio_count = len(fios_list)
         except:
