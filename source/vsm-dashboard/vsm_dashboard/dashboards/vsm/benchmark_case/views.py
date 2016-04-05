@@ -42,6 +42,7 @@ class IndexView(tables.DataTableView):
                 "name": bm_case.name,
                 "ioengine": bm_case.ioengine,
                 "readwrite": bm_case.readwrite,
+                "runtime": bm_case.runtime,
                 "running_hosts": bm_case.running_hosts,
                 "status": bm_case.status
             }
@@ -166,6 +167,7 @@ def update_benchmark_list(request):
             "name": _case.name,
             "ioengine": _case.ioengine,
             "readwrite": _case.readwrite,
+            "runtime": _case.runtime,
             "running_hosts": _case.running_hosts,
             "status": _case.status
         }
