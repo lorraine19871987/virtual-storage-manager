@@ -44,6 +44,7 @@ function UpdateBenchmarkStatus(){
                     html +="<td class=\"sortable normal_column\">"+cases[i].name+"</td>";
                     html +="<td class=\"sortable normal_column\">"+cases[i].ioengine+"</td>";
                     html +="<td class=\"sortable normal_column\">"+cases[i].readwrite+"</td>";
+                    html +="<td class=\"sortable normal_column\">"+cases[i].runtime+"</td>";
                     var running_hosts = cases[i].running_hosts;
                     if(running_hosts == null || running_hosts == "") {
                         running_hosts = "-"

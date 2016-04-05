@@ -52,7 +52,8 @@ class BenchmarkCasesTable(tables.DataTable):
     name = tables.Column("name", verbose_name=_("Name"))
     ioengine = tables.Column("ioengine", verbose_name=_("IO Engine"))
     readwrite = tables.Column("readwrite", verbose_name=_("Read/Write"))
-    running_hosts = tables.Column("running_hosts", verbose_name=_("Running Hosts"))
+    runtime = tables.Column("runtime", verbose_name=_("Run Time"))
+    running_hosts = tables.Column("running_hosts", verbose_name=_("Running Hosts(s)"))
     status = tables.Column("status", verbose_name=_("Status"))
 
     class Meta:
