@@ -58,6 +58,13 @@ class IndexView(tables.DataTableView):
 def add_benchmark_case_view(request):
     template = "vsm/benchmark_case/add_benchmark_case.html"
     context = {}
+    context["ioengine"] = [('rbd', "rbd")]
+    context["readwrite"] = [('read', "read"),
+                            ('write', "write"),
+                            ('rw', "rw"),
+                            ('randread', "randread"),
+                            ('randwrite', "randwrite"),
+                            ('randrw', "randrw")]
     return render(request, template, context)
 
 def add_benchmark_case(request):

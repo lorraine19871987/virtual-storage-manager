@@ -43,14 +43,22 @@
                         <label>IO Engine:</label>
                         <span class="help-block"></span>
                         <div class="input">
-                          	<input id="txtIOEngine" maxlength="255"  type="text" value="rbd" class="form-control" >
+                            <select id="txtIOEngine" class="form-control" >
+                                {%for engine in ioengine%}
+                                    <option value="{{engine.0}}">{{engine.1}}</option>
+                                {%endfor%}
+	                  	    </select>
                         </div>
                     </div>
                     <div class="control-group form-field clearfix ">
                         <label>Read/Write:</label>
                         <span class="help-block"></span>
                         <div class="input">
-                          	<input id="txtReadWrite" maxlength="255"  type="text" class="form-control" >
+                            <select id="txtReadWrite" class="form-control" >
+                                {%for rw in readwrite%}
+                                    <option value="{{rw.0}}">{{rw.1}}</option>
+                                {%endfor%}
+	                  	    </select>
                         </div>
                     </div>
                     <div class="control-group form-field clearfix ">
