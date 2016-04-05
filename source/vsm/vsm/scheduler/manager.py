@@ -2487,6 +2487,10 @@ class SchedulerManager(manager.Manager):
             self._agent_rpcapi.\
                 benchmark_case_run(context, host, benchmark_extra, benchmark_case)
 
+        def _get_fio_count(context, host):
+            LOG.info("=====================get fio count=======================")
+            self._agent_rpcapi.benchmark_case_get_fio_count(context, host)
+
         hosts_list = []
         for benchmark_extra in benchmark_extra_info:
             host = benchmark_extra['host']
@@ -2508,5 +2512,13 @@ class SchedulerManager(manager.Manager):
 
         runtime = int(benchmark_case['runtime'])
         time.sleep(runtime)
+
+        fio_count = 1
+        while fio_count:
+            fio_count = 0
+            for benchmark_extra in benchmark_extra_info:
+                host = benchmark_extra['host']
+                fio_count = int(_get_fio_count(context, host)) + fio_count
+            time.sleep(5)
 
         _update("success", hosts_str, benchmark_case)
