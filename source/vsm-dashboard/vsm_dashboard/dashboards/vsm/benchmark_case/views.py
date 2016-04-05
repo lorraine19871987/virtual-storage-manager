@@ -109,3 +109,18 @@ def terminate_benchmark_case(request):
 
     rs = json.dumps({"status":0})
     return HttpResponse(rs)
+
+def update_benchmark_list(request):
+    cases = vsmapi.benchmark_case_get_all(request)
+    case_list = []
+    for _case in cases:
+        case = {
+            "id": _case.id,
+            "name": _case.name,
+            "ioengine": _case.ioengine,
+            "readwrite": _case.readwrite,
+            "running_hosts": _case.running_hosts,
+            "status": _case.status
+        }
+        case_list.append(case)
+    return HttpResponse(json.dumps(case_list))
