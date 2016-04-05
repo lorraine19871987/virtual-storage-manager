@@ -813,3 +813,9 @@ class AgentAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
         res = self.call(context, self.make_msg('benchmark_case_terminate'),
                         topic, version='1.0', timeout=6000)
         return res
+
+    def benchmark_case_get_fio_count(self, context, host):
+        topic = rpc.queue_get_for(context, self.topic, host)
+        res = self.call(context, self.make_msg('benchmark_case_get_fio_count'),
+                        topic, version='1.0', timeout=6000)
+        return res

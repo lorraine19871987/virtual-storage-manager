@@ -18,14 +18,9 @@ import logging
 import json
 
 from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _
-from django.views.generic import TemplateView
-from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import render
 
-from horizon import forms
 from horizon import tables
-from horizon import exceptions
 
 from vsm_dashboard.api import vsm as vsmapi
 
@@ -69,7 +64,6 @@ def add_benchmark_case_view(request):
 
 def add_benchmark_case(request):
     data = json.loads(request.body)
-    print "====================="
     print data
     name = data['name']
     readwrite = data['readwrite']
@@ -93,7 +87,23 @@ def run_benchmark_case_view(request):
     template = "vsm/benchmark_case/run_benchmark_case.html"
     servers = vsmapi.get_server_list(None, )
     context = {}
-    context["cases"] = vsmapi.benchmark_case_get_all(request)
+    cases = vsmapi.benchmark_case_get_all(request)
+    flag = 0
+    is_running_hosts = []
+    for case in cases:
+        if case.status == "running":
+            cases.pop(flag)
+            running_hosts = case.running_hosts
+            is_running_hosts.extend(running_hosts.split(","))
+            continue
+        flag += 1
+    flag = 0
+    for server in servers:
+        if server.host in is_running_hosts:
+            servers.pop(flag)
+            continue
+        flag += 1
+    context["cases"] = cases
     context["servers"] = servers
     pools = vsmapi.pool_status(None)
     context["pool_list"] = [(pool.name, pool.name) for pool in pools if not pool.cache_tier_status]
@@ -101,7 +111,6 @@ def run_benchmark_case_view(request):
 
 def run_benchmark_case(request):
     data = json.loads(request.body)
-    print "====================="
     print data
     case_id = data['caseId']
     host = data['host']

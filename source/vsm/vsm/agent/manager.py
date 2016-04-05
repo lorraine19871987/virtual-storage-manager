@@ -2575,6 +2575,7 @@ class AgentManager(manager.Manager):
         readwrite = benchmark_case.get('readwrite')
         iodepth = benchmark_case.get('iodepth')
         clientname = benchmark_case.get('clientname')
+        runtime = benchmark_case.get('runtime')
         additional_options = benchmark_case.get('additional_options')
         section = "fio%s-%s" % (ioengine, blocksize)
 
@@ -2585,6 +2586,7 @@ class AgentManager(manager.Manager):
             file_template.append("  bs=%s" % blocksize)
             file_template.append("  iodepth=%s" % iodepth)
             file_template.append("  ioengine=%s" % ioengine)
+            file_template.append("  runtime=%s" % runtime)
             file_template.append("  clientname=%s" % clientname)
             file_template.append("  pool=%s" % poolname)
             file_template.append("  rbdname=%s" % rbdname)
@@ -2635,3 +2637,14 @@ class AgentManager(manager.Manager):
         LOG.info("Terminate all fio processes")
         utils.execute("killall", "fio", run_as_root=True)
         LOG.info("Terminate finished")
+
+    def benchmark_case_get_fio_count(self, context):
+        LOG.info("Get the count of fio processes")
+        try:
+            fios, err = utils.execute("pgrep", "fio", run_as_root=True)
+            fios_list = fios.strip("\n").split("\n")
+            LOG.info("===============fios_list: %s" % str(fios_list))
+            fio_count = len(fios_list)
+        except:
+            fio_count = 0
+        return fio_count
