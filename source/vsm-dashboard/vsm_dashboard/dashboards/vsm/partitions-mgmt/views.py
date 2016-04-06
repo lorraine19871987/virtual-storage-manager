@@ -32,12 +32,19 @@ def mgmt_parts_views(request):
     servers = vsmapi.get_server_list(None, )
     print 'servers====%s'%servers
     context["servers"] = servers
-    #server_id = servers[0]['id']
-    disks = []#TODO vsmapi.get_disks_by_server(request,server_id)
-    if len(disks) > 0:
-        disk_name = disks[0]['name']
-    context["disks"] = disks
-    context["parts"] = []#TODO  vsmapi.get_parts_by_disk(request,disk_name)
+    server_id = servers[0].id
+    print '11111,---',server_id
+    resp,disks = vsmapi.get_disks_by_server(request,{"server_id":server_id})
+    print '2222,---',disks
+    disk_name = disks['disks'][0]['name']
+    context["disks"] = disks['disks']
+    disk_condition  = {"server_id":server_id,
+                       "disk_name":disk_name,
+                       }
+    print '333--',disk_condition
+    resp,parts = vsmapi.get_parts_by_disk(request,disk_condition)
+    context["parts"] = parts['parts']
+    print '4444--',parts
     return render(request,template,context)
 
 
@@ -56,14 +63,14 @@ def mgmt_parts_action(request):
 
 def get_disks_by_server(request):
     body = json.loads(request.body)
-    disks = vsmapi.get_disks_by_server(request,body=body)
-    resp = json.dumps(disks)
+    resp_code,disks = vsmapi.get_disks_by_server(request,body=body)
+    resp = json.dumps(disks['disks'])
     return HttpResponse(resp)
 
 def get_parts_by_disk(request):
     body = json.loads(request.body)
-    parts = vsmapi.get_parts_by_disk(request,body=body)
-    resp = json.dumps(parts)
+    resp_code,parts = vsmapi.get_parts_by_disk(request,body=body)
+    resp = json.dumps(parts['parts'])
     return HttpResponse(resp)
 
 

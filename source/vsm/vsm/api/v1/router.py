@@ -139,6 +139,8 @@ class APIRouter(vsm.api.openstack.APIRouter):
                                     "reset_status": "post",
                                     "start": "post",
                                     "stop": "post",
+                                    "get_disks_by_server": "post",
+                                    "get_parts_by_disk": "post",
                                     "ceph_upgrade": "post"},
                         member={'action':'post'})
 

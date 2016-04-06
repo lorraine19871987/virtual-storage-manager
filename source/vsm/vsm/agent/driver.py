@@ -2132,7 +2132,7 @@ class CephDriver(object):
                             'size':line_list[3],
                 }
                 disk_list.append(disk_dict)
-        return disk_list
+        return {"disks":disk_list}
 
     def get_available_disks(self, context):
         all_disk_info,err = utils.execute('blockdev','--report',run_as_root=True)

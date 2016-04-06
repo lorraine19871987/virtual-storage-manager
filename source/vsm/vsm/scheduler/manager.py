@@ -1929,14 +1929,13 @@ class SchedulerManager(manager.Manager):
     def get_disks_by_server(self, context, body):
         server_id = body['server_id']
         server = db.init_node_get_by_id(context,id=server_id)
-        res = self._agent_rpcapi.get_available_disks(context,server['host'],disk_name)
+        res = self._agent_rpcapi.get_disks_by_server(context,server['host'])
         return res
 
     def get_parts_by_disk(self, context, body):
         server_id = body['server_id']
-        disk_name = body['disk_name']
         server = db.init_node_get_by_id(context,id=server_id)
-        res = self._agent_rpcapi.get_parts_by_disk(context,server['host'])
+        res = self._agent_rpcapi.get_parts_by_disk(context,server['host'],body)
         return res
 
     def get_available_disks(self, context, body):

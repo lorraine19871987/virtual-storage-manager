@@ -17,7 +17,7 @@ var Server = {
 var Disk = {
 	Create:function(){
 		var disk = {};
-		disk.name = $ctrlServer.options[$ctrlServer.selectedIndex].text;
+		disk.name = $ctrlDisk.options[$ctrlDisk.selectedIndex].text;
 		return disk;
 	}
 }
@@ -46,8 +46,10 @@ function ChangeServer(){
 function ChangeDisk(){
 	//reset the add partition form
 	ResetForm();
+	server = Server.Create();
 	disk = Disk.Create();
-	PostData("get_parts_by_disk",{"disk_name":disk.name});
+	PostData("get_parts_by_disk",{"disk_name":disk.name,
+	"server_id":server.node_id});
 }
 
 function UpdateSelDisks(disks){
@@ -61,11 +63,11 @@ function UpdateSelDisks(disks){
 		$("#selDisk")[0].options.add(option1);
 	}
 	$("#selDisk")[0].selectedIndex = 0;
-	DISK_TOTAL_SIZE = $("#selDisk").value();
+	DISK_TOTAL_SIZE = $("#selDisk")[0][0].value;
 }
 
 function UpdateParForm(parts){
-	$("#tbParList")[0].html("");
+	$("#tbParList").html("");
 	USED_SIZE = 0
 	for(var i=0;i<parts.length;i++){
 	    USED_SIZE = USED_SIZE + parts[i].size;
@@ -128,7 +130,7 @@ function MgmtParsubmit(){
 
 	for(var i=0;i<PAR_Items.length;i++){
 		var par = {
-		    "name":PAR_Items[i].children[1].innerHTML
+		    "name":PAR_Items[i].children[1].innerHTML,
 			"number":PAR_Items[i].children[2].innerHTML,
 			"size":PAR_Items[i].children[5].innerHTML,
             "start":PAR_Items[i].children[3].innerHTML,
@@ -140,9 +142,9 @@ function MgmtParsubmit(){
 	}
 
 	var post_data = {
-		"disk_name":[];
-		"server_id":[];
-		"parts":[];
+		"disk_name":[],
+		"server_id":[],
+		"parts":[],
 	}
 
     var server_id = $ctrlServer.value;
@@ -171,7 +173,7 @@ function ResetForm(){
 	$("#txtSize").val("");
 	$("#selParType")[0].selectedIndex = 0;
 	$("#selFormatType")[0].selectedIndex = 0;
-	$("#tbParList")[0].html("");
+	$("#tbParList").html("");
 }
 
 function PostData(method,postdata){
@@ -188,7 +190,7 @@ function PostData(method,postdata){
 				case "get_disks_by_server":
 					UpdateSelDisks(data);
 					break;
-				case "get_parts_by_diak":
+				case "get_parts_by_disk":
 					UpdateParForm(data);
 					break;
 				case "mgmt_parts_action":

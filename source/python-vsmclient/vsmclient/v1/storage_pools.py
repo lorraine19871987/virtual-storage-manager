@@ -87,6 +87,28 @@ class StoragePoolManager(base.ManagerWithFind):
         ret = self.api.client.post(url, body=body)
         return ret
 
+    def pool_snapshot_create(self, body):
+        '''
+        :param request:
+        :param body:
+                            {'pool_id':,#pool_id
+                            'snap_name':,#
+                            },
+        '''
+        url = '/storage_pools/pool_snapshot_create'
+        return self.api.client.post(url, body=body)
+
+    def pool_snapshot_remove(self, body):
+        '''
+        :param request:
+        :param body:
+                            {'pool_id':,#pool_id
+                            'snap_name':,#
+                            },
+        '''
+        url = '/storage_pools/pool_snapshot_remove'
+        return self.api.client.post(url, body=body)
+
     def restart(self, osd):
         self._action('restart', osd)
 

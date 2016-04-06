@@ -1863,8 +1863,10 @@ class AgentManager(manager.Manager):
         partion_list = []
         if disk_name:
             disk = DiskPartitionMgmt(disk_name)
-            partion_list  =  disk.get_partition_dict_list
-        return partion_list
+            partion_list  =  disk.get_partition_dict_list()
+        partion_info = {'parts':partion_list}
+        LOG.info('partion_info=====%s'%partion_info)
+        return partion_info
 
     def get_available_disks(self, context):
         available_disk_name = self.ceph_driver.get_available_disks(context)
