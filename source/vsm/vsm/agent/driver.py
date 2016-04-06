@@ -319,6 +319,7 @@ class CephDriver(object):
                 values['tag'] = body.get('tag')
                 values['status'] = 'running'
                 values['primary_storage_group_id'] = body.get('storage_group_id')
+                values['snap_mode'] = body.get('snap_mode','POOL')
                 db.pool_create(context, values)
 
         return res

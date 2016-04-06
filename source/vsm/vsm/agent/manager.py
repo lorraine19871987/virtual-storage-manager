@@ -2456,7 +2456,14 @@ class AgentManager(manager.Manager):
         ret = {'error_code':[],'error_message':[]}
         self.ceph_driver.create_snapshot(body)
         return ret
-
+    def pool_snapshot_remove(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.pool_snapshot_remove(body)
+        return ret
+    def pool_snapshot_create(self,context,body):
+        ret = {'error_code':[],'error_message':[]}
+        self.ceph_driver.pool_snapshot_create(body)
+        return ret
     def config_into_ceph_conf(self, context, config):
         return self.ceph_driver.config_into_ceph_conf(context, config)
 

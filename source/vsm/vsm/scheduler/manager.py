@@ -2407,6 +2407,75 @@ class SchedulerManager(manager.Manager):
                             'error_code':','.join(error_code),}
         }
 
+    def pool_snapshot_create(self, context, body):
+        cluster_id = body.get('cluster_id',None)
+        snap_name = body.get('snap_name',None)
+        active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
+        LOG.info('pool_snapshot_create sync call to host = %s' % active_monitor['host'])
+        pool_id = body.get('pool_id')
+        pool_ref = db.pool_get(context,pool_id)
+        error_message = []
+        error_code = []
+        info = []
+        if pool_ref and pool_ref['snap_mode'] == 'POOL' and snap_name:
+            values = {'pool_name':pool_ref['name'],
+                      "snap_name":body['snap_name'],
+            }
+            ret = self._agent_rpcapi.pool_snapshot_create(context,values,active_monitor['host'])
+            if len(ret['error_code']) == 0 :
+                info.append('snap shot for pool %s success!'%pool_ref['name'])
+            else:
+                error_message = error_message + ret['error_message']
+                error_code = error_code + ret['error_code']
+        elif not pool_ref:
+            error_message.append("No such pool %s"%pool_id)
+            error_code.append('-1')
+        elif pool_ref['snap_mode'] != 'POOL':
+            error_message.append("Snap mode error!"%pool_id)
+            error_code.append('-3')
+        else:
+            error_message.append("Snap name error!"%pool_id)
+            error_code.append('-4')
+
+        return {'message':{
+                        'error_msg':','.join(error_message),
+                        'info':','.join(info),
+                        'error_code':','.join(error_code),}
+        }
+
+    def pool_snapshot_remove(self, context, body):
+        cluster_id = body.get('cluster_id',None)
+        snap_name = body.get('snap_name',None)
+        active_monitor = self._get_active_monitor(context, cluster_id=cluster_id)
+        LOG.info('pool_snapshot_remove sync call to host = %s' % active_monitor['host'])
+        pool_id = body.get('pool_id')
+        pool_ref = db.pool_get(context,pool_id)
+        error_message = []
+        error_code = []
+        info = []
+        if pool_ref and snap_name:
+            values = {'pool_name':pool_ref['name'],
+                      "snap_name":body['snap_name'],
+            }
+            ret = self._agent_rpcapi.pool_snapshot_remove(context,values,active_monitor['host'])
+            if len(ret['error_code']) == 0 :
+                info.append('snap shot for pool %s success!'%pool_ref['name'])
+            else:
+                error_message = error_message + ret['error_message']
+                error_code = error_code + ret['error_code']
+        elif not pool_ref:
+            error_message.append("No such pool %s"%pool_id)
+            error_code.append('-1')
+        else:
+            error_message.append("Snap name error!"%pool_id)
+            error_code.append('-4')
+
+        return {'message':{
+                            'error_msg':','.join(error_message),
+                            'info':','.join(info),
+                            'error_code':','.join(error_code),}
+        }
+
     def get_ceph_config(self, context):
         ceph_configs = self._get_ceph_config(context)
         return ceph_configs

@@ -319,6 +319,31 @@ def rbd_snapshot_remove(request, body):
     '''
     return vsmclient(request).rbd_pools.rbd_snapshot_remove(body=body)
 
+def pool_snapshot_create(request, body):
+    '''
+    :param request:
+    :param body:
+                        {'pool_id':,#pool_id
+                        'snap_name':,#image_id
+                        }
+
+
+    :return:
+    '''
+    return vsmclient(request).storage_pools.pool_snapshot_create(body=body)
+def pool_snapshot_remove(request, body):
+    '''
+    :param request:
+    :param body:
+                        {'pool_id':,#pool_id
+                        'snap_name':,#image_id
+                        }
+
+
+    :return:
+    '''
+    return vsmclient(request).storage_pools.pool_snapshot_remove(body=body)
+
 def snapshot_get_by_image(request, body):
     '''
     :param request:

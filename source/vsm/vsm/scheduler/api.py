@@ -184,6 +184,12 @@ class API(object):
     def clone_rbd(self,context,body):
         return self.scheduler_rpcapi.clone_rbd(context,body)
 
+    def pool_snapshot_create(self,context,body):
+        return self.scheduler_rpcapi.pool_snapshot_create(context,body)
+
+    def pool_snapshot_remove(self,context,body):
+        return self.scheduler_rpcapi.pool_snapshot_remove(context,body)
+
     def rbd_snapshot_remove(self,context,body):
         return self.scheduler_rpcapi.rbd_snapshot_remove(context,body)
 

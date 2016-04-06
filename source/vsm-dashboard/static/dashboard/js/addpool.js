@@ -40,6 +40,7 @@ function AddPool(){
 				'createdBy': "VSM",
 				'enablePoolQuota': $("#chkPoolQuota")[0].checked,
 				'poolQuota': $("#txtPoolQuota").val(),
+				'snap_mode':$("#selSnapMode")[0].options[$("#selSnapMode")[0].selectedIndex].text,
 			}
 	}
 

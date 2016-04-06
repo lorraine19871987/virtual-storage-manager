@@ -68,6 +68,18 @@ class RemovepoolsAction(tables.LinkAction):
     classes = ('btn-primary',)
     url = "horizon:vsm:poolsmanagement:index"
 
+class PoolSnapshot(tables.LinkAction):
+    name = "pool_mksnap"
+    verbose_name = _("Snap")
+    classes = ('btn-primary',)
+    url = "horizon:vsm:poolsmanagement:index"
+
+class RMPoolSnap(tables.LinkAction):
+    name = "pool_rmsnap"
+    verbose_name = _("Remove Snap")
+    classes = ('btn-primary',)
+    url = "horizon:vsm:poolsmanagement:index"
+
 # class DeleteStoragePool(tables.DeleteAction):
 #     data_type_singular = _("Remove")
 #     data_type_plural = _("R")
@@ -110,6 +122,7 @@ class ListPoolTable(tables.DataTable):
         verbose_name = _("Storage Pools")
         table_actions = (AddCacheTier, RemoveCacheTier, CreateStoragePool, CreateErasureCodedPool,CPPoolAction, RemovepoolsAction)
         multi_select = True
+        row_actions = (PoolSnapshot, RMPoolSnap)
 
     def get_object_id(self, datum):
         if hasattr(datum, "id"):

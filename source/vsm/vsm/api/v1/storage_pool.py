@@ -549,6 +549,16 @@ class StoragePoolController(wsgi.Controller):
         res = self.conductor_api.test_service(context)
         return {'pool': res}
 
+    def pool_snapshot_create(self, req, body=None):
+        LOG.info('CEPH_LOG pool_snapshot_create body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.pool_snapshot_create(context,body)
+
+    def pool_snapshot_remove(self, req, body=None):
+        LOG.info('CEPH_LOG pool_snapshot_remove body %s ' % body)
+        context = req.environ['vsm.context']
+        return self.scheduler_api.pool_snapshot_remove(context,body)
+
     def _get_storage_pool_search_options(self):
         """Return storage_pool search options allowed by non-admin."""
         return ('display_name', 'status')
