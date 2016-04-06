@@ -62,26 +62,6 @@ def add_cache_tier(request, body):
 def remove_cache_tier(request, body):
     return vsmclient(request).storage_pools.remove_cache_tier(body)
 
-def cp_pool(request, body):
-    '''
-    :param body:{'storage_pools':[
-                        {
-                        'src_pool_id':,
-                        'dest_pool_id':,
-                        ]
-                }
-    :return:
-    '''
-    return vsmclient(request).storage_pools.cp_pool(body)
-
-def remove_pools(request, body):
-    '''
-    :param request:
-    :param body:{'storage_pools':[2,]}
-    :return:
-    '''
-    return vsmclient(request).storage_pools.remove_pools(body)
-
 def get_storage_group_list(request):
     return vsmclient(request).vsms.get_storage_group_list()
 
@@ -512,25 +492,3 @@ def rbd_group_remove(request, body):
 
 def rbd_groups_get_all(request):
     return vsmclient(request).rbd_groups.list(detailed=True)
-
-def benchmark_case_get_all(request):
-    return vsmclient(request).benchmark_cases.list(detailed=False, search_opts=None)
-
-def benchmark_case_delete(request, case):
-    return vsmclient(request).benchmark_cases.delete(case)
-
-def benchmark_case_terminate(request, case):
-    return vsmclient(request).benchmark_cases.termintate(case)
-
-def benchmark_case_create(request, name, readwrite, blocksize,
-                          iodepth, runtime, ioengine, clientname,
-                          additional_options):
-    return vsmclient(request).\
-        benchmark_cases.create(name, readwrite, blocksize, iodepth, runtime, ioengine,
-                               clientname, additional_options)
-
-def benchmark_case_get(request, case):
-    return vsmclient(request).benchmark_cases.get(case)
-
-def benchmark_case_run(request, case_id, body):
-    return vsmclient(request).benchmark_cases.run_case(case_id, body)

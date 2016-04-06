@@ -1232,21 +1232,20 @@ class SchedulerManager(manager.Manager):
         mon_header = {}
         global_header = {}
         for key,value in config_dict.iteritems():
-            if key:
-                if key.find('osd.')!=-1:
-                    osd_list.append({key:value})
-                elif key.find('osd')!=-1:
-                    osd_header = value
-                elif key.find('mon.')!=-1:
-                    mon_list.append({key:value})
-                elif key.find('mon')!=-1:
-                    mon_header = value
-                elif key.find('mds.')!=-1:
-                    mds_list.append({key:value})
-                elif key.find('mds')!=-1:
-                    mds_header = value
-                elif key.find('global')!=-1:
-                    global_header = value
+            if key.find('osd.')!=-1:
+                osd_list.append({key:value})
+            elif key.find('osd')!=-1:
+                osd_header = value
+            elif key.find('mon.')!=-1:
+                mon_list.append({key:value})
+            elif key.find('mon')!=-1:
+                mon_header = value
+            elif key.find('mds.')!=-1:
+                mds_list.append({key:value})
+            elif key.find('mds')!=-1:
+                mds_header = value
+            elif key.find('global')!=-1:
+                global_header = value
         if not global_header:
             message['code'].append('-21')
             message['error'].append('missing global section in ceph configration file.')
@@ -1298,7 +1297,6 @@ class SchedulerManager(manager.Manager):
         crush_map_new = '%s-crushmap.json'%FLAGS.ceph_conf
         utils.write_file_as_root(crush_map_new, crushmap_str, 'w')
         osd_num = 0
-        tree_node = None
         try:
             crushmap = CrushMap(json_file=crush_map_new)
             tree_node = crushmap._show_as_tree_dict()
@@ -1878,9 +1876,9 @@ class SchedulerManager(manager.Manager):
         for server_id in server_id_list:
             db.init_node_update(context, server_id, values)
         active_server_list = server_list
-        #LOG.info('active_server_list===%s'%active_server_list)
+        LOG.info('active_server_list===%s'%active_server_list)
         idx = random.randint(0, len(active_server_list)-1)
-        #LOG.info('idx===%s'%idx)
+        LOG.info('idx===%s'%idx)
         return active_server_list[idx]
 
     def add_cache_tier(self, context, body):
@@ -1890,65 +1888,6 @@ class SchedulerManager(manager.Manager):
     def remove_cache_tier(self, context, body):
         active_server = self._get_active_server(context)
         self._agent_rpcapi.remove_cache_tier(context, body,active_server['host'])
-
-    def cp_pool(self, context, body):
-        active_server = self._get_active_server(context)
-        error_message = []
-        error_code = []
-        info = ''
-        pools = body.get('storage_pools',None)
-        pool_names = []
-        if pools:
-            for pool in pools:
-                pool_src_id = pool.get('src_pool_id',None)
-                pool_dest_id = pool.get('dest_pool_id',None)
-                if pool_src_id and pool_dest_id:
-                    pool_src = db.pool_get(context, pool_src_id)
-                    pool_dest = db.pool_get(context, pool_dest_id)
-                    if pool_src and pool_dest:
-                        pool_names.append({'src_pool_name':pool_src['name'],
-                                           'dest_pool_name':pool_dest['name'],
-                        })
-        if pool_names:
-            self._agent_rpcapi.cp_pool(context, pool_names, active_server['host'])
-            info = 'Successfully copied pool %s to pool %s'%(pool_names[0]['src_pool_name'],pool_names[0]['dest_pool_name'])
-        else:
-            error_message.append('paramaters data error!')
-            error_message.append('-1')
-        message = {'message':{'error_msg':','.join(error_message),
-                              'info':info,
-                              'error_code':','.join(error_code),
-                              }
-        }
-        return message
-
-    def remove_pools(self, context, body):
-        active_server = self._get_active_server(context)
-        error_message = []
-        error_code = []
-        info = ''
-        pools = []
-        pool_ids = body.get('storage_pools',None)
-        if pool_ids:
-            for id in pool_ids:
-                id = int(id)
-                pool_ref = db.pool_get_by_db_id(context, id)
-                if pool_ref:
-                    pools.append(pool_ref['name'])
-        if pools:
-            self._agent_rpcapi.remove_pools(context, pools, active_server['host'])
-            for pool in pools:
-                db.pool_destroy(context, pool)
-            info = 'Successfully removed pools %s'%(','.join(pools))
-        else:
-            error_message.append('No such pools!')
-            error_message.append('-1')
-        message = {'message':{'error_msg':','.join(error_message),
-                              'info':info,
-                              'error_code':','.join(error_code),
-                              }
-        }
-        return message
 
     def get_smart_info(self, context, body):
         ser = body['server']
@@ -2409,14 +2348,14 @@ class SchedulerManager(manager.Manager):
             snapshot_ref = db.snapshot_get_by_pool_image_snapname(context,pool_ref['name'],image_ref['image'],snapshot['name'])
             if snapshot_ref:
                 error_code.append('-1')
-                #snapshot_ref = snapshot_ref
+                snapshot_ref = snapshot_ref[0]
                 error_message.append('snapshot %s of %s/%s already exist!'%(snapshot_ref['name'],pool_ref['name'],image_ref['image']))
                 continue
             values = {
                         'pool': pool_ref['name'],
                         'image': image_ref['image'],
                         'name': snapshot['name'],
-                        'comments':snapshot.get('comments',''),
+                        'comments':snapshot['comments'],
             }
             ret = self._agent_rpcapi.rbd_snapshot_create(context,values,active_monitor['host'])
             error_message = error_message + ret['error_message']
@@ -2519,67 +2458,3 @@ class SchedulerManager(manager.Manager):
         self._agent_rpcapi.rgw_create(context, host, server_name, rgw_instance_name,
                                       is_ssl, uid, display_name, email, sub_user,
                                       access, key_type)
-
-    def benchmark_case_run(self, context, benchmark_extra_info, benchmark_case):
-        """
-
-        :param context:
-        :param benchmark_case_info:
-        :param benchmark_case:
-        :return:
-        """
-
-        # status can be ready, running, error and success
-        def _update(status, hosts_str, benchmark_case):
-            LOG.info("Update the case status to %s" % str(status))
-            LOG.info("benchmark_case: %s" % str(benchmark_case))
-            case_id = benchmark_case.get("id")
-            LOG.info("======================case_id: %s" % str(case_id))
-            values = {}
-            values['status'] = status
-            values['running_hosts'] = hosts_str
-            LOG.info("===================values: %s" % str(values))
-            case = self._conductor_api.\
-                benchmark_case_update(context, case_id, values)
-            LOG.info("====================case: %s" % str(case))
-
-        def _run(context, host, benchmark_extra, benchmark_case):
-            LOG.info("=====================run=======================")
-            self._agent_rpcapi.\
-                benchmark_case_run(context, host, benchmark_extra, benchmark_case)
-
-        def _get_fio_count(context, host):
-            LOG.info("=====================get fio count=======================")
-            return self._agent_rpcapi.benchmark_case_get_fio_count(context, host)
-
-        hosts_list = []
-        for benchmark_extra in benchmark_extra_info:
-            host = benchmark_extra['host']
-            if host not in hosts_list:
-                hosts_list.append(host)
-        hosts_str = ",".join(hosts_list)
-
-        _update("running", hosts_str, benchmark_case)
-        thd_run_list = []
-        for benchmark_extra in benchmark_extra_info:
-            host = benchmark_extra['host']
-            thd_run = utils.MultiThread(_run, context=context,
-                                        host=host,
-                                        benchmark_extra=benchmark_extra,
-                                        benchmark_case=benchmark_case)
-            thd_run_list.append(thd_run)
-        LOG.info("=================start_threads: %s" % str(thd_run_list))
-        utils.start_threads(thd_run_list)
-
-        runtime = int(benchmark_case['runtime'])
-        time.sleep(runtime)
-
-        fio_count = 1
-        while fio_count:
-            fio_count = 0
-            for benchmark_extra in benchmark_extra_info:
-                host = benchmark_extra['host']
-                fio_count = _get_fio_count(context, host) + fio_count
-            time.sleep(5)
-
-        _update("success", hosts_str, benchmark_case)

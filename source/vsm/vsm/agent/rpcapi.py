@@ -499,25 +499,6 @@ class AgentAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
                         topic,
                         version='1.0', timeout=6000)
 
-    def cp_pool(self, context, body, host):
-        topic = rpc.queue_get_for(context, self.topic, host)
-        res = self.call(context,
-                        self.make_msg('cp_pool',
-                                      body=body),
-                        topic,
-                        version='1.0', timeout=6000)
-        return res
-
-    def remove_pools(self, context, body, host):
-        topic = rpc.queue_get_for(context, self.topic, host)
-        res = self.call(context,
-                        self.make_msg('remove_pools',
-                                      body=body),
-                        topic,
-                        version='1.0', timeout=6000)
-        return res
-
-
     def start_cluster(self, context, host):
         topic = rpc.queue_get_for(context, self.topic, host)
         self.test_service(context, topic)
@@ -797,25 +778,5 @@ class AgentAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
                                       display_name=display_name,
                                       email=email, sub_user=sub_user,
                                       access=access, key_type=key_type),
-                        topic, version='1.0', timeout=6000)
-        return res
-
-    def benchmark_case_run(self, context, host, benchmark_extra, benchmark_case):
-        topic = rpc.queue_get_for(context, self.topic, host)
-        res = self.cast(context, self.make_msg('benchmark_case_run',
-                                               benchmark_extra=benchmark_extra,
-                                               benchmark_case=benchmark_case),
-                        topic)
-        return res
-
-    def benchmark_case_terminate(self, context, host):
-        topic = rpc.queue_get_for(context, self.topic, host)
-        res = self.call(context, self.make_msg('benchmark_case_terminate'),
-                        topic, version='1.0', timeout=6000)
-        return res
-
-    def benchmark_case_get_fio_count(self, context, host):
-        topic = rpc.queue_get_for(context, self.topic, host)
-        res = self.call(context, self.make_msg('benchmark_case_get_fio_count'),
                         topic, version='1.0', timeout=6000)
         return res

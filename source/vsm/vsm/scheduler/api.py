@@ -105,12 +105,6 @@ class API(object):
     def remove_cache_tier(self, context, body=None):
         return self.scheduler_rpcapi.remove_cache_tier(context, body)
 
-    def cp_pool(self, context, body=None):
-        return self.scheduler_rpcapi.cp_pool(context, body)
-
-    def remove_pools(self, context, body=None):
-        return self.scheduler_rpcapi.remove_pools(context, body)
-
     def import_ceph_conf(self, context, cluster_id, ceph_conf_path):
         return self.scheduler_rpcapi.import_ceph_conf(context, cluster_id, ceph_conf_path)
 
@@ -216,7 +210,3 @@ class API(object):
         return self.scheduler_rpcapi.rgw_create(context, server_name, rgw_instance_name,
                                                 is_ssl, uid, display_name, email, sub_user,
                                                 access, key_type)
-
-    def benchmark_case_run(self, context, benchmark_extra_info, benchmark_case):
-        return self.scheduler_rpcapi.benchmark_case_run(context, benchmark_extra_info,
-                                                        benchmark_case)

@@ -53,12 +53,6 @@ class SchedulerAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
     def remove_cache_tier(self, ctxt, body=None):
         return self.call(ctxt, self.make_msg('remove_cache_tier', body=body))
 
-    def cp_pool(self, ctxt, body=None):
-        return self.call(ctxt, self.make_msg('cp_pool', body=body))
-
-    def remove_pools(self, ctxt, body=None):
-        return self.call(ctxt, self.make_msg('remove_pools', body=body))
-
     def get_smart_info(self, ctxt, body=None):
         return self.call(ctxt, self.make_msg('get_smart_info', body=body))
 
@@ -289,9 +283,3 @@ class SchedulerAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
                                              display_name=display_name,
                                              email=email, sub_user=sub_user,
                                              access=access, key_type=key_type))
-
-    def benchmark_case_run(self, ctxt, benchmark_extra_info, benchmark_case):
-        return self.cast(ctxt,
-                         self.make_msg('benchmark_case_run',
-                                       benchmark_extra_info=benchmark_extra_info,
-                                       benchmark_case=benchmark_case))

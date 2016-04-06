@@ -47,7 +47,6 @@ mount: CommandFilter, /bin/mount, root
 umount: CommandFilter, /bin/umount, root
 radosgw: CommandFilter, /etc/init.d/radosgw, root
 radosgw-admin: CommandFilter, /usr/bin/radosgw-admin, root
-rados: CommandFilter, /usr/bin/rados, root
 
 #common
 su: CommandFilter, /bin/su, root
@@ -63,7 +62,6 @@ hostname: CommandFilter, /bin/hostname, root
 ls: CommandFilter, /bin/ls, root
 pgrep: CommandFilter, /usr/bin/pgrep, root
 kill: CommandFilter, /bin/kill, root
-killall: CommandFilter, /usr/bin/killall, root
 ssh-keygen: CommandFilter, /usr/bin/ssh-keygen, root
 ##end changed by YOURONG
 
@@ -112,7 +110,6 @@ vsm-ceph-upgrade: CommandFilter, /usr/bin/vsm-ceph-upgrade, root
 add_disk: CommandFilter, /usr/local/bin/tools/hooks/add_disk, root
 blockdev:CommandFilter, /sbin/blockdev, root
 pvs:CommandFilter, /sbin/pvs, root
-
 # vsm/storage/nfs.py
 stat: CommandFilter, /usr/bin/stat, root
 mount: CommandFilter, /bin/mount, root
@@ -129,5 +126,3 @@ umount: CommandFilter, /bin/umount, root
 dd: CommandFilter, /bin/dd, root
 rbd: CommandFilter, /usr/bin/rbd, root
 rbd_ls: CommandFilter, /usr/bin/rbd_ls, root
-
-fio: CommandFilter, /usr/local/bin/fio, root

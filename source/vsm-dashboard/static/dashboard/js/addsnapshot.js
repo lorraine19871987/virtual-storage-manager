@@ -1,50 +1,9 @@
 
 $(function(){
     GetPool();
-    GetRBDGroup();
 })
 
-function GetRBDGroup(){
-    $.ajax({
-		type: "get",
-		url: "/dashboard/vsm/rbdgroups-management/list_rbd_groups_for_sel_input/",
-		data: "",
-		dataType:"json",
-		success: function(data){
-				console.log(data);
-                var rbd_group_list = data.rbd_group_list;
-                if(rbd_group_list.length == 0){
-                    //TODO Nothing
-                }
-                else{
-                    $("#selRBDGroup")[0].options.length = 0;
-                    for(var i=0;i<rbd_group_list.length;i++){
-                        var item = new Option()
-                        item.value = rbd_group_list[i][0];
-                        item.text = rbd_group_list[i][1];
-                        $("#selRBDGroup")[0].options.add(item);
-                    }
 
-                }
-		   	},
-		error: function (XMLHttpRequest, textStatus, errorThrown) {
-				if(XMLHttpRequest.status == 500)
-                	showTip("error","INTERNAL SERVER ERROR")
-			},
-		headers: {
-			},
-		complete: function(){
-
-		}
-    });
-}
-
-function SwithBatchSnap(checked){
-	if(checked)
-		$("#divRBDGroup")[0].style.display = "";
-	else
-		$("#divRBDGroup")[0].style.display = "none";
-}
 function ChangePool(obj){
     var pool_selected = obj.options[obj.selectedIndex].text;
     $.ajax({
@@ -87,24 +46,20 @@ $(document).ajaxStart(function(){
     ShowSpin();
 });
 function CreateSnapshot(){
+	//Check the field is should not null
+	if($("#txtRBDName").val() == ""){
+		showTip("error","The field is marked as '*' should not be empty");
+		return  false;
+	}
 	var data = {
 			"snapshots":[]
 	}
-	if ($("#divRBDGroup")[0].style.display == "") {
-	    var snapshot = {'group_id':$("#selRBDGroup").val(),}
-	}
-	else{
-		if($("#txtRBDName").val() == ""){
-            showTip("error","The field is marked as '*' should not be empty");
-            return  false;
-	    }
-        var snapshot = {
-                    'pool':$("#selPool").val(),
-                    'image':$("#selImage").val(),
-                    'name':$("#txtSnapshotName").val(),
-                    'comments':$("#txtComments").val(),
-        }
-	}
+    var snapshot = {
+                'pool':$("#selPool").val(),
+                'image':$("#selImage").val(),
+                'name':$("#txtSnapshotName").val(),
+
+			}
 	data["snapshots"].push(snapshot)
 	var postData = JSON.stringify(data);
 	token = $("input[name=csrfmiddlewaretoken]").val();
