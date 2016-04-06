@@ -644,6 +644,7 @@ class AgentManager(manager.Manager):
         _try_pass(self.update_mds_status)
         _try_pass(self.update_pg_and_pgp)
         _try_pass(self.update_pg_status)
+        _try_pass(self.update_ec_profiles)
         _try_pass(self.update_pool_usage)
         _try_pass(self.update_mon_health)
         _try_pass(self.update_server_status)
@@ -1501,6 +1502,15 @@ class AgentManager(manager.Manager):
                         self._conductor_rpcapi.update_storage_pool(context, pid, values)
                     else:
                         LOG.info('No client io rate update for pool %s.' % pid)
+
+    @periodic_task(run_immediately=True,
+                    service_topic=FLAGS.agent_topic,
+                    spacing=FLAGS.ceph_ec_profile_update)
+    def update_ec_profiles(self, context):
+        ec_profiles = self.ceph_driver.get_ec_profiles()
+        if ec_profiles:
+            for profile in ec_profiles:
+                db.ec_profile_update_or_create(context, profile)
 
     #@require_active_host
     @periodic_task(run_immediately=True,
@@ -2571,3 +2581,87 @@ class AgentManager(manager.Manager):
                 swift_secret_key = swift_key['secret_key']
                 LOG.info("=======================swift_secret_key: %s" % str(swift_secret_key))
         LOG.info("Succeed to create a rgw named %s" % rgw_instance_name)
+
+    def benchmark_case_run(self, context, benchmark_extra, benchmark_case):
+        # generate conf file
+        ioengine = benchmark_case.get('ioengine')
+        blocksize = benchmark_case.get('blocksize')
+        readwrite = benchmark_case.get('readwrite')
+        iodepth = benchmark_case.get('iodepth')
+        clientname = benchmark_case.get('clientname')
+        runtime = benchmark_case.get('runtime')
+        additional_options = benchmark_case.get('additional_options')
+        section = "fio%s-%s" % (ioengine, blocksize)
+
+        def _generate_fio(poolname, rbdname):
+            file_template = []
+            file_template.append("[%s]" % section)
+            file_template.append("  rw=%s" % readwrite)
+            file_template.append("  bs=%s" % blocksize)
+            file_template.append("  iodepth=%s" % iodepth)
+            file_template.append("  ioengine=%s" % ioengine)
+            file_template.append("  runtime=%s" % runtime)
+            file_template.append("  clientname=%s" % clientname)
+            file_template.append("  pool=%s" % poolname)
+            file_template.append("  rbdname=%s" % rbdname)
+            if additional_options:
+                options_list = additional_options.split(";;")
+                for option in options_list:
+                    key = option.split(":")[0]
+                    value = option.split(":")[1:]
+                    file_template.append("  %s=%s" % (key, value))
+            return file_template
+
+        def _run_fio(fio_log, bw_log, lat_log, iops_log, section, conf_path):
+            command = "sudo fio --output %s --write_bw_log=%s --write_lat_log=%s " \
+                      "--write_iops_log=%s --section %s %s" % (fio_log, bw_log, lat_log,
+                                                               iops_log, section, conf_path)
+            LOG.info("run %s"  % command)
+            utils.execute("fio", "--output", fio_log, "--write_bw_log=%s" % bw_log,
+                          "--write_lat_log=%s" % lat_log, "--write_iops_log=%s" % iops_log,
+                          "--section", section, conf_path, run_as_root=True)
+            LOG.info("==================command %s run finished" % command)
+
+        thd_list = []
+        pool_rbds = benchmark_extra['pool_rbd']
+        for pool_rbd in pool_rbds:
+            poolname = pool_rbd['pool']
+            rbds = pool_rbd['rbds']
+            rbds_list = rbds.split(',')
+            for rbd in rbds_list:
+                LOG.info("========================rbd: %s" % rbd)
+                fio_template = _generate_fio(poolname, rbd)
+                time_str = time.time()
+                dir_name = "/var/lib/vsm/fio_%s_%s" % (rbd, int(time_str))
+                utils.execute("mkdir", "-p", dir_name)
+                conf = "%s/fio_%s_%s.conf" % (dir_name, rbd, int(time_str))
+                with open(conf, "w+") as f:
+                    f.write("\n".join(fio_template) + "\n")
+                fio_txt = "%s/fio_%s_%s.txt" % (dir_name, rbd, int(time_str))
+                bw_log = "%s/fio_%s_%s" % (dir_name, rbd, int(time_str))
+                lat_log = "%s/fio_%s_%s" % (dir_name, rbd, int(time_str))
+                iops_log = "%s/fio_%s_%s" % (dir_name, rbd, int(time_str))
+                thd = utils.MultiThread(_run_fio, fio_log=fio_txt, bw_log=bw_log,
+                                        lat_log=lat_log, iops_log=iops_log, section=section,
+                                        conf_path=conf)
+                thd_list.append(thd)
+        utils.start_threads(thd_list)
+
+    def benchmark_case_terminate(self, context):
+        LOG.info("Terminate all fio processes")
+        utils.execute("killall", "fio", run_as_root=True)
+        LOG.info("Terminate finished")
+
+    def benchmark_case_get_fio_count(self, context):
+        LOG.info("Get the count of fio processes")
+        try:
+            fios, err = utils.execute("pgrep", "fio", run_as_root=True)
+            if fios.strip("\n"):
+                fios_list = fios.strip("\n").split("\n")
+            else:
+                fios_list = []
+            LOG.info("===============fios_list: %s" % str(fios_list))
+            fio_count = len(fios_list)
+        except:
+            fio_count = 0
+        return fio_count

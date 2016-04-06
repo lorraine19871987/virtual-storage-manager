@@ -105,12 +105,6 @@ class API(object):
     def remove_cache_tier(self, context, body=None):
         return self.scheduler_rpcapi.remove_cache_tier(context, body)
 
-    def cp_pool(self, context, body=None):
-        return self.scheduler_rpcapi.cp_pool(context, body)
-
-    def remove_pools(self, context, body=None):
-        return self.scheduler_rpcapi.remove_pools(context, body)
-
     def import_ceph_conf(self, context, cluster_id, ceph_conf_path):
         return self.scheduler_rpcapi.import_ceph_conf(context, cluster_id, ceph_conf_path)
 

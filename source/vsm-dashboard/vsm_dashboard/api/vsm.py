@@ -62,26 +62,6 @@ def add_cache_tier(request, body):
 def remove_cache_tier(request, body):
     return vsmclient(request).storage_pools.remove_cache_tier(body)
 
-def cp_pool(request, body):
-    '''
-    :param body:{'storage_pools':[
-                        {
-                        'src_pool_id':,
-                        'dest_pool_id':,
-                        ]
-                }
-    :return:
-    '''
-    return vsmclient(request).storage_pools.cp_pool(body)
-
-def remove_pools(request, body):
-    '''
-    :param request:
-    :param body:{'storage_pools':[2,]}
-    :return:
-    '''
-    return vsmclient(request).storage_pools.remove_pools(body)
-
 def get_storage_group_list(request):
     return vsmclient(request).vsms.get_storage_group_list()
 

@@ -856,7 +856,19 @@ class SnapShot(BASE, VsmBase):
     comments = Column(Text, nullable=True)
 
 
+class Benchmark_Case(BASE, VsmBase):
+    """ Benchmark Case """
+    __tablename__ = 'benchmark_cases'
 
-
-
-
+    id = Column(Integer, primary_key=True)
+    name = Column(String(length=255), nullable=False)
+    readwrite = Column(String(length=255), nullable=False)
+    blocksize = Column(String(length=255), nullable=False)
+    iodepth = Column(Integer, nullable=False)
+    runtime = Column(Integer, nullable=False)
+    ioengine = Column(String(length=255), nullable=False)
+    clientname = Column(String(length=255), nullable=False)
+    additional_options = Column(String(length=255))
+    # status in ready, running, terminated, error and success
+    status = Column(String(length=255), default='ready', nullable=False)
+    running_hosts = Column(String(length=255))

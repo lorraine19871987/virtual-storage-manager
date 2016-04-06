@@ -6,12 +6,12 @@ function preinstall_controller() {
     apt-get install -y ceph ceph-mds librbd1 rbd-fuse radosgw \
     apache2 libapache2-mod-wsgi libapache2-mod-fastcgi memcached \
     mariadb-server ntp openssh-server openssl keystone rabbitmq-server \
-    expect smartmontools
+    expect smartmontools git
 }
 
 function preinstall_agent() {
-    apt-get install -y ceph ceph-mds librbd1 rbd-fuse radosgw \
-    ntp openssh-server python-keystoneclient expect smartmontools
+    apt-get install -y ceph ceph-mds librbd1 rbd-fuse radosgw librbd-dev \
+    ntp openssh-server python-keystoneclient expect smartmontools gcc make
 }
 
 if [[ $1 ]]; then

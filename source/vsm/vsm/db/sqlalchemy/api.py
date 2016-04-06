@@ -4501,3 +4501,78 @@ def init_default_rbd_group_row_data(context):
             rbd_group_obj = models.RBDGroups()
             rbd_group_obj.update(default_rbd_group)
             rbd_group_obj.save()
+
+# Benchmark Case
+def benchmark_case_create(context, case_name, **kwargs):
+    session = get_session()
+
+    case = _benchmark_case_query(context, session=None, project_only=True).\
+        filter_by(name=case_name).\
+        first()
+    if case:
+        raise exception.Error()
+
+    kwargs['name'] = case_name
+    benchmark_case_ref = models.Benchmark_Case()
+    with session.begin(subtransactions=True):
+
+        session.add(benchmark_case_ref)
+        benchmark_case_ref.update(kwargs)
+
+    return benchmark_case_ref
+
+def _benchmark_case_query(context, session=None, project_only=False):
+    return model_query(context, models.Benchmark_Case, session=session,
+                       project_only=project_only, read_deleted="no")
+
+def benchmark_case_get(context, case_id):
+    return _benchmark_case_get(context, case_id)
+
+def _benchmark_case_get(context, case_id):
+    result = _benchmark_case_query(context, session=None, project_only=True).\
+        filter_by(id=case_id).\
+        first()
+
+    if not result:
+        raise exception.NotFound()
+
+    return result
+
+def benchmark_case_update(context, case_id, values):
+    session = get_session()
+
+    with session.begin():
+        model_query(context, models.Benchmark_Case, session=session). \
+            filter_by(id=case_id). \
+            update(values)
+    case_ref = _benchmark_case_get(context, case_id)
+
+    return case_ref
+
+def benchmark_case_delete(context, case_id):
+    session = get_session()
+    now = timeutils.utcnow()
+    with session.begin():
+        model_query(context, models.Benchmark_Case, session=session).\
+            filter_by(id=case_id).\
+            update({'deleted': True,
+                    'deleted_at': now,
+                    'updated_at': literal_column('updated_at')})
+
+def benchmark_case_get_all(context, marker=None, limit=None, sort_key=None,
+                           sort_dir=None, filters=None):
+    query = model_query(context, models.Benchmark_Case)
+
+    if filters:
+        filter_dict = {}
+        filter_list = []
+        for k, v in filters.iteritems():
+            if k != "name":
+                filter_dict[k] = v
+            else:
+                filter_list.append((models.Config.name.like("%%%s%%" % v)))
+        query = query.\
+            filter_by(**filter_dict).\
+            filter(or_(*filter_list))
+
+    return query.all()
