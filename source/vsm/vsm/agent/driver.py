@@ -2119,6 +2119,19 @@ class CephDriver(object):
                 smart_info_dict['basic']['Drive Status'] = len(status_list[1]) < 10 and status_list[1] or ''
         LOG.info("get_smart_info_dict:%s"%(smart_info_dict))
         return smart_info_dict
+    def get_disk_info(self, context):
+        contents,err = utils.execute('lsblk','-l',run_as_root=True)
+        lines = contents.split('\n')
+        lines = lines[1:]
+        disk_list = []
+        for line in lines:
+            line_list = line.split()
+            if len(line_list) >=6  and line_list[5] == 'disk':
+                disk_dict = {'name':"/dev/%s"%line_list[0],
+                            'size':line_list[3],
+                }
+                disk_list.append(disk_dict)
+        return disk_list
 
     def get_available_disks(self, context):
         all_disk_info,err = utils.execute('blockdev','--report',run_as_root=True)

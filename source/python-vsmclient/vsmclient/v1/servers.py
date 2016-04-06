@@ -155,5 +155,20 @@ class ServerManager(base.ManagerWithFind):
         """
         url = "/servers/ceph_upgrade"
         ret = self.api.client.post(url, body=body)
-        print 'vsmclient ---ceph upgrade==',ret
+        return ret
+
+    def get_disks_by_server(self, body=None):
+        """
+        get_disks_by_server
+        """
+        url = "/servers/get_disks_by_server"
+        ret = self.api.client.post(url, body=body)
+        return ret
+
+    def get_parts_by_disk(self, body=None):
+        """
+        get_parts_by_disk
+        """
+        url = "/servers/get_parts_by_disk"
+        ret = self.api.client.post(url, body=body)
         return ret

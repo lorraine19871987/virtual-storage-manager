@@ -105,7 +105,7 @@ class DiskPartitionMgmt(object):
         table , err = utils.execute("parted", "-s", self.disk_name, "print")
         return table
 
-    def get_partition_dict(self):
+    def get_partition_dict_list(self):
         self.refresh_attrs()
         return self.parts
 

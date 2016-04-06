@@ -48,6 +48,7 @@ from vsm.openstack.common.rpc import common as rpc_exc
 from vsm import utils
 import os
 import operator
+from disk_mgmt import DiskPartitionMgmt
 
 CTXT = context.get_admin_context()
 
@@ -1841,6 +1842,19 @@ class AgentManager(manager.Manager):
     def monitor_restart(self, context, monitor_num):
         self.ceph_driver.start_mon_daemon(context, monitor_num)
         return True
+
+    def get_disks_by_server(self, context):
+        disk_info = self.ceph_driver.get_disk_info(context)
+        LOG.info('disk_info=====%s'%disk_info)
+        return disk_info
+
+    def get_parts_by_disk(self, context, body):
+        disk_name = body.get('disk_name',None)
+        partion_list = []
+        if disk_name:
+            disk = DiskPartitionMgmt(disk_name)
+            partion_list  =  disk.get_partition_dict_list
+        return partion_list
 
     def get_available_disks(self, context):
         available_disk_name = self.ceph_driver.get_available_disks(context)

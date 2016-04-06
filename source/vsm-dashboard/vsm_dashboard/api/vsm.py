@@ -85,6 +85,12 @@ def remove_pools(request, body):
 def get_storage_group_list(request):
     return vsmclient(request).vsms.get_storage_group_list()
 
+def get_disks_by_server(request,body):
+    return vsmclient(request).servers.get_disks_by_server(body)
+
+def get_parts_by_disk(request,body):
+    return vsmclient(request).servers.get_parts_by_disk(body)
+
 def osd_locations_choices_by_type(request):
     return vsmclient(request).zones.osd_locations_choices()
 

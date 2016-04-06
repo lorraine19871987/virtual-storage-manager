@@ -1987,6 +1987,19 @@ class SchedulerManager(manager.Manager):
         else:
             return False
 
+    def get_disks_by_server(self, context, body):
+        server_id = body['server_id']
+        server = db.init_node_get_by_id(context,id=server_id)
+        res = self._agent_rpcapi.get_available_disks(context,server['host'],disk_name)
+        return res
+
+    def get_parts_by_disk(self, context, body):
+        server_id = body['server_id']
+        disk_name = body['disk_name']
+        server = db.init_node_get_by_id(context,id=server_id)
+        res = self._agent_rpcapi.get_parts_by_disk(context,server['host'])
+        return res
+
     def get_available_disks(self, context, body):
         server_id = body['server_id']
         server = db.init_node_get_by_id(context,id=server_id)

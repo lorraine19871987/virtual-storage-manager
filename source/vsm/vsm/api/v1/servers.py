@@ -201,7 +201,21 @@ class ServersController(wsgi.Controller):
         ret = self.scheduler_rpcapi.ceph_upgrade(context, body)
         LOG.info('DEBUG ceph_upgrade ret %s ' % ret)
         return ret
+
+    def get_disks_by_server(self, req, body=None):
+        LOG.info('DEBUG get_disks_by_server body %s ' % body)
+        context = req.environ['vsm.context']
+        ret = self.scheduler_rpcapi.get_disks_by_server(context, body)
+        LOG.info('DEBUG get_disks_by_server ret %s ' % ret)
+        return ret
         #return webob.Response(status_int=202)
+    def get_parts_by_disk(self, req, body=None):
+        LOG.info('DEBUG get_parts_by_disk body %s ' % body)
+        context = req.environ['vsm.context']
+        ret = self.scheduler_rpcapi.get_parts_by_disk(context, body)
+        LOG.info('DEBUG get_parts_by_disk ret %s ' % ret)
+        return ret
+
 
 def create_resource(ext_mgr):
     return wsgi.Resource(ServersController(ext_mgr))

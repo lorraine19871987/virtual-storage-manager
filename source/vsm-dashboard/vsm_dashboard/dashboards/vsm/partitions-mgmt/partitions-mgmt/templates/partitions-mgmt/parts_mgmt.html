@@ -1,0 +1,158 @@
+
+<!-- Copyright 2014 Intel Corporation, All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the"License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied. See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ -->
+
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Manage Partitions" %}{% endblock %}
+
+{% block page_header %}
+  {% include "horizon/common/_page_header.html" with title=_("Manage Partitions") %}
+  <link href="{{ STATIC_URL }}dashboard/css/addosd.css" rel="stylesheet">
+{% endblock page_header %}
+
+{% block main %}
+
+{% csrf_token %}
+<div id="divSelectServer">
+  <div class="control-group required">
+    <label id="lblServer" >Select Server</label>
+    <select id="selServer" class="form-control" style="width: 342px;" onchange="ChangeServer()">
+      {% for server in servers %}
+        {%if init_service_id == server.service_id %}
+          <option selected="selected" value = "{{server.service_id}}" node-id = "{{server.id}}" >{{server.host}}</option>
+        {%else%}
+           <option value = "{{server.service_id}}" node-id = "{{server.id}}" >{{server.host}}</option>
+        {%endif%}
+      {% endfor %}
+    </select>
+  </div>
+</div>
+<div id="divSelectDisk">
+  <div class="control-group required">
+    <label id="lblDisk" >Select Disk</label>
+    <select id="selDisk" class="form-control" style="width: 342px;" onchange="ChangeDisk()">
+      {% for disk in disks %}
+        {%if init_disk_name == disk.name %}
+          <option selected="selected" value = "{{disk.size}}"  >{{disk.name}}</option>
+        {%else%}
+           <option value = "{{disk.size}}"  >{{disk.name}}</option>
+        {%endif%}
+      {% endfor %}
+    </select>
+  </div>
+</div>
+<div id="divAddParForm">
+  <div class="left">
+      <div class="control-group  required">
+        <label >Number :</label>
+        <span class="form-required">*</span>
+        <div class="input">
+          <input id="txtNumber" class="form-control" type="text" value="" >
+        </div>
+      </div>
+      <div class="control-group  required">
+        <label >Size :</label>
+        <span class="form-required">*</span>
+        <div class="input">
+          <input id="txtSize" class="form-control" type="text" value="" >
+        </div>
+      </div>
+  </div>
+  <div class="right">
+      <div class="control-group required">
+        <label id="lblParType" >Partition Type</label>
+        <select id="selParType" class="form-control" style="width: 342px;">
+          {% for type in partition_types %}
+           <option value = "{{type}}"  >{{type}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="control-group required">
+        <label id="lblFormatType" >Format File System Type :</label>
+        <select id="selFormatType" class="form-control" style="width: 342px;" >
+          {% for format_type in format_types %}
+           <option value = "{{format_type}}"  >{{format_type}}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div id="divFormOptions1" class="vsm-options-bar">
+        <button id="btnAddPar" class="btn btn-primary" onclick="CheckParForm()">Add</button>
+      </div>
+  </div>
+</div>
+
+
+<div id="divParTable">
+   <table id="tParList" class="table table-bordered table-striped datatable">
+    <thead>
+      <tr>
+        <th  class="normal_column">Name</th>
+        <th  class="normal_column">Number</th>
+        <th  class="normal_column">Start</th>
+        <th  class="normal_column">End</th>
+        <th  class="normal_column">Size</th>
+        <th  class="normal_column">Type</th>
+        <th  class="normal_column">Format</th>
+        <th  class="normal_column"></th>
+      </tr>
+    </thead>
+
+    <tbody id="tbParList">
+      {%if parts and parts|length > 0 %}
+            {% for part in parts %}
+              <tr class="par-item">
+                  <td class="sortable normal_column ">{{part.name }}</td>
+                  <td class="sortable normal_column ">{{ part.number }}</td>
+                  <td class="sortable normal_column ">{{ part.start }}</td>
+                  <td class="sortable normal_column ">{{ part.end }}</td>
+                  <td class="sortable normal_column ">{{part.size}}</td>
+                  <td class="sortable normal_column ">{{ part.type }}</td>
+                  <td class="sortable normal_column ">{{ part.format_type }}</td>
+                  <td class="sortable normal_column">
+                    <button class="btn btn-danger" onclick="RemoveOSD(this)">Remove</button>
+                  </td>
+              </tr>
+            {% endfor %}
+        {%else%}
+          <tr id="trEmptyRow" class="odd empty">
+            <td colspan="8">No items to display.</td>
+          </tr>
+        {%endif%}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="8">
+          <span class="table_count"></span>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+<div>
+
+<div id="divFormOptions2" class="vsm-options-bar">
+  <button id="btnSubmit" class="btn btn-primary" onclick="MgmtDisk()">Submit</button>
+{#  <button id="btnReset" class="btn btn-default" onclick="ResetOSD()">Reset</button>#}
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src='{{ STATIC_URL }}dashboard/js/mgmtdisk.js' type='text/javascript' charset='utf-8'></script>
+{% endblock %}
