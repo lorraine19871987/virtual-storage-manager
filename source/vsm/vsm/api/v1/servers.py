@@ -216,6 +216,12 @@ class ServersController(wsgi.Controller):
         LOG.info('DEBUG get_parts_by_disk ret %s ' % ret)
         return ret
 
+    def mgmt_partition_for_disk(self, req, body=None):
+        LOG.info('DEBUG mgmt_partition_for_disk body %s ' % body)
+        context = req.environ['vsm.context']
+        ret = self.scheduler_rpcapi.mgmt_partition_for_disk(context, body)
+        LOG.info('DEBUG mgmt_partition_for_disk ret %s ' % ret)
+        return ret
 
 def create_resource(ext_mgr):
     return wsgi.Resource(ServersController(ext_mgr))

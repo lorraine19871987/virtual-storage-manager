@@ -91,7 +91,7 @@
       </div>
 
       <div id="divFormOptions1" class="vsm-options-bar">
-        <button id="btnAddPar" class="btn btn-primary" onclick="CheckParForm()">Add</button>
+        <button id="btnAddPar" class="btn btn-primary" onclick="ClickAddParToTable()">Add</button>
       </div>
   </div>
 </div>
@@ -108,6 +108,8 @@
         <th  class="normal_column">Size</th>
         <th  class="normal_column">Type</th>
         <th  class="normal_column">Format</th>
+        <th  class="normal_column">New Format</th>
+        <th  class="normal_column hidden">Flags</th>
         <th  class="normal_column"></th>
       </tr>
     </thead>
@@ -123,20 +125,28 @@
                   <td class="sortable normal_column ">{{part.size}}</td>
                   <td class="sortable normal_column ">{{ part.type }}</td>
                   <td class="sortable normal_column ">{{ part.format_type }}</td>
+                  <td class="sortable normal_column ">
+                      <select id="selNewFormat_{{part.number}}" class="form-control" style="width: 100px;" onchange="ChangeNewFormat(this)">
+                      {% for format_type in format_types %}
+                       <option value = "{{format_type}}"  >{{format_type}}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td class="sortable normal_column  hidden">old</td>
                   <td class="sortable normal_column">
-                    <button class="btn btn-danger" onclick="RemoveOSD(this)">Remove</button>
+                    <button class="btn btn-danger" onclick="RemovePar(this)">Remove</button>
                   </td>
               </tr>
             {% endfor %}
         {%else%}
           <tr id="trEmptyRow" class="odd empty">
-            <td colspan="8">No items to display.</td>
+            <td colspan="9">No items to display.</td>
           </tr>
         {%endif%}
     </tbody>
     <tfoot>
       <tr>
-        <td colspan="8">
+        <td colspan="9">
           <span class="table_count"></span>
         </td>
       </tr>

@@ -488,6 +488,12 @@ def config_detect(request):
     return vsmclient(request).configs.detect()
 
 
+def mgmt_partition_for_disk(request, body):
+    """ body = {'server_id':1,'disk_name':'/dev/vdb',
+    to_remove:[{'number':2}],to_add:[{}],to_format:[{'number':'1',new_format:"xfs"}]
+    }"""
+    return vsmclient(request).servers.mgmt_partition_for_disk(body=body)
+
 def rbd_group_create(request, body):
     '''
     :param request:

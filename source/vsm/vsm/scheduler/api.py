@@ -132,6 +132,15 @@ class API(object):
     def get_ceph_health_list(self, context, body=None):
         return self.scheduler_rpcapi.get_ceph_health_list(context, body)
 
+    def get_disks_by_server(self, context, body=None):
+        return self.scheduler_rpcapi.get_disks_by_server(context, body)
+
+    def get_parts_by_disk(self, context, body=None):
+        return self.scheduler_rpcapi.get_parts_by_disk(context, body)
+
+    def mgmt_partition_for_disk(self, context, body=None):
+        return self.scheduler_rpcapi.mgmt_partition_for_disk(context, body)
+
     def get_available_disks(self, context, body=None):
         return self.scheduler_rpcapi.get_available_disks(context, body)
 
@@ -146,7 +155,6 @@ class API(object):
 
     def check_pre_existing_cluster(self,context,body):
         return self.scheduler_rpcapi.check_pre_existing_cluster(context,body)
-
 
     def detect_crushmap(self,context,body):
         return self.scheduler_rpcapi.detect_crushmap(context,body)

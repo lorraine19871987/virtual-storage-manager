@@ -1932,6 +1932,28 @@ class SchedulerManager(manager.Manager):
         res = self._agent_rpcapi.get_disks_by_server(context,server['host'])
         return res
 
+    def mgmt_partition_for_disk(self, context, body):
+        error_message = []
+        error_code = []
+        info = []
+        server_id = body['server_id']
+        disk_name = body['disk_name']
+        server = db.init_node_get_by_id(context,id=server_id)
+        if server:
+            res = self._agent_rpcapi.mgmt_partition_for_disk(context,server['host'],body)
+            if len(res.get("error_code","")) == 0:
+                info.append("Modify partition table of disk %s  in server %s successfully!"%(disk_name,server_id))
+        else:
+            error_message.append("No such server!")
+            error_code = ['-1']
+        return {'message':{
+                        'error_msg':','.join(error_message),
+                        'info':','.join(info),
+                        'error_code':','.join(error_code),
+                        'new_parts':res.get("parts",[]),
+            }
+        }
+
     def get_parts_by_disk(self, context, body):
         server_id = body['server_id']
         server = db.init_node_get_by_id(context,id=server_id)

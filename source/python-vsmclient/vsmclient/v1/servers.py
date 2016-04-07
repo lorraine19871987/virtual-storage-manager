@@ -172,3 +172,11 @@ class ServerManager(base.ManagerWithFind):
         url = "/servers/get_parts_by_disk"
         ret = self.api.client.post(url, body=body)
         return ret
+
+    def mgmt_partition_for_disk(self, body=None):
+        """
+        mgmt_partition_for_disk
+        """
+        url = "/servers/mgmt_partition_for_disk"
+        ret = self.api.client.post(url, body=body)
+        return ret

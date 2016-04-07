@@ -23,7 +23,7 @@ from django.shortcuts import render
 import json
 LOG = logging.getLogger(__name__)
 
-
+FORMAT_TYPES = ['--','xfs','ext4']
 
 @csrf_exempt
 def mgmt_parts_views(request):
@@ -44,13 +44,14 @@ def mgmt_parts_views(request):
     print '333--',disk_condition
     resp,parts = vsmapi.get_parts_by_disk(request,disk_condition)
     context["parts"] = parts['parts']
+    context["format_types"] = FORMAT_TYPES
     print '4444--',parts
     return render(request,template,context)
 
 
 def mgmt_parts_action(request):
     """ body = {'server_id':1,'disk_name':'/dev/vdb',
-    parts_to_remove:[{}],parts_to_add:[{}],parts_to_format:[{'part_name':'/dev/vdb1',file_type:"xfs"}]
+    to_remove:[{'number':2}],to_add:[{}],to_format:[{'number':'1',new_format:"xfs"}]
     }"""
     body = json.loads(request.body)
     try:

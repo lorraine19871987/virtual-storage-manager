@@ -141,6 +141,7 @@ class APIRouter(vsm.api.openstack.APIRouter):
                                     "stop": "post",
                                     "get_disks_by_server": "post",
                                     "get_parts_by_disk": "post",
+                                    "mgmt_partition_for_disk":"post",
                                     "ceph_upgrade": "post"},
                         member={'action':'post'})
 

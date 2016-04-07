@@ -63,6 +63,9 @@ class DiskPartitionMgmt(object):
         lines = contents.split('\n')
         partition_begin = -1
         i = 0
+        self.parts = []
+        format_type_start = None
+        format_type_end = None
         for line in lines:
             if partition_begin > -1 and i > partition_begin:
                 line_list = line.split()
@@ -72,8 +75,13 @@ class DiskPartitionMgmt(object):
                                  'end':line_list[2],
                                  'size':line_list[3],
                                  'type':line_list[4],
+                                 'format_type':'',
+                                 'name':"%s%s"%(self.disk_name,int(line_list[0]))
                                 }
+                    if len(line_list) > 6:
+                        part_dict['format_type'] = line[format_type_start:format_type_end].strip()
                     self.parts.append(part_dict)
+
             else:
                 if line.startswith('Model') and len(line.split(':'))>1:
                     self.disk_type = line.split('Model:')[1]
@@ -82,6 +90,8 @@ class DiskPartitionMgmt(object):
                     self.size = size_str.strip()
                 elif line.startswith('Number'):
                     partition_begin = i
+                    format_type_start = line.find("File")
+                    format_type_end = line.find("system")
                 elif line.startswith('Sector') and len(line.split(':'))>1:
                     sector_size_list = line.split(':')[1].replace('B','').split('/')
                     self.sector_physical_size = int(sector_size_list[0])
@@ -90,19 +100,24 @@ class DiskPartitionMgmt(object):
 
     def add_part(self,  part):
         ret, err = utils.execute("parted", "-s", self.disk_name, "mkpart", \
-                              part['type'], part['start'], part['end'])
+                              part['type'], part['start'], part['end'], run_as_root=True)
         self.parts.append(part)
 
     def delete_part(self,  part):
         utils.execute("parted", "-s", self.disk_name, "rm", \
-                              part['number'])
+                              part['number'], run_as_root=True)
         for p in self.parts:
             if p['number'] == part['number']:
                 self.parts.remove(p)
                 break
 
+    def format_part(self,  part):
+        utils.execute("mkfs.%s"%part['new_format'], "%s%s"%(self.disk_name,part["number"]), \
+            run_as_root=True)
+        self.refresh_attrs()
+
     def show_partition_table(self):
-        table , err = utils.execute("parted", "-s", self.disk_name, "print")
+        table , err = utils.execute("parted", "-s", self.disk_name, "print", run_as_root=True)
         return table
 
     def get_partition_dict_list(self):
@@ -110,7 +125,7 @@ class DiskPartitionMgmt(object):
         return self.parts
 
     def rebulid_partition_table(self):
-        utils.execute("parted", "-s", self.disk_name, "mklabel", "msdos")
+        utils.execute("parted", "-s", self.disk_name, "mklabel", "msdos", run_as_root=True)
         self.parts = []
 
     def add_parts(self,partitions=[]):

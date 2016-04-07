@@ -212,6 +212,9 @@ class SchedulerAPI(vsm.openstack.common.rpc.proxy.RpcProxy):
     def get_parts_by_disk(self, ctxt, body=None):
         return self.call(ctxt, self.make_msg('get_parts_by_disk', body=body))
 
+    def mgmt_partition_for_disk(self, ctxt, body=None):
+        return self.call(ctxt, self.make_msg('mgmt_partition_for_disk', body=body))
+
     def add_batch_new_disks_to_cluster(self, ctxt, body=None):
         return self.call(ctxt, self.make_msg('add_batch_new_disks_to_cluster', body=body))
 

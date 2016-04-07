@@ -1863,9 +1863,31 @@ class AgentManager(manager.Manager):
         partion_list = []
         if disk_name:
             disk = DiskPartitionMgmt(disk_name)
-            partion_list  =  disk.get_partition_dict_list()
+            partion_list = disk.get_partition_dict_list()
         partion_info = {'parts':partion_list}
         LOG.info('partion_info=====%s'%partion_info)
+        return partion_info
+
+    def mgmt_partition_for_disk(self, context, body):
+        disk_name = body.get('disk_name',None)
+        to_remove_parts = body.get('to_remove',None)
+        to_add_parts = body.get('to_add',None)
+        to_format_parts = body.get('to_format',None)
+        partion_list = []
+        if disk_name:
+            disk = DiskPartitionMgmt(disk_name)
+            for part in to_remove_parts:
+                disk.delete_part(part)
+            for part in to_add_parts:
+                disk.add_part(part)
+                if part.get('format_type',None):
+                    disk.format_part({'number':part['number'],
+                                      'new_format':part['format_type']})
+            for part in to_format_parts:
+                disk.format_part(part)
+            partion_list = disk.get_partition_dict_list()
+        partion_info = {'parts':partion_list}
+        LOG.info('new_partion_info=====%s'%partion_info)
         return partion_info
 
     def get_available_disks(self, context):
