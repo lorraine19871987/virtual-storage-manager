@@ -16,7 +16,7 @@
 
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext_lazy as _
-
+from django.core import urlresolvers
 #from vsm_dashboard.dashboards.admin.instances.tables import \
 #        AdminUpdateRow
 
@@ -70,9 +70,15 @@ class RemovepoolsAction(tables.LinkAction):
 
 class PoolSnapshot(tables.LinkAction):
     name = "pool_mksnap"
-    verbose_name = _("Snap")
-    classes = ('btn-primary',)
-    url = "horizon:vsm:poolsmanagement:index"
+    verbose_name = _("Create Snapshot")
+    classes = ("ajax-modal",'btn-primary',)
+    url = "create_pool_snap_view/"
+
+    def get_link_url(self, datum):
+        pool_id =  self.table.get_object_id(datum)
+        url_str = "%s/%s"%(pool_id,self.url)
+        return url_str
+
 
 class RMPoolSnap(tables.LinkAction):
     name = "pool_rmsnap"

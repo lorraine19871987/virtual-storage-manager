@@ -92,3 +92,28 @@ class RemoveCacheTier(forms.SelfHandlingForm):
     def handle(self, request, data):
         pass
 
+class CreatePoolSnapshot(forms.SelfHandlingForm):
+    pool_id = forms.CharField(label=_("Pool ID"),
+                                  widget=forms.HiddenInput(),
+                                  required=False)
+    name = forms.CharField(max_length=255, label=_("Snapshot Name"))
+    def __init__(self, request, *args, **kwargs):
+        print 'form--11--',kwargs
+        print 'form--22--',args
+        super(CreatePoolSnapshot, self).__init__(request, *args, **kwargs)
+
+    def handle(self, request, data):
+        print 'form data---',data
+        pass
+        # try:
+        #     snapshot = api.nova.snapshot_create(request,
+        #                                         data['instance_id'],
+        #                                         data['name'])
+        #     # NOTE(gabriel): This API call is only to display a pretty name.
+        #     instance = api.nova.server_get(request, data['instance_id'])
+        #     vals = {"name": data['name'], "inst": instance.name}
+        #     messages.success(request, _('Snapshot "%(name)s" created for '
+        #                                 'instance "%(inst)s"') % vals)
+        #     return snapshot
+        # except Exception:
+        #     pass

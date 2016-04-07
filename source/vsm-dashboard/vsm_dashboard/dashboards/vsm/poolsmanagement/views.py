@@ -18,14 +18,14 @@ import logging
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import TemplateView
-
+from django.core import urlresolvers
 from horizon import exceptions
 from horizon import tables
 from horizon import forms
 
 from vsm_dashboard.api import vsm as vsmapi
 from .form import CreateErasureCodedPool
-from .form import RemoveCacheTier
+from .form import RemoveCacheTier,CreatePoolSnapshot
 from .tables import ListPoolTable
 
 from vsm_dashboard.api import vsm as vsmapi
@@ -214,3 +214,31 @@ def list_pools_for_sel_input(request):
         pool_list.append((pool['pool_id'],pool['name']))
     resp = json.dumps({"pool_list":pool_list})
     return HttpResponse(resp)
+
+class CreatPoolSnapshotView(forms.ModalFormView):
+    form_class = CreatePoolSnapshot
+    form_id = "create_snapshot_form"
+    modal_id = "create_snapshot_modal"
+    modal_header = _("Create An Pool SnapShot")
+    submit_label = _("Create Snap")
+    submit_url = reverse_lazy('horizon:vsm:poolsmanagement:create_pool_snap')
+    template_name = 'vsm/poolsmanagement/create_pool_snap.html'
+    success_url = reverse_lazy("horizon:vsm:poolsmanagement:index")
+    page_title = _("Create An Pool SnapShot")
+
+    def get_object(self):
+        try:
+            return self.kwargs["pool_id"]
+        except Exception:
+            pass
+
+    def get_initial(self):
+        print 'self.kwargs---',self.kwargs
+        return {"pool_id": self.kwargs["pool_id"]}
+
+    def get_context_data(self, **kwargs):
+        context = super(CreatPoolSnapshotView, self).get_context_data(**kwargs)
+        context['pool'] = self.get_object()
+        args = (self.kwargs['pool_id'],)
+        #context['submit_url'] = urlresolvers.reverse(self.submit_url, args=args)
+        return context
