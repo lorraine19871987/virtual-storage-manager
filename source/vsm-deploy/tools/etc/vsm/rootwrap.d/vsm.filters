@@ -130,3 +130,6 @@ umount: CommandFilter, /bin/umount, root
 dd: CommandFilter, /bin/dd, root
 rbd: CommandFilter, /usr/bin/rbd, root
 rbd_ls: CommandFilter, /usr/bin/rbd_ls, root
+#vsm/storage/disk_mgmt.py
+lsblk:CommandFilter, /usr/bin/lsblk,root
+parted:CommandFilter, /usr/sbin/parted,root
