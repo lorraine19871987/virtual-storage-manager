@@ -26,6 +26,7 @@ from .views import get_default_pg_number_storage_group,list_pools_for_sel_input
 urlpatterns = patterns('',
     url(r'^$', IndexView.as_view(), name='index'),
     url(r'^(?P<pool_id>[^/]+)/create_pool_snap_view/$', CreatPoolSnapshotView.as_view(), name='create_pool_snap_view'),
+    url(r'^(?P<pool_id>[^/]+)/remove_pool_snap_view/$', CreatPoolSnapshotView.as_view(), name='create_pool_snap_view'),
     url(r'^create/$', CreateView.as_view(), name='create'),
     url(r'^create_ec_pool/$', CreateErasureCodedPoolView.as_view(), name='create_ec_pool'),
     url(r'^add_cache_tier/$', AddCacheTierView.as_view(), name='add_cache_tier'),

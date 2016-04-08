@@ -83,8 +83,13 @@ class PoolSnapshot(tables.LinkAction):
 class RMPoolSnap(tables.LinkAction):
     name = "pool_rmsnap"
     verbose_name = _("Remove Snap")
-    classes = ('btn-primary',)
-    url = "horizon:vsm:poolsmanagement:index"
+    classes = ("ajax-modal",'btn-primary',)
+    url = "rmove_pool_snap_view/"
+
+    def get_link_url(self, datum):
+        pool_id =  self.table.get_object_id(datum)
+        url_str = "%s/%s"%(pool_id,self.url)
+        return url_str
 
 # class DeleteStoragePool(tables.DeleteAction):
 #     data_type_singular = _("Remove")
