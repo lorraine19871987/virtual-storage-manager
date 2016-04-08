@@ -2812,9 +2812,14 @@ class CephDriver(object):
                       "--image",values['image'],"--pool", values['pool'],  run_as_root=True)
         return (out, err)
 
-    def create_snapshot(self,values):
-        (out, err) = utils.execute("rbd", "snap" ,"create","%s/%s"%(values['pool'],values['image']),\
-                      "--snap", values['name'],  run_as_root=True)
+    def pool_snapshot_remove(self,values):
+        (out, err) = utils.execute("rados", "rmsnap" ,values['snap_name'],\
+                      "-p", values['pool_name'],  run_as_root=True)
+        return (out, err)
+
+    def pool_snapshot_create(self,values):
+        (out, err) = utils.execute("rados", "mksnap" ,values['snap_name'],\
+                      "-p", values['pool_name'],  run_as_root=True)
         return (out, err)
 
     def rollback_snapshot(self,values):
